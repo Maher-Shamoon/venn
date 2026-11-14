@@ -82,7 +82,7 @@ function Board({ rows }: { rows: Invg[] }) {
         return (
           <section key={k} role="listitem" aria-label={label} onDragOver={(e) => { e.preventDefault(); setOver(k) }} onDragLeave={() => setOver(null)} onDrop={(e) => { e.preventDefault(); setOver(null); move(e.dataTransfer.getData("text/plain"), k) }}
             className={cn("w-[290px] shrink-0 snap-start rounded-xl border-[0.8px] bg-muted/60 p-2 transition-colors", over === k ? "border-[#f472b6] bg-[#fdf2f8]" : "border-border")}>
-            <header className="flex items-baseline gap-2 px-2 pb-2 pt-1"><h3 className="text-sm">{label}</h3><span className="text-xs text-hushed">{col.length}</span><span className="ml-auto text-xs tabular-nums text-hushed">{usd(sum, 0)}</span></header>
+            <header className="flex items-baseline gap-2 px-2 pb-2 pt-1"><h2 className="text-sm">{label}</h2><span className="text-xs text-hushed">{col.length}</span><span className="ml-auto text-xs tabular-nums text-hushed">{usd(sum, 0)}</span></header>
             <div className="space-y-2">
               {col.map((g) => (
                 <div key={g.id} draggable onDragStart={(e) => e.dataTransfer.setData("text/plain", g.id)} className="group relative cursor-grab rounded-lg border-[0.8px] border-border bg-white p-3 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-22px_rgba(12,10,8,.5)] active:cursor-grabbing">

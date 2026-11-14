@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/venn/kit"
 
 export const NotFound = ({ what, back }: { what: string; back: string }) => (
-  <div className="mx-auto max-w-[520px] rounded-xl bg-muted p-10 text-center"><div className="text-2xl tracking-[-0.01em]">We could not find that {what}.</div><p className="mt-2 text-hushed">It may have been removed, or the link may be wrong.</p><Button className="mt-5" render={<Link to={back} />}>Go back</Button></div>
+  <div className="mx-auto max-w-[520px] rounded-xl bg-muted p-10 text-center"><h1 className="text-2xl tracking-[-0.01em]">We could not find that {what}.</h1><p className="mt-2 text-hushed">It may have been removed, or the link may be wrong.</p><Button className="mt-5" render={<Link to={back} />}>Go back</Button></div>
 )
 
 export function SystemPage({ code, title, text, actions }: { code: string; title: string; text: string; actions?: ReactNode }) {
