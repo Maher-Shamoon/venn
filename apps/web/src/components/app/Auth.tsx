@@ -77,7 +77,7 @@ function Card({ title, sub, children, foot, mode = "login" }: { title: string; s
       <Showcase mode={mode} />
       <div className="flex min-h-screen flex-col">
         <div className="flex h-24 items-end px-6 pb-4 lg:hidden" style={{ background: "linear-gradient(180deg,#f9a8d4,#fde3ef 70%,#fff)" }}><Link to="/"><Logo size={28} /></Link></div>
-        <div className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">
+        <main className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">
           <div className="w-full max-w-[420px]">
             <div className="animate-rise-in">
               <h1 className="text-[34px] leading-10 tracking-[-0.02em]">{title}</h1>{sub && <p className="mt-1.5 text-lg text-hushed">{sub}</p>}
@@ -85,7 +85,7 @@ function Card({ title, sub, children, foot, mode = "login" }: { title: string; s
             <div className="mt-8 animate-rise-in [animation-delay:90ms]">{children}</div>
             {foot && <div className="mt-6 animate-rise-in text-center text-sm text-hushed [animation-delay:160ms]">{foot}</div>}
           </div>
-        </div>
+        </main>
         <p className="px-6 pb-6 text-center text-xs text-hushed">Your data is isolated per organization.</p>
       </div>
     </div>

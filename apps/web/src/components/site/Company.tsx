@@ -17,13 +17,13 @@ const Hero = ({ tag, lead, rest, children }: { tag: string; lead: string; rest: 
 export function About() {
   const principles: [string, string][] = [["Evidence first", "Every finding points to a stored record. If a record does not exist, venn says so."], ["A person decides", "venn proposes. Owners approve write-offs, credits and refunds. The system cannot approve, allocate or send on its own."], ["Calculated, not guessed", "Amounts and dates come from code that reads your records. The assistant explains. It never does the arithmetic."], ["No promises about recovery", "venn finds and explains what is open. It does not claim it will collect anything."]]
   return (
-    <>
+    <main>
       <Hero tag="About" lead="We help teams that bill for their time" rest="find the money that slipped between systems." />
       <section className={`${wrap} pb-20 md:pb-28`}>
         <Reveal><p className="max-w-[760px] text-xl text-hushed">Agencies, consultancies, managed service providers and staffing firms send invoices from one system, receive payments in another and chase customers by email. venn reads all three, finds where they disagree and gives your team a case file to resolve each gap.</p></Reveal>
         <div className="mt-12 grid gap-3 md:grid-cols-2">{principles.map(([t, d], i) => <Reveal key={t} delay={i * 80}><div className="h-full rounded-xl border-[0.8px] border-border bg-muted p-7 transition-all duration-500 hover:-translate-y-1 hover:bg-lime"><h2 className="text-2xl">{t}</h2><p className="mt-2 text-base text-hushed">{d}</p></div></Reveal>)}</div>
       </section>
-    </>
+    </main>
   )
 }
 
@@ -38,7 +38,7 @@ export function Contact() {
   }
   const lbl = "mb-1.5 block text-sm"
   return (
-    <>
+    <main>
       <Hero tag="Contact" lead="Book a walkthrough" rest="using your own CSV exports." />
       <section className={`${wrap} pb-24`}>
         <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr]">
@@ -59,15 +59,15 @@ export function Contact() {
           </Reveal>
         </div>
       </section>
-    </>
+    </main>
   )
 }
 
 const Legal = ({ title, sections }: { title: string; sections: [string, string][] }) => (
-  <>
+  <main>
     <Hero tag="Draft · pending legal review" lead={title} rest="" />
     <section className={`${wrap} pb-24`}><div className="max-w-[760px] space-y-8">{sections.map(([h, t], i) => <Reveal key={h}><h2 className="text-2xl">{i + 1}. {h}</h2><p className="mt-2 text-base text-hushed">{t}</p></Reveal>)}</div></section>
-  </>
+  </main>
 )
 export const Privacy = () => <Legal title="Privacy policy" sections={[["What we collect", "Account details you give us, and the invoice, payment and email data you choose to connect."], ["How we use it", "To reconcile payments, build case files and draft messages for your team. We do not sell your data."], ["Email access", "Connections are read-only unless you approve a send. venn never deletes or edits mail."], ["Your controls", "Export or delete your data at any time from Settings. Owners can request organization deletion."], ["Contact", "Questions about privacy can be sent through the contact page."]]} />
 export const Terms = () => <Legal title="Terms of service" sections={[["Using venn", "venn helps you find and explain payment discrepancies. Your accounting system remains the book of record."], ["No movement of money", "venn recommends and records. It does not send, refund or collect payments."], ["Your responsibilities", "You decide what to approve and send. Keep your credentials secure."], ["No guarantees", "venn does not promise recovery of any amount."], ["Changes", "We will tell you before material changes to these terms."]]} />
