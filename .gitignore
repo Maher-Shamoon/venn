@@ -1,0 +1,10 @@
+node_modules/
+dist/
+graphify-out/
+.claude/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+coverage/
