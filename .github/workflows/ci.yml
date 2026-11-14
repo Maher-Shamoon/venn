@@ -21,7 +21,32 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - name: API types are up to date
+        run: |
+          npm run api:types
+          git diff --exit-code -- src/types/api.d.ts
       - run: npm audit --audit-level=high --omit=dev
+
+  e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: apps/web/test-results
 
   api:
     runs-on: ubuntu-latest
@@ -47,6 +72,10 @@ jobs:
       - run: uv run ruff check .
       - run: uv run mypy app
       - run: uv run pytest
+      - name: OpenAPI document is up to date
+        run: |
+          PYTHONPATH=. uv run python scripts/dump_openapi.py ../../apps/web/src/types/openapi.json
+          git diff --exit-code -- ../../apps/web/src/types/openapi.json
       - run: uvx pip-audit --skip-editable -r <(uv export --frozen --no-dev --no-hashes --no-emit-project) || true
 
   secrets:
