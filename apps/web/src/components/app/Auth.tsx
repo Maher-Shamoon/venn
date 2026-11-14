@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Balatro from "@/components/Balatro"
 import { Logo, Odometer, money, useTicker } from "@/components/venn/kit"
+import { config } from "@/config"
+import { AuthError, completeReset, hasPendingReset, register, requestReset, verify } from "@/auth/localAuth"
 import { A, useApp, type Role } from "./store"
 import { Field, NativeSelect } from "./ui"
 import { cn } from "@/lib/utils"
@@ -105,14 +107,15 @@ const Submit = ({ busy, children }: { busy: boolean; children: ReactNode }) => <
 
 export function Login() {
   const s = useApp(), nav = useNavigate(), from = (useLocation().state as { from?: string } | null)?.from
-  const [f, setF] = useState({ email: "", password: "" }), [err, setErr] = useState(""), [tries, setTries] = useState(0), [busy, setBusy] = useState(false)
+  const [f, setF] = useState({ email: "", password: "" }), [err, setErr] = useState(""), [busy, setBusy] = useState(false)
   if (s.session && !busy) return <Navigate to="/app" replace />
   const go = (name: string, mail: string) => { setBusy(true); setTimeout(() => { A.signIn(name, mail); nav(s.onboarded ? from ?? "/app" : "/onboarding/organization") }, 650) }
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault()
-    if (tries >= 5) return setErr("Too many attempts. Try again in a few minutes.")
-    if (!email(f.email) || f.password.length < 8) { setTries(tries + 1); return setErr("The email or password is incorrect.") }
-    setErr(""); go(f.email.split("@")[0].replace(/\W+/g, " "), f.email)
+    if (!email(f.email) || !f.password) return setErr("Enter your email and password.")
+    setBusy(true)
+    try { const u = await verify(f.email, f.password); setErr(""); go(u.name, u.email) }
+    catch (x) { setBusy(false); setErr(x instanceof AuthError ? x.message : "Something went wrong. Try again.") }
   }
   return (
     <Card mode="login" title="Sign in" sub="Welcome back." foot={<>New to venn? <Link to="/signup" className="text-foreground underline underline-offset-4">Create an account</Link></>}>
@@ -140,7 +143,8 @@ export function Signup() {
     if (!email(f.email)) return setErr("Enter a valid work email address.")
     if (st < 3 || f.password.length < 10) return setErr("Choose a stronger password.")
     if (!f.terms) return setErr("Accept the terms to continue.")
-    setErr(""); setBusy(true); setTimeout(() => { A.startFresh(f.name, f.email); nav("/verify-email") }, 650)
+    setErr(""); setBusy(true)
+    register(f.name.trim(), f.email, f.password).then((u) => { A.startFresh(u.name, u.email); nav("/verify-email") }, (x) => { setBusy(false); setErr(x instanceof AuthError ? x.message : "Something went wrong. Try again.") })
   }
   return (
     <Card mode="signup" title="Create your account" sub="Start free. No card needed." foot={<>Already have an account? <Link to="/login" className="text-foreground underline underline-offset-4">Sign in</Link></>}>
@@ -175,8 +179,8 @@ export function Forgot() {
   const [mail, setMail] = useState(""), [done, setDone] = useState(false), [err, setErr] = useState("")
   return (
     <Card title="Reset your password" sub="We will email you a link." foot={<Link to="/login" className="text-foreground underline underline-offset-4">Back to sign in</Link>}>
-      {done ? <p role="status" className="rounded-lg bg-[#e3f6e6] p-4 text-sm text-[#17692b]">If an account exists for that address, a reset link is on its way.</p> : (
-        <form onSubmit={(e) => { e.preventDefault(); if (email(mail)) setDone(true); else setErr("Enter a valid email address.") }} className="space-y-4" noValidate>
+      {done ? <div className="space-y-3"><p role="status" className="rounded-lg bg-[#e3f6e6] p-4 text-sm text-[#17692b]">If an account exists for that address, a reset link is on its way.</p>{config.dataSource === "local" && <Button variant="outline" className="w-full" render={<Link to="/reset-password" />}>Open the reset link</Button>}</div> : (
+        <form onSubmit={(e) => { e.preventDefault(); if (email(mail)) { requestReset(mail); setDone(true) } else setErr("Enter a valid email address.") }} className="space-y-4" noValidate>
           <Field label="Work email"><Input type="email" value={mail} onChange={(e) => setMail(e.target.value)} /></Field>{err && <p role="alert" className="text-sm text-destructive">{err}</p>}<Button type="submit" className="w-full">Send reset link</Button>
         </form>)}
     </Card>
@@ -185,9 +189,10 @@ export function Forgot() {
 export function Reset() {
   const nav = useNavigate()
   const [p, setP] = useState({ a: "", b: "" }), [err, setErr] = useState("")
+  if (!hasPendingReset()) return <Card title="This reset link is not valid" sub="It may have expired or already been used."><Button className="w-full" render={<Link to="/forgot-password" />}>Request a new link</Button></Card>
   return (
     <Card title="Choose a new password">
-      <form onSubmit={(e) => { e.preventDefault(); if (strength(p.a) < 3 || p.a.length < 10) return setErr("Choose a stronger password."); if (p.a !== p.b) return setErr("The passwords do not match."); nav("/login") }} className="space-y-4" noValidate>
+      <form onSubmit={(e) => { e.preventDefault(); if (strength(p.a) < 3 || p.a.length < 10) return setErr("Choose a stronger password."); if (p.a !== p.b) return setErr("The passwords do not match."); completeReset(p.a).then(() => nav("/login"), (x) => setErr(x instanceof AuthError ? x.message : "Something went wrong. Try again.")) }} className="space-y-4" noValidate>
         <Field label="New password"><Input type="password" autoComplete="new-password" value={p.a} onChange={(e) => setP({ ...p, a: e.target.value })} /></Field><Field label="Confirm password"><Input type="password" autoComplete="new-password" value={p.b} onChange={(e) => setP({ ...p, b: e.target.value })} /></Field>
         {err && <p role="alert" className="text-sm text-destructive">{err}</p>}<Button type="submit" className="w-full">Update password</Button>
       </form>
