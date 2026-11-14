@@ -99,6 +99,9 @@
 
 @layer base {
   * { @apply border-border outline-ring/50; }
+  /* Keyboard focus: a dark ring with a white halo reads on both light and dark surfaces. */
+  :where(a, button, summary, [role="tab"], [role="button"], [tabindex]):focus-visible,
+  :where(input, select, textarea):focus-visible { outline: 2px solid #1a1919; outline-offset: 2px; box-shadow: 0 0 0 2px #fff; }
   html { @apply font-sans; scroll-behavior: smooth; }
   body {
     @apply bg-background text-foreground antialiased;
