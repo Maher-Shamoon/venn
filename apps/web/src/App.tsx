@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from "react"
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { A, useApp } from "@/components/app/store"
+import { ErrorBoundary } from "@/components/app/ErrorBoundary"
 
 const AppShell = lazy(() => import("@/components/app/Shell").then((m) => ({ default: m.AppShell })))
 const Forgot = lazy(() => import("@/components/app/Auth").then((m) => ({ default: m.Forgot })))
@@ -71,6 +72,7 @@ function Guard({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <ErrorBoundary>
       <Suspense fallback={<div className="h-1 w-full animate-pulse bg-[#f9a8d4]" role="status" aria-label="Loading" />}>
       <Routes>
         <Route element={<SiteLayout />}>
@@ -137,6 +139,7 @@ export default function App() {
         <Route path="*" element={<Page404 />} />
       </Routes>
       </Suspense>
+      </ErrorBoundary>
     </BrowserRouter>
   )
 }
