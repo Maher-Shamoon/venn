@@ -9,6 +9,7 @@ import { Logo } from "@/components/venn/kit"
 import { cn } from "@/lib/utils"
 import { A, balOf, useApp, usd, type Role } from "./store"
 import { Loading } from "./ui"
+import { SkipLink } from "@/components/venn/SkipLink"
 
 export type { Role }
 export const useRole = () => useOutletContext<{ role: Role }>().role
@@ -69,6 +70,7 @@ export function AppShell() {
   const initials = (s.session?.name ?? me).split(" ").map((x) => x[0]).slice(0, 2).join("").toUpperCase()
   return (
     <div className="min-h-screen bg-white lg:grid lg:grid-cols-[248px_1fr]">
+      <SkipLink />
       <div className="flex h-10 items-center bg-[#1a1919] px-4 text-xs text-white lg:col-span-2">
         <Link to="/" className="font-medium hover:underline">← venn.com</Link>
         <span className="ml-auto flex items-center gap-2">view as
