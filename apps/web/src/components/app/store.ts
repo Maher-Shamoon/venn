@@ -227,7 +227,7 @@ export const A = {
       else if (g.inv && ["Short payment", "Manual investigation"].includes(g.type)) { const i2 = d.invoices.find((x) => x.id === g.inv); if (i2) g.exposure = balOf(d, i2) }
       g.version += 1; g.timeline.push({ at: NOW, by: "venn", text: `Analysis v${g.version} completed. Records unchanged.` }); log(d, `Re-ran analysis on ${id}`, id, "investigations")
     })
-    note.startsWith("Still") ? toast.error(note) : toast.success(note)
+    if (note.startsWith("Still")) toast.error(note); else toast.success(note)
   },
   actOnInvg(id: string) {
     mut((d) => {
