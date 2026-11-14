@@ -210,6 +210,8 @@ export function Invite() {
 
 /* ----------------------------------------------------------------- onboarding */
 const STEPS = [["organization", "Organization", false], ["sources", "Financial sources", true], ["email", "Email", true], ["import", "Import", true], ["team", "Team", true], ["preferences", "Preferences", true]] as const
+const Opt = ({ name, desc, on, set, tag }: { id?: string; name: string; desc: string; on: boolean; set: () => void; tag?: string }) => <button type="button" aria-pressed={on} onClick={set} className={cn("flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors", on ? "border-foreground bg-lime/30" : "border-border hover:bg-muted/60")}><span className={cn("mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border", on ? "border-foreground bg-foreground text-white" : "border-gray-medium")}>{on && <Check className="size-3" />}</span><span className="flex-1"><span className="block">{name} {tag && <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs text-hushed">{tag}</span>}</span><span className="block text-sm text-hushed">{desc}</span></span></button>
+
 export function Onboarding() {
   const { step = "organization" } = useParams(), nav = useNavigate(), s = useApp()
   const idx = Math.max(0, STEPS.findIndex(([k]) => k === step))
@@ -225,7 +227,6 @@ export function Onboarding() {
     next()
   }
   const [, label, skip] = STEPS[idx]
-  const Opt = ({ id, name, desc, on, set, tag }: { id: string; name: string; desc: string; on: boolean; set: () => void; tag?: string }) => <button type="button" aria-pressed={on} onClick={set} key={id} className={cn("flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors", on ? "border-foreground bg-lime/30" : "border-border hover:bg-muted/60")}><span className={cn("mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border", on ? "border-foreground bg-foreground text-white" : "border-gray-medium")}>{on && <Check className="size-3" />}</span><span className="flex-1"><span className="block">{name} {tag && <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs text-hushed">{tag}</span>}</span><span className="block text-sm text-hushed">{desc}</span></span></button>
   return (
     <div className="min-h-screen bg-white lg:grid lg:grid-cols-[320px_1fr]">
       <aside className="border-b border-border bg-muted p-6 lg:border-b-0 lg:border-r lg:p-8">
