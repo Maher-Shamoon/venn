@@ -176,7 +176,7 @@ export function Forgot() {
   return (
     <Card title="Reset your password" sub="We will email you a link." foot={<Link to="/login" className="text-foreground underline underline-offset-4">Back to sign in</Link>}>
       {done ? <p role="status" className="rounded-lg bg-[#e3f6e6] p-4 text-sm text-[#17692b]">If an account exists for that address, a reset link is on its way.</p> : (
-        <form onSubmit={(e) => { e.preventDefault(); email(mail) ? setDone(true) : setErr("Enter a valid email address.") }} className="space-y-4" noValidate>
+        <form onSubmit={(e) => { e.preventDefault(); if (email(mail)) setDone(true); else setErr("Enter a valid email address.") }} className="space-y-4" noValidate>
           <Field label="Work email"><Input type="email" value={mail} onChange={(e) => setMail(e.target.value)} /></Field>{err && <p role="alert" className="text-sm text-destructive">{err}</p>}<Button type="submit" className="w-full">Send reset link</Button>
         </form>)}
     </Card>

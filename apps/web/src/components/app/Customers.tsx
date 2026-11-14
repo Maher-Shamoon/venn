@@ -23,7 +23,8 @@ function CustomerForm({ c, onDone }: { c?: Customer; onDone: () => void }) {
     if (!f.name.trim()) return setErr("Customer name is required.")
     if (f.email && !/^\S+@\S+\.\S+$/.test(f.email)) return setErr("Enter a valid email address.")
     const body = { name: f.name.trim(), contact: f.contact, email: f.email, terms: Number(f.terms) || 30, city: f.city, aliases: f.aliases.split(",").map((x) => x.trim()).filter(Boolean), notes: f.notes }
-    c ? A.updateCustomer(c.id, body) : A.addCustomer(body); onDone()
+    if (c) A.updateCustomer(c.id, body); else A.addCustomer(body)
+    onDone()
   }
   return (
     <div className="mt-4 space-y-3">

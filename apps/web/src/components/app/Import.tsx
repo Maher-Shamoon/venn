@@ -76,7 +76,8 @@ export function ImportWizard({ kind }: { kind: Kind }) {
     return () => clearInterval(t)
   }, [step])
   useEffect(() => {
-    if (step === 3 && prog >= 100) { kind === "invoices" ? A.importInvoices(ok.map((o) => o.inv!)) : A.importPayments(ok.map((o) => o.pay!)); setStep(4) }
+    if (step === 3 && prog >= 100) { if (kind === "invoices") A.importInvoices(ok.map((o) => o.inv!)); else A.importPayments(ok.map((o) => o.pay!))
+      setStep(4) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prog, step])
   const errCsv = () => download("rows-with-problems.csv", toCsv([[...head, "Problem"], ...out.filter((o) => o.status === "error" || o.status === "duplicate").map((o) => [...o.raw, o.msg])]))
