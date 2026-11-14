@@ -1,0 +1,151 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter-tight";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* venn design tokens, derived from a measured analysis of ramp.com (see docs/design/RAMP_ANALYSIS.md):
+   warm near-black text, warm greys, one neon accent, 12px bento radii, hairline borders, 0.3s ease. */
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: 'Inter Tight Variable', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-lime: var(--lime);
+  --color-lime-light: var(--lime-light);
+  --color-forest: var(--forest);
+  --color-gray-light: var(--gray-light);
+  --color-gray-medium: var(--gray-medium);
+  --color-gray-dark: var(--gray-dark);
+  --color-spring: var(--spring);
+  --color-spring-light: var(--spring-light);
+  --color-blaze: var(--blaze);
+  --color-hushed: var(--hushed);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-ramp: cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-float-slow: float 10s ease-in-out infinite;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-dash: dash 1.6s linear infinite;
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+  --animate-roll-in: roll-in 1.1s cubic-bezier(.45, .05, .55, .95) both;
+  --animate-roll-out: roll-out 1.1s cubic-bezier(.45, .05, .55, .95) both;
+  --animate-marquee-fast: marquee 32s linear infinite;
+  --animate-fill: fill 2.4s linear both;
+  --animate-click: click .5s ease both;
+  --animate-marquee-rev: marquee-rev 90s linear infinite;
+  --animate-rise-in: rise-in .5s var(--ease-out-soft) both;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0c0a08;
+  --card: #ffffff;
+  --card-foreground: #0c0a08;
+  --popover: #ffffff;
+  --popover-foreground: #0c0a08;
+  --primary: #1a1919;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f2f0;
+  --secondary-foreground: #0c0a08;
+  --muted: #f4f2f0;
+  --muted-foreground: #6e6a68;
+  --accent: #f4f2f0;
+  --accent-foreground: #0c0a08;
+  --destructive: #c2410c;
+  --border: rgba(33, 33, 33, 0.1);
+  --input: rgba(33, 33, 33, 0.14);
+  --ring: #1a1919;
+  --radius: 12px;
+  --bar: 40px; /* height of the pinned announcement bar; 0 when dismissed */
+  /* accent: primary fill #f9a8d4, hover fill #f472b6 (token names kept from the earlier lime accent) */
+  --lime: #f9a8d4;
+  --lime-light: #f472b6;
+  --forest: #17332d;
+  --gray-light: #f4f2f0;
+  --gray-medium: #d2cecb;
+  --gray-dark: #6e6a68;
+  --spring: #5683d2;
+  --spring-light: #e4ebf6;
+  --blaze: #e96516;
+  --hushed: rgba(12, 10, 8, 0.6);
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  html { @apply font-sans; scroll-behavior: smooth; }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-size: 16px;
+    line-height: 24px;
+    font-feature-settings: "ss01", "cv11";
+  }
+  h1, h2, h3, h4 { font-weight: 400; text-wrap: balance; }
+  button, a, [role="tab"], [role="button"] { cursor: pointer; }
+}
+
+@keyframes float { 0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); } 50% { transform: translate3d(0, -10px, 0) rotate(var(--r, 0deg)); } }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@keyframes dash { to { stroke-dashoffset: -24; } }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(.8); } }
+/* odometer: the new digit rises from below and pushes the old one up and out */
+@keyframes roll-in { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes roll-out { from { transform: none; } to { transform: translateY(-105%); } }
+@keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes click { 0% { transform: scale(1); } 40% { transform: scale(.8); } 100% { transform: scale(1); } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* scroll reveal: opacity + 24px rise, eased out. Applied by <Reveal>. */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s var(--ease-out-soft), transform .8s var(--ease-out-soft); transition-delay: var(--d, 0ms); }
+.reveal.is-in { opacity: 1; transform: none; }
+
+.dotgrid { background-image: radial-gradient(rgba(33, 33, 33, .2) 1px, transparent 1px); background-size: 16px 16px; }
+.grain { background-image: repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 1px, transparent 1px 7px); }
+
+/* arrow button on bento cards: arrow slides out and back in on hover (ramp: platform-card-arrow-out) */
+.card-arrow svg { transition: transform .35s var(--ease-ramp); }
+.group:hover .card-arrow svg { animation: arrow-out .5s var(--ease-ramp); }
+@keyframes arrow-out { 0% { transform: translate(0,0); } 45% { transform: translate(14px,-14px); opacity: 0; } 46% { transform: translate(-14px,14px); opacity: 0; } 100% { transform: translate(0,0); opacity: 1; } }
+
+.tick { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+@keyframes orbit { to { transform: rotate(360deg); } }
+@keyframes orbit-rev { to { transform: rotate(-360deg); } }
+
+@keyframes marquee-rev { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+
+.voices:hover .vrow, .voices:focus-within .vrow { animation-play-state: paused !important; }
+.voices figure { transition-property: transform, border-color, box-shadow, opacity; }
+.voices:hover figure, .voices:focus-within figure { opacity: .5; }
+.voices figure:hover, .voices figure:focus-visible { opacity: 1; }
