@@ -84,3 +84,9 @@ The `/app` area is now a working frontend with local state (saved in the browser
 ## Revision 6: module specifications and delivery plan
 - `docs/modules/`: the frontend divided into 21 modules, each with scope, use cases, FRs (with prototype status), NFRs, test cases, backend contract and gaps. Totals: 147 use cases, 202 FRs, 181 test cases, 14 global NFRs.
 - `docs/planning/MODULE_DELIVERY_PLAN.md`: stages A–J with checkpoints and approval gates, decisions P3-D1…D7. **Awaiting owner approval; no build work started.**
+
+## Revision 7: Stage A (foundation) complete, awaiting Gate A approval
+- Backend skeleton `services/api` (FastAPI, SQLAlchemy, Alembic, problem+json, request ids), Docker Compose file, CI with API, web, Playwright and secret-scan jobs, OpenAPI-to-TypeScript generation with drift checks, frontend data layer (TanStack Query, money helpers, MSW, URL-synced tables, API error toasts).
+- Evidence: `docs/testing/checkpoints/STAGE-A-foundation.md`. CI green on all four jobs.
+- Blocked: Docker is not installed locally, so `docker compose up` is unverified here.
+- Next: Stage B (identity, tenancy, audit) after approval. It needs a Supabase project from you.
