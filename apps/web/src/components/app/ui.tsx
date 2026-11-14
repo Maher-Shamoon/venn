@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { cn } from "@/lib/utils"
 import type { Tone } from "./store"
 import { RANGES, useRange } from "./ranges"
+import type { TableControl } from "@/lib/tableState"
 
 export type { Tone }
 export const COLORS = { pink: "#f9a8d4", deep: "#f472b6", ink: "#1a1919", grey: "#d2cecb", blue: "#5683d2", orange: "#e96516", green: "#2f9e44", amber: "#e0b13a" }
@@ -100,24 +101,30 @@ export function Drawer({ open, onOpenChange, title, desc, children }: { open: bo
 }
 
 export type Column<T> = { key: string; label: string; render: (r: T) => ReactNode; sort?: (r: T) => string | number; right?: boolean; hide?: "md" | "lg"; cls?: string }
-export function DataTable<T>({ rows, cols, id, onRow, search, pageSize = 10, empty, toolbar, defaultSort }: { rows: T[]; cols: Column<T>[]; id: (r: T) => string; onRow?: (r: T) => void; search?: (r: T) => string; pageSize?: number; empty?: ReactNode; toolbar?: ReactNode; defaultSort?: [string, 1 | -1] }) {
-  const [q, setQ] = useState("")
-  const [sort, setSort] = useState<[string, 1 | -1] | null>(defaultSort ?? null)
-  const [page, setPage] = useState(0)
+export function DataTable<T>({ rows, cols, id, onRow, search, pageSize = 10, empty, toolbar, defaultSort, ctl, loading }: { rows: T[]; cols: Column<T>[]; id: (r: T) => string; onRow?: (r: T) => void; search?: (r: T) => string; pageSize?: number; empty?: ReactNode; toolbar?: ReactNode; defaultSort?: [string, 1 | -1]; ctl?: TableControl; loading?: boolean }) {
+  // Local state by default; pass `ctl` (see useUrlTable) to keep the view in the URL, and `ctl.total` for server pages.
+  const [lq, setLq] = useState(""), [ls, setLs] = useState<[string, 1 | -1] | null>(defaultSort ?? null), [lp, setLp] = useState(0)
+  const q = ctl ? ctl.q : lq, sort = ctl ? ctl.sort : ls, page = ctl ? ctl.page : lp
+  const setQ = (v: string) => (ctl ? ctl.onChange({ q: v }) : setLq(v))
+  const setSort = (v: [string, 1 | -1] | null) => (ctl ? ctl.onChange({ sort: v }) : setLs(v))
+  const setPage = (v: number) => (ctl ? ctl.onChange({ page: v }) : setLp(v))
+  const server = ctl?.total !== undefined
   const view = useMemo(() => {
+    if (server) return rows
     let r = rows
     if (q && search) r = r.filter((x) => search(x).toLowerCase().includes(q.toLowerCase()))
     const c = sort && cols.find((x) => x.key === sort[0])
     if (c?.sort) { const f = c.sort, d = sort![1]; r = [...r].sort((a, b) => (f(a) > f(b) ? d : f(a) < f(b) ? -d : 0)) }
     return r
-  }, [rows, q, sort, cols, search])
-  const pages = Math.max(1, Math.ceil(view.length / pageSize)), pg = Math.min(page, pages - 1), slice = view.slice(pg * pageSize, pg * pageSize + pageSize)
+  }, [rows, q, sort, cols, search, server])
+  const total = server ? ctl.total! : view.length
+  const pages = Math.max(1, Math.ceil(total / pageSize)), pg = Math.min(page, pages - 1), slice = server ? view : view.slice(pg * pageSize, pg * pageSize + pageSize)
   const hide = (c: Column<T>) => (c.hide === "md" ? "hidden md:table-cell" : c.hide === "lg" ? "hidden lg:table-cell" : "")
   return (
     <div>
       {(search || toolbar) && (
         <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
-          {search && <div className="relative min-w-[200px] flex-1 sm:max-w-[320px]"><Search className="absolute left-2.5 top-2.5 size-4 text-hushed" /><Input aria-label="Search table" value={q} onChange={(e) => { setQ(e.target.value); setPage(0) }} placeholder="Search" className="h-9 pl-8" /></div>}
+          {search && <div className="relative min-w-[200px] flex-1 sm:max-w-[320px]"><Search className="absolute left-2.5 top-2.5 size-4 text-hushed" /><Input aria-label="Search table" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" className="h-9 pl-8" /></div>}
           <div className="ml-auto flex flex-wrap items-center gap-2">{toolbar}</div>
         </div>
       )}
@@ -133,10 +140,11 @@ export function DataTable<T>({ rows, cols, id, onRow, search, pageSize = 10, emp
             </tr>))}</tbody>
         </table>
       </div>
-      {!view.length && (empty ?? <Empty title="Nothing here" sub={q ? "No rows match your search." : undefined} />)}
-      {view.length > pageSize && (
+      {loading && <div role="status" aria-busy="true" aria-label="Loading rows" className="space-y-2 p-4">{[0, 1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-9 w-full" />)}</div>}
+      {!loading && !view.length && (empty ?? <Empty title="Nothing here" sub={q ? "No rows match your search." : undefined} />)}
+      {total > pageSize && (
         <div className="flex items-center justify-between border-t border-border px-4 py-2.5 text-sm text-hushed">
-          <span>{pg * pageSize + 1}–{Math.min(view.length, pg * pageSize + pageSize)} of {view.length}</span>
+          <span>{pg * pageSize + 1}–{Math.min(total, pg * pageSize + pageSize)} of {total}</span>
           <span className="flex gap-1"><Button variant="outline" size="icon" aria-label="Previous page" disabled={pg === 0} onClick={() => setPage(pg - 1)}><ChevronLeft className="size-4" /></Button><Button variant="outline" size="icon" aria-label="Next page" disabled={pg >= pages - 1} onClick={() => setPage(pg + 1)}><ChevronRight className="size-4" /></Button></span>
         </div>
       )}
