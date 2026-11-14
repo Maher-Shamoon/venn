@@ -220,7 +220,7 @@ const Opt = ({ name, desc, on, set, tag }: { id?: string; name: string; desc: st
 export function Onboarding() {
   const { step = "organization" } = useParams(), nav = useNavigate(), s = useApp()
   const idx = Math.max(0, STEPS.findIndex(([k]) => k === step))
-  const [org, setOrg] = useState({ name: s.settings.company.name, industry: "Software agency", size: "11 to 50", country: "United States", currency: "USD", website: "" })
+  const [org, setOrg] = useState({ name: s.settings.company.name === "Your workspace" ? "" : s.settings.company.name, industry: "Software agency", size: "11 to 50", country: "United States", currency: "USD", website: "" })
   const [rows, setRows] = useState<{ email: string; role: Role }[]>([{ email: "", role: "ar" }])
   const [prefs, setPrefs] = useState({ tz: "America/Chicago", terms: 30, auto: true })
   const [src, setSrc] = useState<string[]>(["csv"]), [mail, setMail] = useState<string | null>(null), [err, setErr] = useState("")
