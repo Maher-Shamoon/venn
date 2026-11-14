@@ -60,7 +60,7 @@ export function AppShell() {
   const groups = GROUPS.map(([g, items]) => [g, items.filter((i) => role === "owner" || !i.ownerOnly)] as [string, Item[]]).filter(([, i]) => i.length)
   const unread = s.notifs.filter((n) => !n.read).length
   const link = ({ isActive }: { isActive: boolean }) => cn("flex items-center gap-3 rounded-md border border-transparent px-3 py-2 text-sm transition-colors duration-[240ms]", isActive ? "border-border bg-white text-foreground shadow-sm" : "text-hushed hover:bg-black/[.04] hover:text-foreground")
-  const Nav = () => (
+  const navEl = (
     <nav aria-label="App" className="space-y-5">{groups.map(([g, items]) => (
       <div key={g || "top"}>{g && <div className="mb-1 px-3 font-mono text-[10.5px] uppercase tracking-[0.02em] text-hushed">{g}</div>}
         <div className="space-y-0.5">{items.map(({ to, end, icon: Icon, label, ar }) => { const c = counts[to]; return <NavLink key={to} to={to} end={end} className={link}><Icon className="size-4" />{role === "ar" && ar ? ar : label}{c ? <span className="ml-auto rounded-full bg-lime px-1.5 text-[11px] leading-5 text-foreground">{c}</span> : null}</NavLink> })}</div>
@@ -79,7 +79,7 @@ export function AppShell() {
       </div>
       <aside className="hidden max-h-[calc(100vh-40px)] overflow-y-auto border-r border-border bg-muted p-4 [scrollbar-width:none] lg:sticky lg:top-0 lg:block lg:self-start">
         <Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link>
-        <Nav />
+        {navEl}
         <div className="mt-8 rounded-lg border border-border bg-white p-3 text-xs text-hushed"><div className="text-sm text-foreground">{s.settings.company.name}</div>{role === "owner" ? "Owner" : "AR specialist"} · {me}</div>
       </aside>
       <div className="min-w-0">
@@ -105,7 +105,7 @@ export function AppShell() {
         <main className="mx-auto max-w-[1180px] px-4 py-8 md:px-8 md:py-10"><Loading key={loc.pathname} path={loc.pathname}><Outlet context={{ role }} /></Loading></main>
       </div>
 
-      <Sheet open={menu} onOpenChange={setMenu}><SheetContent side="left" className="w-[280px] overflow-y-auto bg-muted p-4"><SheetTitle className="sr-only">Menu</SheetTitle><Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link><Nav /></SheetContent></Sheet>
+      <Sheet open={menu} onOpenChange={setMenu}><SheetContent side="left" className="w-[280px] overflow-y-auto bg-muted p-4"><SheetTitle className="sr-only">Menu</SheetTitle><Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link>{navEl}</SheetContent></Sheet>
       <CommandDialog open={cmd} onOpenChange={setCmd} title="Search" description="Search records and pages">
         <CommandInput placeholder="Search invoices, customers, payments, investigations…" />
         <CommandList>
