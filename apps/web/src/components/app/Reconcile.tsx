@@ -27,7 +27,7 @@ export function Reconciliation() {
   useEffect(() => {
     if (tab !== "needs review") return
     const on = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).closest("input,textarea,select") || e.metaKey || e.ctrlKey) return
+      if ((e.target as HTMLElement | null)?.closest?.("input,textarea,select") || e.metaKey || e.ctrlKey) return
       const k = e.key.toLowerCase()
       if (k === "c") confirm(); else if (k === "r") reject(); else if (k === "j") step(1); else if (k === "k") step(-1)
     }
