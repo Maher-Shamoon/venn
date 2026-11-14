@@ -1,36 +1,13 @@
 import { useSyncExternalStore } from "react"
 import { toast } from "sonner"
 
+import type { Apr, Col, Customer, Dsp, Integ, Inv, Invg, Line, Member, Pay, Role, Settings, State } from "@/domain/types"
+export * from "@/domain/types"
+export * from "@/domain/format"
+export * from "@/domain/finance"
+import { NOW, usd } from "@/domain/format"
+import { balOf, paidOf, lateOf, invTotal } from "@/domain/finance"
 /* ------------------------------------------------------------------ types */
-export type Role = "owner" | "ar"
-export type Customer = { id: string; name: string; contact: string; email: string; terms: number; city: string; aliases: string[]; notes: string }
-export type Line = { d: string; qty: number; price: number }
-export type Inv = { id: string; cust: string; issued: string; due: string; po: string; lines: Line[]; cancelled?: boolean }
-export type Alloc = { id: string; pay: string; inv: string; amount: number; by: string; at: string; kind: "payment" | "writeoff" | "credit"; void?: boolean }
-export type Pay = { id: string; payer: string; cust?: string; date: string; amount: number; method: string; ref: string; source: string; status: "open" | "under review" | "reversed" | "duplicate" }
-export type Sugg = { id: string; pay: string; invs: [string, number][]; rule: string; conf: "high" | "medium" | "review"; reason: string; status: "pending" | "confirmed" | "rejected" }
-export type Finding = { kind: "confirmed" | "calc" | "possible" | "claim" | "missing"; text: string }
-export type Invg = { id: string; type: string; cust: string; inv?: string; pay?: string; exposure: number; priority: "high" | "medium" | "low"; status: "new" | "in progress" | "ready for review" | "awaiting approval" | "monitoring" | "resolved" | "dismissed"; assignee: string; created: string; title: string; summary: string; findings: Finding[]; rec: { action: string; gate: string; kind: "request-proof" | "refund" | "final-notice" | "monitor" | "allocate" }; evidence: string[]; timeline: { at: string; by: string; text: string }[]; version: number; analysis?: "failed" | "insufficient" }
-export type Apr = { id: string; type: "write-off" | "refund due" | "final notice" | "credit"; rec: string; cust: string; amount: number; by: string; reason: string; status: "pending" | "info requested" | "approved" | "rejected" | "withdrawn"; created: string; decided?: string; decidedBy?: string; comment?: string; link?: string }
-export type Col = { id: string; cust: string; invs: string[]; stage: "reminder 1" | "reminder 2" | "final notice" | "promise to pay" | "paused"; owner: string; next: string; last: string; promise?: string; timeline: { at: string; by: string; text: string }[] }
-export type Dsp = { id: string; cust: string; inv: string; amt: number; cat: string; reason: string; status: "open" | "awaiting customer" | "resolved"; owner: string; due: string; notes: { at: string; by: string; text: string }[]; outcome?: string }
-export type Doc = { id: string; name: string; type: string; link: string; by: string; at: string; status: string; size: string }
-export type Notif = { id: string; at: string; text: string; to: string; read: boolean }
-export type Task = { id: string; text: string; due: string; link: string; done: boolean; owner: Role }
-export type Member = { id: string; name: string; email: string; role: Role; status: "active" | "invited" | "suspended"; last: string; perms: Record<string, boolean> }
-export type Integ = { id: string; name: string; cat: string; desc: string; status: "connected" | "available" | "planned" | "needs attention"; account?: string; last?: string; scopes: string[]; syncs: { at: string; n: number; ok: boolean; msg: string }[] }
-export type Audit = { id: string; at: string; actor: string; action: string; rec: string; group: string; before?: string; after?: string }
-export type Settings = { company: { name: string; legal: string; address: string; industry: string; size: string; website: string }; financial: { currency: string; timezone: string; terms: number; autoApply: boolean; shortGrace: number; claimGrace: number }; approvals: Record<string, number>; notifications: Record<string, boolean>; security: { mfa: boolean }; remittance: { bank: string; account: string; changedAt: string } }
-export type State = {
-  session: { name: string; email: string } | null; role: Role; onboarded: boolean; setup: Record<string, boolean>; seq: number
-  customers: Customer[]; invoices: Inv[]; allocs: Alloc[]; payments: Pay[]; suggs: Sugg[]; invgs: Invg[]; aprs: Apr[]; cols: Col[]; dsps: Dsp[]; docs: Doc[]; notifs: Notif[]; tasks: Task[]; team: Member[]; integs: Integ[]; audit: Audit[]; settings: Settings
-}
-
-export const TODAY = new Date("2026-11-13T00:00:00Z")
-export const NOW = "13 Nov 09:41"
-export const fmtD = (s: string) => new Date(s + (s.length === 10 ? "T00:00:00Z" : "")).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })
-export const usd = (n: number, d = 2) => (n < 0 ? "−" : "") + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d })
-
 /* ------------------------------------------------------------------- seed */
 const C = (id: string, name: string, contact: string, email: string, terms: number, city: string, aliases: string[] = [], notes = ""): Customer => ({ id, name, contact, email, terms, city, aliases, notes })
 const DESC = ["Platform engineering", "Design sprint", "Managed services", "Implementation fee", "Support retainer", "Discovery workshop", "Analytics build", "Data migration"]
@@ -186,28 +163,6 @@ export function mut(fn: (d: State) => void) { const d = structuredClone(state); 
 export const useApp = () => useSyncExternalStore((f) => { subs.add(f); return () => { subs.delete(f) } }, getState)
 
 /* --------------------------------------------------------------- derived */
-export const invTotal = (i: Inv) => Math.round(i.lines.reduce((s, l) => s + l.qty * l.price, 0) * 100) / 100
-export const paidOf = (s: State, id: string) => Math.round(s.allocs.filter((a) => a.inv === id && !a.void).reduce((t, a) => t + a.amount, 0) * 100) / 100
-export const balOf = (s: State, i: Inv) => (i.cancelled ? 0 : Math.round((invTotal(i) - paidOf(s, i.id)) * 100) / 100)
-export const lateOf = (i: Inv) => Math.max(0, Math.floor((+TODAY - +new Date(i.due + "T00:00:00Z")) / 864e5))
-export type Tone = "green" | "amber" | "blue" | "grey" | "red"
-export const statusOf = (s: State, i: Inv): [string, Tone] => {
-  if (i.cancelled) return ["cancelled", "grey"]
-  const b = balOf(s, i), p = paidOf(s, i.id), late = lateOf(i)
-  if (b <= 0) return ["paid", "green"]
-  if (late > 0) return p ? ["partial, overdue", "amber"] : ["overdue", "red"]
-  return p ? ["partial", "amber"] : ["current", "grey"]
-}
-export const payAllocated = (s: State, id: string) => Math.round(s.allocs.filter((a) => a.pay === id && !a.void).reduce((t, a) => t + a.amount, 0) * 100) / 100
-export const custOf = (s: State, name: string) => s.customers.find((c) => c.name === name)
-export const totals = (s: State) => {
-  const open = s.invoices.filter((i) => balOf(s, i) > 0)
-  const sum = (xs: Inv[]) => xs.reduce((t, i) => t + balOf(s, i), 0)
-  const bucket = (a: number, b: number) => sum(open.filter((i) => lateOf(i) >= a && lateOf(i) <= b))
-  const unmatched = s.payments.filter((p) => p.status === "open" && payAllocated(s, p.id) < p.amount && !s.suggs.some((g) => g.pay === p.id && g.status === "pending"))
-  const exposure = s.invgs.filter((g) => !["resolved", "dismissed"].includes(g.status)).reduce((t, g) => t + g.exposure, 0)
-  return { open: open.length, receivable: sum(open), overdue: sum(open.filter((i) => lateOf(i) > 0)), overdueCount: open.filter((i) => lateOf(i) > 0).length, aging: [["Current", bucket(0, 0)], ["1–30 days", bucket(1, 30)], ["31–60 days", bucket(31, 60)], ["60+ days", bucket(61, 9999)]] as [string, number][], unmatched, exposure, pendingApr: s.aprs.filter((a) => a.status === "pending").length, needsReview: s.suggs.filter((g) => g.status === "pending").length }
-}
 export const nextId = (d: State, p: string) => { d.seq += 1; return `${p}-${String(d.seq).padStart(4, "0")}` }
 export const actor = (s: State) => (s.role === "owner" ? "Dana W. (owner)" : "Priya R. (AR)")
 const log = (d: State, action: string, rec: string, group: string, before?: string, after?: string) => d.audit.unshift({ id: nextId(d, "A"), at: NOW, actor: actor(d), action, rec, group, before, after })
