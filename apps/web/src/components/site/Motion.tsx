@@ -260,7 +260,7 @@ const V: [string, string, string, string][] = [
 ]
 const TILES = ["#fce7f3", "#f4f2f0", "#fbcfe8", "#efece8", "#fdf2f8", "#e4ebf6"]
 function VoiceRow({ items, rev, dur }: { items: typeof V; rev?: boolean; dur: string }) {
-  const set = (k: string) => <div key={k} className="flex shrink-0 gap-3 pr-3" aria-hidden={k === "b"}>{items.map(([q, n, r, co], i) => (
+  const set = (k: string) => <div key={k} className="flex shrink-0 gap-3 pr-3" inert={k === "b"}>{items.map(([q, n, r, co], i) => (
     <figure key={n} tabIndex={0} className="flex h-[212px] w-[320px] shrink-0 flex-col rounded-xl border-[0.8px] border-border bg-white p-5 outline-none transition-all duration-300 ease-[var(--ease-out-soft)] hover:-translate-y-1.5 hover:border-black/25 hover:shadow-[0_22px_44px_-26px_rgba(12,10,8,.45)] focus-visible:-translate-y-1.5 focus-visible:border-black/40 focus-visible:ring-2 focus-visible:ring-[#f472b6] sm:w-[400px]">
       <figcaption className="flex items-center gap-3">
         <span className="flex size-11 items-center justify-center rounded-lg text-sm" style={{ background: TILES[(i + (rev ? 3 : 0)) % TILES.length] }}>{co.split(/[ &]+/).filter(Boolean).slice(0, 2).map((x) => x[0]).join("")}</span>

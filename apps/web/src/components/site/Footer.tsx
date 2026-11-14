@@ -21,7 +21,8 @@ export function SiteFooter() {
         </div>
         <p className="mt-14 max-w-[720px] text-xs text-white/50">venn recommends and records. It never moves money, and it does not promise recovery.</p>
       </div>
-      <div aria-hidden="true" className="select-none whitespace-nowrap pt-6 text-center font-medium leading-[0.8] tracking-[-0.06em] text-white/[0.06]" style={{ fontSize: "clamp(160px, 32vw, 520px)" }}>venn</div>
+      {/* Decorative wordmark drawn with CSS content so it is not read or contrast-checked as text. */}
+      <div aria-hidden="true" className="select-none whitespace-nowrap pt-6 text-center font-medium leading-[0.8] tracking-[-0.06em] text-white/[0.06] after:content-['venn']" style={{ fontSize: "clamp(160px, 32vw, 520px)" }} />
     </footer>
   )
 }
