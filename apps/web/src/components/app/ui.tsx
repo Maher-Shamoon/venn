@@ -171,7 +171,9 @@ export function PageSkeleton({ path }: { path: string }) {
 }
 /** Shows a page-shaped skeleton the first time a screen is opened, then renders it straight away on every later visit. */
 export function Loading({ path, children }: { path: string; children: ReactNode }) {
-  const first = !seen.has(path), [wait, setWait] = useState(first)
-  useEffect(() => { if (!first) return; const t = setTimeout(() => { seen.add(path); setWait(false) }, 520); return () => clearTimeout(t) }, [first, path])
+  // Tabs and detail pages inside a section reuse that section's first-visit skeleton instead of flashing again.
+  const section = path.split("/").slice(0, 3).join("/")
+  const first = !seen.has(section), [wait, setWait] = useState(first)
+  useEffect(() => { if (!first) return; const t = setTimeout(() => { seen.add(section); setWait(false) }, 520); return () => clearTimeout(t) }, [first, section])
   return wait ? <PageSkeleton path={path} /> : <>{children}</>
 }
