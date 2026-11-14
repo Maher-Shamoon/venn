@@ -32,7 +32,7 @@ Owner · AR
 ## 5. Functional requirements
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| FR-04-01 | Sidebar groups: Receivables, Resolve, Insight, Admin; labels change for AR where defined (e.g. "My work"). | Must | UI |
+| FR-04-01 | Sidebar groups: Receivables, Resolve, Insight, Admin; AR sees "My requests" instead of "Approvals". | Must | UI |
 | FR-04-02 | Sidebar counts come from one `GET /navigation/counts` call, refreshed after mutations and every 60 s. | Must | Partial: local counts |
 | FR-04-03 | Command palette searches server-side (`GET /search?q=`) after 2 characters with 200 ms debounce; keyboard navigable; opens with Ctrl/⌘ K and from the search button. | Must | Partial: local search, works |
 | FR-04-04 | Notification popover shows the latest 5, unread dot, "Mark all read", "See all". | Must | UI |
