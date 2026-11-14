@@ -103,6 +103,8 @@
   :where(a, button, summary, [role="tab"], [role="button"], [tabindex]):focus-visible,
   :where(input, select, textarea):focus-visible { outline: 2px solid #1a1919; outline-offset: 2px; box-shadow: 0 0 0 2px #fff; }
   html { @apply font-sans; scroll-behavior: smooth; }
+  /* Pre-reveal animation offsets (translate-x) must never create a horizontal scrollbar. clip keeps sticky working. */
+  html, body { overflow-x: clip; }
   body {
     @apply bg-background text-foreground antialiased;
     font-size: 16px;
