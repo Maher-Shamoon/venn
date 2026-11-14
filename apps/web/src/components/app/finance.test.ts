@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { balOf, getState, invTotal, totals } from "./store"
+import { balOf, getState, invTotal, nextId, totals } from "./store"
 import { activityData, reconData, recoveredData, scoped, trendData } from "./ranges"
 
 const s = getState()
@@ -44,5 +44,15 @@ describe("time ranges", () => {
   it("never shows more invoices in a shorter range", () => {
     expect(scoped(s, "7D").inv.length).toBeLessThanOrEqual(scoped(s, "30D").inv.length)
     expect(scoped(s, "30D").inv.length).toBeLessThanOrEqual(scoped(s, "90D").inv.length)
+  })
+})
+
+describe("ids", () => {
+  it("numbers new records per type, not from one shared counter", () => {
+    const d = structuredClone(s)
+    const first = nextId(d, "INVG")
+    expect(first).toBe(`INVG-${String(Math.max(...d.invgs.map((g) => +g.id.slice(5)))+1).padStart(4, "0")}`)
+    d.invgs.push({ ...d.invgs[0], id: first })
+    expect(nextId(d, "INVG")).not.toBe(first)
   })
 })

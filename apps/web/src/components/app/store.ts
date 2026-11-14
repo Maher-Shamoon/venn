@@ -163,7 +163,14 @@ export function mut(fn: (d: State) => void) { const d = structuredClone(state); 
 export const useApp = () => useSyncExternalStore((f) => { subs.add(f); return () => { subs.delete(f) } }, getState)
 
 /* --------------------------------------------------------------- derived */
-export const nextId = (d: State, p: string) => { d.seq += 1; return `${p}-${String(d.seq).padStart(4, "0")}` }
+/** Next id for a prefix: one more than the highest existing number, so ids stay sequential per record type. */
+export const nextId = (d: State, p: string) => {
+  const re = new RegExp("^" + p + "-([0-9]+)$"); let max = 0
+  for (const k of ["allocs", "payments", "suggs", "invgs", "aprs", "cols", "dsps", "docs", "notifs", "tasks", "audit", "team"] as const)
+    for (const r of d[k] as { id: string }[]) { const m = re.exec(r.id); if (m) max = Math.max(max, +m[1]) }
+  d.seq += 1
+  return `${p}-${String(max + 1).padStart(4, "0")}`
+}
 export const actor = (s: State) => (s.role === "owner" ? "Dana W. (owner)" : "Priya R. (AR)")
 const log = (d: State, action: string, rec: string, group: string, before?: string, after?: string) => d.audit.unshift({ id: nextId(d, "A"), at: NOW, actor: actor(d), action, rec, group, before, after })
 const note = (d: State, text: string, to: string) => d.notifs.unshift({ id: nextId(d, "N"), at: NOW, text, to, read: false })
