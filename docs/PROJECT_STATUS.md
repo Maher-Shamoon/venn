@@ -72,3 +72,11 @@ The `/app` area is now a working frontend with local state (saved in the browser
 - First-run empty dashboard with setup steps; reachable by signing up, by `/demo?fresh=1`, or Settings > Start with an empty workspace.
 - Loading skeletons shaped like the page (dashboard, list, detail) on first visit to each screen.
 - Storage key bumped to `venn.app.v5`.
+
+## Revision 5: Phase 3 frontend QA (apps/web)
+- Production frontend lives in `apps/web`; `design-v2` is the frozen visual reference.
+- QA pass over every route as owner and AR specialist at 390, 768 and 1280 px, plus click-through of every list, modal, form and flow.
+- Bugs found and fixed: Ctrl+K palette crashed the app; reconciliation key handler threw on non-element targets; approvals could be rejected without a reason; integration detail pages showed Disconnect for unconnected systems; record ids jumped (INVG-0133); settings tabs flashed the skeleton; login accepted any password.
+- Added: local account service (hashed passwords, lockout, reset), skip link, focus ring, main landmarks, per-page titles, favicon, meta tags.
+- 20 unit tests, lint, typecheck and build run in CI on every push.
+- Still local-only until the backend exists: data is in browser storage, contact and early-access forms store nothing server-side.
