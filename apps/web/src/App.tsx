@@ -1,23 +1,61 @@
-import { useEffect } from "react"
+import { lazy, Suspense, useEffect } from "react"
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { A, useApp } from "@/components/app/store"
-import { AppShell } from "@/components/app/Shell"
-import { Forgot, Invite, Login, Onboarding, Reset, Signup, VerifyEmail } from "@/components/app/Auth"
-import { Dashboard } from "@/components/app/Dash"
-import { CustomerDetail, Customers } from "@/components/app/Customers"
-import { InvoiceDetail, Invoices } from "@/components/app/Invoices"
-import { ImportInvoices, ImportPayments, PdfReview } from "@/components/app/Import"
-import { PaymentDetail, Payments } from "@/components/app/Payments"
-import { InvestigationDetail, Investigations, ReconRun, Reconciliation } from "@/components/app/Reconcile"
-import { ApprovalDetail, Approvals, CollectionDetail, Collections, DisputeDetail, Disputes } from "@/components/app/Workflows"
-import { Analytics, Documents, Report } from "@/components/app/Insight"
-import { AuditLog, IntegrationDetail, Integrations, MemberDetail, Notifications, Profile, Settings, Tasks, Team } from "@/components/app/Admin"
-import { NotFound, Page403, Page404, Page500, PageExpired, PageMaintenance } from "@/components/app/System"
-import { Content } from "@/components/site/Content"
-import { Home } from "@/components/site/Home"
-import { Pricing } from "@/components/site/Pricing"
-import { About, Contact, Privacy, Terms } from "@/components/site/Company"
-import { SiteLayout } from "@/components/site/SiteLayout"
+
+const AppShell = lazy(() => import("@/components/app/Shell").then((m) => ({ default: m.AppShell })))
+const Forgot = lazy(() => import("@/components/app/Auth").then((m) => ({ default: m.Forgot })))
+const Invite = lazy(() => import("@/components/app/Auth").then((m) => ({ default: m.Invite })))
+const Login = lazy(() => import("@/components/app/Auth").then((m) => ({ default: m.Login })))
+const Onboarding = lazy(() => import("@/components/app/Auth").then((m) => ({ default: m.Onboarding })))
+const Reset = lazy(() => import("@/components/app/Auth").then((m) => ({ default: m.Reset })))
+const Signup = lazy(() => import("@/components/app/Auth").then((m) => ({ default: m.Signup })))
+const VerifyEmail = lazy(() => import("@/components/app/Auth").then((m) => ({ default: m.VerifyEmail })))
+const Dashboard = lazy(() => import("@/components/app/Dash").then((m) => ({ default: m.Dashboard })))
+const CustomerDetail = lazy(() => import("@/components/app/Customers").then((m) => ({ default: m.CustomerDetail })))
+const Customers = lazy(() => import("@/components/app/Customers").then((m) => ({ default: m.Customers })))
+const InvoiceDetail = lazy(() => import("@/components/app/Invoices").then((m) => ({ default: m.InvoiceDetail })))
+const Invoices = lazy(() => import("@/components/app/Invoices").then((m) => ({ default: m.Invoices })))
+const ImportInvoices = lazy(() => import("@/components/app/Import").then((m) => ({ default: m.ImportInvoices })))
+const ImportPayments = lazy(() => import("@/components/app/Import").then((m) => ({ default: m.ImportPayments })))
+const PdfReview = lazy(() => import("@/components/app/Import").then((m) => ({ default: m.PdfReview })))
+const PaymentDetail = lazy(() => import("@/components/app/Payments").then((m) => ({ default: m.PaymentDetail })))
+const Payments = lazy(() => import("@/components/app/Payments").then((m) => ({ default: m.Payments })))
+const InvestigationDetail = lazy(() => import("@/components/app/Reconcile").then((m) => ({ default: m.InvestigationDetail })))
+const Investigations = lazy(() => import("@/components/app/Reconcile").then((m) => ({ default: m.Investigations })))
+const ReconRun = lazy(() => import("@/components/app/Reconcile").then((m) => ({ default: m.ReconRun })))
+const Reconciliation = lazy(() => import("@/components/app/Reconcile").then((m) => ({ default: m.Reconciliation })))
+const ApprovalDetail = lazy(() => import("@/components/app/Workflows").then((m) => ({ default: m.ApprovalDetail })))
+const Approvals = lazy(() => import("@/components/app/Workflows").then((m) => ({ default: m.Approvals })))
+const CollectionDetail = lazy(() => import("@/components/app/Workflows").then((m) => ({ default: m.CollectionDetail })))
+const Collections = lazy(() => import("@/components/app/Workflows").then((m) => ({ default: m.Collections })))
+const DisputeDetail = lazy(() => import("@/components/app/Workflows").then((m) => ({ default: m.DisputeDetail })))
+const Disputes = lazy(() => import("@/components/app/Workflows").then((m) => ({ default: m.Disputes })))
+const Analytics = lazy(() => import("@/components/app/Insight").then((m) => ({ default: m.Analytics })))
+const Documents = lazy(() => import("@/components/app/Insight").then((m) => ({ default: m.Documents })))
+const Report = lazy(() => import("@/components/app/Insight").then((m) => ({ default: m.Report })))
+const AuditLog = lazy(() => import("@/components/app/Admin").then((m) => ({ default: m.AuditLog })))
+const IntegrationDetail = lazy(() => import("@/components/app/Admin").then((m) => ({ default: m.IntegrationDetail })))
+const Integrations = lazy(() => import("@/components/app/Admin").then((m) => ({ default: m.Integrations })))
+const MemberDetail = lazy(() => import("@/components/app/Admin").then((m) => ({ default: m.MemberDetail })))
+const Notifications = lazy(() => import("@/components/app/Admin").then((m) => ({ default: m.Notifications })))
+const Profile = lazy(() => import("@/components/app/Admin").then((m) => ({ default: m.Profile })))
+const Settings = lazy(() => import("@/components/app/Admin").then((m) => ({ default: m.Settings })))
+const Tasks = lazy(() => import("@/components/app/Admin").then((m) => ({ default: m.Tasks })))
+const Team = lazy(() => import("@/components/app/Admin").then((m) => ({ default: m.Team })))
+const NotFound = lazy(() => import("@/components/app/System").then((m) => ({ default: m.NotFound })))
+const Page403 = lazy(() => import("@/components/app/System").then((m) => ({ default: m.Page403 })))
+const Page404 = lazy(() => import("@/components/app/System").then((m) => ({ default: m.Page404 })))
+const Page500 = lazy(() => import("@/components/app/System").then((m) => ({ default: m.Page500 })))
+const PageExpired = lazy(() => import("@/components/app/System").then((m) => ({ default: m.PageExpired })))
+const PageMaintenance = lazy(() => import("@/components/app/System").then((m) => ({ default: m.PageMaintenance })))
+const Content = lazy(() => import("@/components/site/Content").then((m) => ({ default: m.Content })))
+const Home = lazy(() => import("@/components/site/Home").then((m) => ({ default: m.Home })))
+const Pricing = lazy(() => import("@/components/site/Pricing").then((m) => ({ default: m.Pricing })))
+const About = lazy(() => import("@/components/site/Company").then((m) => ({ default: m.About })))
+const Contact = lazy(() => import("@/components/site/Company").then((m) => ({ default: m.Contact })))
+const Privacy = lazy(() => import("@/components/site/Company").then((m) => ({ default: m.Privacy })))
+const Terms = lazy(() => import("@/components/site/Company").then((m) => ({ default: m.Terms })))
+const SiteLayout = lazy(() => import("@/components/site/SiteLayout").then((m) => ({ default: m.SiteLayout })))
 
 /** Signs into the sample workspace, then goes where the visitor was headed. */
 function Demo() {
@@ -33,6 +71,7 @@ function Guard({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <Suspense fallback={<div className="h-1 w-full animate-pulse bg-[#f9a8d4]" role="status" aria-label="Loading" />}>
       <Routes>
         <Route element={<SiteLayout />}>
           <Route path="/" element={<Home />} />
@@ -97,6 +136,7 @@ export default function App() {
         <Route path="/session-expired" element={<PageExpired />} />
         <Route path="*" element={<Page404 />} />
       </Routes>
+      </Suspense>
     </BrowserRouter>
   )
 }
