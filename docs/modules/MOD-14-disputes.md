@@ -20,13 +20,13 @@ AR (`disputes.work`) · Owner
 |---|---|---|---|---|
 | UC-14-01 | Log a dispute | From invoice or New dispute: invoice, category, disputed amount, explanation | Amount > invoice total → error | Dispute open; invoice shows Disputed; collection paused |
 | UC-14-02 | Work it | Add internal notes; set awaiting customer | — | Timeline |
-| UC-14-03 | Resolve | Choose outcome (withdrawn, upheld, partially upheld with credit, rejected) → Resolve | Credit outcome → approval request first | Resolved; read-only |
+| UC-14-03 | Resolve | Choose outcome (prototype: customer withdrew, invoice stands, credit issued, refund recorded; spec: upheld, partially upheld, rejected) → Resolve | Credit outcome → approval request first | Resolved; read-only |
 | UC-14-04 | Link with an investigation | Open investigation from the dispute or vice versa | — | Linked, not merged |
 
 ## 5. Functional requirements
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| FR-14-01 | Categories: pricing, quantity/hours, quality/service, duplicate billing, missing PO, not received, tax, payment already made, other. | Must | Partial: shorter list |
+| FR-14-01 | Categories: pricing, quantity/hours, quality/service, duplicate billing, missing PO, not received, tax, payment already made, other. | Must | Partial: prototype has scope, amount, payment claimed, duplicate payment, quality |
 | FR-14-02 | Disputed amount ≤ invoice total; required. | Must | Partial |
 | FR-14-03 | Customer explanation shown as a quote, labelled unverified. | Must | UI |
 | FR-14-04 | Notes timeline; notes are append-only. | Must | UI |
@@ -50,3 +50,6 @@ Inherits global NFRs only.
 
 ## 8. Backend contract
 `GET /disputes?status=` · `POST /disputes` ⟳ · `GET /disputes/{id}` · `POST /disputes/{id}/notes` · `POST /disputes/{id}/resolve` ⟳. Tables: `disputes`, `dispute_events`.
+
+## 9. Gaps and decisions
+- Outcome list differs between prototype and spec. Proposal: store the spec outcome (`upheld`, `partially_upheld`, `rejected`) plus the prototype's plain-language reason; the UI keeps its wording.
