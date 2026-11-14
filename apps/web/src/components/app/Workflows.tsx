@@ -181,9 +181,9 @@ export function ApprovalDetail() {
           {a.decided && <Box title="Decision" pad><Row k="By">{a.decidedBy}</Row><Row k="On">{fmtD(a.decided)}</Row><Row k="Comment">{a.comment || "No comment"}</Row><p className="mt-2 text-xs text-hushed">Decisions are immutable.</p></Box>}
           {role === "owner" && open && (
             <Box title="Decision" pad>
-              <Field label="Comment"><TextArea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Optional for approval. Recommended when rejecting." /></Field>
+              <Field label="Comment"><TextArea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Optional for approval. Required to reject or ask for information." /></Field>
               {own && <p className="mt-2 text-xs text-[#8a5a00]">You submitted this request yourself. Separation of duties may require a second owner.</p>}
-              <div className="mt-4 flex flex-wrap gap-2"><Button onClick={() => A.decide(a.id, "approved", comment)}><Check className="size-4" />Approve</Button><Button variant="outline" onClick={() => A.decide(a.id, "rejected", comment)}>Reject</Button><Button variant="ghost" onClick={() => { if (!comment.trim()) return toast.error("Say what information you need."); A.decide(a.id, "info requested", comment) }}>Request more information</Button></div>
+              <div className="mt-4 flex flex-wrap gap-2"><Button onClick={() => A.decide(a.id, "approved", comment)}><Check className="size-4" />Approve</Button><Button variant="outline" onClick={() => { if (!comment.trim()) return toast.error("Give a reason for rejecting. It is recorded in the audit log."); A.decide(a.id, "rejected", comment) }}>Reject</Button><Button variant="ghost" onClick={() => { if (!comment.trim()) return toast.error("Say what information you need."); A.decide(a.id, "info requested", comment) }}>Request more information</Button></div>
             </Box>)}
           {role === "ar" && open && a.by === "Priya R." && <Button variant="outline" onClick={() => A.withdraw(a.id)}>Withdraw request</Button>}
         </div>
