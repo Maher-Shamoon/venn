@@ -6,6 +6,8 @@ This folder divides the approved frontend (`apps/web`, visual reference `design-
 
 These files refine, and do not replace, [FEATURE_SPECIFICATION.md](../planning/FEATURE_SPECIFICATION.md) (business rules), [ROLE_PERMISSION_MATRIX.md](../planning/ROLE_PERMISSION_MATRIX.md), [API_SPECIFICATION.md](../planning/API_SPECIFICATION.md) and [DATABASE_DESIGN.md](../planning/DATABASE_DESIGN.md). Where a module file and the feature specification disagree, the difference is listed in that module's "Gaps" section and needs a decision.
 
+Totals across the 21 modules: **147 use cases, 202 functional requirements, 181 test cases**, plus 14 global NFRs and module NFRs.
+
 ## Module map
 
 | ID | Module | Routes | Feature spec | Roadmap |

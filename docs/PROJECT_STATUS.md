@@ -80,3 +80,7 @@ The `/app` area is now a working frontend with local state (saved in the browser
 - Added: local account service (hashed passwords, lockout, reset), skip link, focus ring, main landmarks, per-page titles, favicon, meta tags.
 - 20 unit tests, lint, typecheck and build run in CI on every push.
 - Still local-only until the backend exists: data is in browser storage, contact and early-access forms store nothing server-side.
+
+## Revision 6: module specifications and delivery plan
+- `docs/modules/`: the frontend divided into 21 modules, each with scope, use cases, FRs (with prototype status), NFRs, test cases, backend contract and gaps. Totals: 147 use cases, 202 FRs, 181 test cases, 14 global NFRs.
+- `docs/planning/MODULE_DELIVERY_PLAN.md`: stages A–J with checkpoints and approval gates, decisions P3-D1…D7. **Awaiting owner approval; no build work started.**
