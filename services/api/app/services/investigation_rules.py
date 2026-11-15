@@ -100,10 +100,10 @@ def analyze(f: Facts) -> Analysis:
     rec: Recommendation | None = None
 
     if f.type == "short_payment" and inv and pay:
-        short = inv.balance
+        short = f.exposure if f.exposure > 0 else inv.balance
         pct = short / inv.total if inv.total else Decimal(1)
-        out.append(Finding("confirmed", f"Payment {pay.number} of {money(pay.amount, cur)} on {pay.payment_date} was applied to {inv.number}, which totals {money(inv.total, cur)}.", cites_pay + cites_inv))
-        out.append(Finding("calculated", f"{inv.number} is still short by {money(short, cur)} ({money(inv.total, cur)} total, {money(inv.paid, cur)} paid, {money(inv.adjusted, cur)} adjusted). Calculated by venn, not by AI.", cites_inv))
+        out.append(Finding("confirmed", f"Payment {pay.number} of {money(pay.amount, cur)} on {pay.payment_date} names {inv.number}, which totals {money(inv.total, cur)}.", cites_pay + cites_inv))
+        out.append(Finding("calculated", f"{inv.number} is short by {money(short, cur)}: {money(inv.total, cur)} invoiced, {money(pay.amount, cur)} received. Calculated by venn, not by AI.", cites_inv))
         small = pct <= SMALL_SHORTFALL
         if small:
             out.append(Finding("possible", f"A shortfall of {pct * 100:.2f}% is the size of a typical bank or processing fee.", cites_inv))

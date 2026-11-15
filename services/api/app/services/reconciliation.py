@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from app.core.errors import ApiError
 from app.core.requestinfo import RequestInfo
 from app.core.security import AuthUser
-from app.services import audit, payments
+from app.services import audit, investigations, payments
 from app.services import recon_rules as rr
 from app.services.settings import FINANCIAL_DEFAULTS
 
@@ -56,6 +56,8 @@ def run(db: Session, org: uuid.UUID, actor: AuthUser, today: date, info: Request
             n = db.execute(text("insert into discrepancies (organization_id, run_id, type, payment_id, invoice_id, exposure, detail) values (:o, :r, :t, :p, :i, :e, :d) "
                                 "on conflict do nothing returning id"), {"o": org, "r": run_id, "t": d.type, "p": p.id, "i": d.invoice_id, "e": d.exposure, "d": d.detail}).first()
             counts["discrepancies"] += 1 if n else 0
+            if n:
+                investigations.open_from_discrepancy(db, org, actor, n.id, d.type, p.id, uuid.UUID(d.invoice_id) if d.invoice_id else None, d.exposure, info)
         if o.under_review and not p.under_review:
             payments.set_review(db, org, actor, p.id, True, info)
         s = o.suggestion
