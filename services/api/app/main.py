@@ -6,7 +6,7 @@ from collections.abc import Awaitable, Callable
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import health
+from app.api.v1 import health, identity
 from app.core.config import get_settings
 from app.core.errors import install_error_handlers
 from app.core.logging import setup_logging
@@ -36,6 +36,7 @@ def create_app() -> FastAPI:
 
     install_error_handlers(app)
     app.include_router(health.router, prefix="/api/v1")
+    app.include_router(identity.router, prefix="/api/v1")
     return app
 
 
