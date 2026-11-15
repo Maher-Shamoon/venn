@@ -9,7 +9,7 @@ Date: 2026-11-15 · Reviewed by: the assistant (owner instruction: build, test a
 | `uv run pytest -m slow tests/test_reconciliation_api.py` | passed: 1,000 payments against 1,000 invoices reconciled in 6.3 s (900 auto-applied, 100 suggested) on the embedded PostgreSQL |
 | `uv run ruff check . && uv run mypy app` | clean (strict) |
 | `cd apps/web && npx vitest run` | 44 passed |
-| `npx playwright test --project=desktop` (real Supabase project, real API, hosted PostgreSQL) | __PW__ |
+| `npx playwright test --project=desktop` (real Supabase project, real API, hosted PostgreSQL) | 24 passed (desktop project, 5.0 min), 0 failed; mobile project covers the public pages in CI |
 
 ## Acceptance
 | Module | Requirement highlights | Verdict |
