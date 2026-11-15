@@ -38,7 +38,7 @@ def list_status(db: Session) -> list[dict[str, Any]]:
     out = []
     for key, name in PROVIDERS.items():
         r = _row(db, key)
-        available = key == "stripe" or (key == "gmail" and bool(c.google_client_id and c.google_client_secret)) and bool(c.secrets_key)
+        available = key == "stripe" or (key == "gmail" and bool(c.google_client_id and c.google_client_secret)) or (key == "quickbooks" and bool(c.qbo_client_id and c.qbo_client_secret))
         out.append({"provider": key, "name": name, "available": bool(available) and bool(c.secrets_key), "connected": r is not None, "status": r.status if r else "not_connected",
                     "account": r.account_label if r else None, "connected_at": r.connected_at if r else None, "last_sync_at": r.last_sync_at if r else None, "last_error": r.last_error if r else None})
     return out

@@ -9,7 +9,7 @@ from app.core.config import get_settings
 from app.core.errors import ApiError
 from app.core.tenancy import Ctx, require
 from app.services import integrations as svc
-from app.services import jobs
+from app.services import jobs, qbo
 
 router = APIRouter(tags=["integrations"])
 
@@ -69,3 +69,34 @@ def gmail_callback(code: str = "", state: str = "", error: str = "") -> Redirect
 @router.get("/investigations/{iid}/emails")
 def case_emails(iid: uuid.UUID, ctx: Ctx = Depends(require("investigations.manage"))) -> dict[str, Any]:
     return {"data": svc.gmail_for_case(ctx.db, iid)}
+
+
+@router.get("/integrations/quickbooks/start")
+def qbo_start(ctx: Ctx = Depends(require("integrations.manage"))) -> dict[str, str]:
+    return {"url": qbo.start(ctx.org_id, ctx.user)}
+
+
+@router.post("/integrations/quickbooks/sync")
+def qbo_sync(ctx: Ctx = Depends(require("integrations.manage"))) -> dict[str, Any]:
+    return qbo.sync(ctx.db, ctx.org_id, ctx.user, ctx.info)
+
+
+@router.get("/integrations/quickbooks/callback", include_in_schema=False)
+def qbo_callback(code: str = "", state: str = "", realmId: str = "", error: str = "") -> RedirectResponse:  # noqa: N803  # Intuit's parameter name
+    back = get_settings().web_url.rstrip("/") + "/app/integrations"
+    if error or not code or not state:
+        return RedirectResponse(f"{back}?error=quickbooks_denied", status_code=303)
+    try:
+        org, user, refresh, realm = qbo.finish(code, state, realmId)
+    except ApiError:
+        return RedirectResponse(f"{back}?error=quickbooks_failed", status_code=303)
+    s = jobs.scoped(org)
+    try:
+        qbo.store(s, org, user, refresh, realm)
+        s.commit()
+    except Exception:  # noqa: BLE001
+        s.rollback()
+        return RedirectResponse(f"{back}?error=quickbooks_failed", status_code=303)
+    finally:
+        s.close()
+    return RedirectResponse(f"{back}?connected=quickbooks", status_code=303)

@@ -6,28 +6,30 @@ import { Input } from "@/components/ui/input"
 import { Box, Field, Modal, Pill, Title } from "@/components/app/ui"
 import { useRole } from "@/components/app/Shell"
 import { errorMessage } from "@/lib/errors"
-import { startGmail, useConnectStripe, useDisconnect, useIntegrations, useSyncStripe, type Integration } from "./api"
+import { startGmail, startQbo, useSyncQbo, useConnectStripe, useDisconnect, useIntegrations, useSyncStripe, type Integration } from "./api"
 
 const ago = (iso: string | null) => (iso ? new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "never")
 const NOTE: Record<string, string> = {
   stripe: "Reads charges (read-only). They become payments marked source-verified, so reconciliation and Verified recovered can trust them.",
   gmail: "Searches your mailbox (read-only) for messages about a case. A message becomes evidence only when you link it.",
-  quickbooks: "Reads invoices and payments from QuickBooks. Needs an Intuit developer app, which is not set up yet.",
+  quickbooks: "Reads your unpaid invoices from QuickBooks Online (read-only). Customers are created from them. Sandbox company until Intuit approves the app for real companies.",
 }
 
 export function RemoteIntegrations() {
   const owner = useRole() === "owner", q = useIntegrations(), [params, setParams] = useSearchParams()
-  const [stripe, setStripe] = useState(false), [key, setKey] = useState(""), connect = useConnectStripe(), sync = useSyncStripe(), off = useDisconnect()
+  const [stripe, setStripe] = useState(false), [key, setKey] = useState(""), connect = useConnectStripe(), sync = useSyncStripe(), qsync = useSyncQbo(), off = useDisconnect()
   useEffect(() => {
-    if (params.get("connected")) toast.success("Gmail connected")
-    if (params.get("error")) toast.error("Gmail could not be connected. Try again.")
+    if (params.get("connected")) toast.success(`${params.get("connected") === "quickbooks" ? "QuickBooks" : "Gmail"} connected`)
+    if (params.get("error")) toast.error("The connection could not be completed. Try again.")
     if (params.get("connected") || params.get("error")) setParams({}, { replace: true })
   }, [params, setParams])
   const act = (i: Integration) => {
     if (i.provider === "gmail") return void startGmail().then((u) => { window.location.href = u }).catch((e) => toast.error(errorMessage(e)))
+    if (i.provider === "quickbooks") return void startQbo().then((u) => { window.location.href = u }).catch((e) => toast.error(errorMessage(e)))
     if (i.provider === "stripe") setStripe(true)
   }
   const doSync = () => sync.mutate(undefined, { onSuccess: (r) => toast.success(`${r.new} new payments from ${r.seen} charges`), onError: (e) => toast.error(errorMessage(e)) })
+  const doQsync = () => qsync.mutate(undefined, { onSuccess: (r) => toast.success(`${r.new} new and ${r.updated} updated invoices from ${r.seen} read`), onError: (e) => toast.error(errorMessage(e)) })
   const close = () => { setStripe(false); setKey("") }
   return (
     <>
@@ -37,7 +39,7 @@ export function RemoteIntegrations() {
           <span className={"size-2 rounded-full " + (i.status === "error" ? "bg-destructive" : i.connected ? "bg-[#2f9e44]" : "bg-[#d2cecb]")} />
           <div className="min-w-0 flex-1"><div className="text-sm">{i.name} {i.connected && <Pill tone={i.status === "error" ? "red" : "green"}>{i.status === "error" ? "needs attention" : "connected"}</Pill>}</div>
             <div className="text-xs text-hushed">{i.connected ? `${i.account ?? ""} · last sync ${ago(i.last_sync_at)}` : NOTE[i.provider]}</div>{i.last_error && <div role="alert" className="text-xs text-destructive">{i.last_error}</div>}</div>
-          {owner && i.available && (i.connected ? <div className="flex gap-2">{i.provider === "stripe" && <Button size="sm" disabled={sync.isPending} onClick={doSync}>{sync.isPending ? "Syncing…" : "Sync now"}</Button>}{i.provider === "gmail" && i.status === "error" && <Button size="sm" onClick={() => act(i)}>Connect again</Button>}
+          {owner && i.available && (i.connected ? <div className="flex gap-2">{i.provider === "stripe" && <Button size="sm" disabled={sync.isPending} onClick={doSync}>{sync.isPending ? "Syncing…" : "Sync now"}</Button>}{i.provider === "quickbooks" && <Button size="sm" disabled={qsync.isPending} onClick={doQsync}>{qsync.isPending ? "Syncing…" : "Sync now"}</Button>}{(i.provider === "gmail" || i.provider === "quickbooks") && i.status === "error" && <Button size="sm" onClick={() => act(i)}>Connect again</Button>}
             <Button size="sm" variant="outline" disabled={off.isPending} onClick={() => off.mutate(i.provider, { onSuccess: () => toast.success(`${i.name} disconnected`), onError: (e) => toast.error(errorMessage(e)) })}>Disconnect</Button></div> : <Button size="sm" onClick={() => act(i)}>Connect</Button>)}
           {!i.available && <span className="text-xs text-hushed">Not available yet</span>}
         </div>))}</Box>
