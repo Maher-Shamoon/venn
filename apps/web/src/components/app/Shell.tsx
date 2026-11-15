@@ -8,7 +8,9 @@ import { Toaster } from "@/components/ui/sonner"
 import { Logo } from "@/components/venn/kit"
 import { cn } from "@/lib/utils"
 import { A, balOf, useApp, usd, type Role } from "./store"
-import { Loading } from "./ui"
+import { Loading, PageSkeleton } from "./ui"
+import { fetchContext, remote } from "@/features/identity/api"
+import { toastApiError } from "@/lib/errors"
 import { signOut } from "@/auth"
 import { SkipLink } from "@/components/venn/SkipLink"
 
@@ -48,6 +50,13 @@ function Pop({ trigger, children, label }: { trigger: ReactNode; children: (clos
 
 export function AppShell() {
   const s = useApp(), nav = useNavigate(), loc = useLocation()
+  const real = remote()
+  // Real organizations take the role from the server; the "view as" switcher exists only in sample workspaces.
+  const [ctxReady, setCtxReady] = useState(!real)
+  useEffect(() => {
+    if (!real) return
+    fetchContext().then((c) => A.setRole(c.role_key === "owner" ? "owner" : "ar")).catch((e) => toastApiError(e)).finally(() => setCtxReady(true))
+  }, [real])
   const role = s.role
   const [menu, setMenu] = useState(false), [cmd, setCmd] = useState(false), [online, setOnline] = useState(true)
   useEffect(() => {
@@ -74,11 +83,11 @@ export function AppShell() {
       <SkipLink />
       <div className="flex h-10 items-center bg-[#1a1919] px-4 text-xs text-white lg:col-span-2">
         <Link to="/" className="font-medium hover:underline">← venn.com</Link>
-        <span className="ml-auto flex items-center gap-2">view as
+        {!real && <span className="ml-auto flex items-center gap-2">view as
           <span className="inline-flex rounded-md border border-white/25 p-0.5" role="group" aria-label="Role switcher">
             {(["owner", "ar"] as Role[]).map((r) => <button key={r} onClick={() => A.setRole(r)} aria-pressed={role === r} className={cn("rounded px-2.5 py-0.5 transition-colors duration-300", role === r ? "bg-lime text-foreground" : "text-white/80 hover:text-white")}>{r === "owner" ? "Owner" : "AR specialist"}</button>)}
           </span>
-        </span>
+        </span>}
       </div>
       <aside className="hidden max-h-[calc(100vh-40px)] overflow-y-auto border-r border-border bg-muted p-4 [scrollbar-width:none] lg:sticky lg:top-0 lg:block lg:self-start">
         <Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link>
@@ -105,7 +114,7 @@ export function AppShell() {
           </div>
         </header>
         {!online && <div role="status" className="flex items-center gap-2 bg-[#fff1c7] px-5 py-2 text-sm text-[#8a5a00]"><WifiOff className="size-4" />You are offline. Changes are paused until the connection returns.</div>}
-        <main className="mx-auto max-w-[1180px] px-4 py-8 md:px-8 md:py-10"><Loading key={loc.pathname} path={loc.pathname}><Outlet context={{ role }} /></Loading></main>
+        <main className="mx-auto max-w-[1180px] px-4 py-8 md:px-8 md:py-10">{ctxReady ? <Loading key={loc.pathname} path={loc.pathname}><Outlet context={{ role }} /></Loading> : <PageSkeleton path="/app" />}</main>
       </div>
 
       <Sheet open={menu} onOpenChange={setMenu}><SheetContent side="left" className="w-[280px] overflow-y-auto bg-muted p-4"><SheetTitle className="sr-only">Menu</SheetTitle><Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link>{navEl}</SheetContent></Sheet>
