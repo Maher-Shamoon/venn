@@ -532,6 +532,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/imports/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Import From Pdf
+         * @description The rows read from the PDF are reviewed exactly like a CSV: nothing is saved until a person confirms them.
+         */
+        post: operations["create_import_from_pdf_api_v1_imports_pdf_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/imports/{job_id}": {
         parameters: {
             query?: never;
@@ -1609,6 +1629,13 @@ export interface components {
         Body_create_import_api_v1_imports_post: {
             /** Date Format */
             date_format?: string | null;
+            /** File */
+            file: string;
+            /** Kind */
+            kind: string;
+        };
+        /** Body_create_import_from_pdf_api_v1_imports_pdf_post */
+        Body_create_import_from_pdf_api_v1_imports_pdf_post: {
             /** File */
             file: string;
             /** Kind */
@@ -3685,6 +3712,44 @@ export interface operations {
         requestBody: {
             content: {
                 "multipart/form-data": components["schemas"]["Body_create_import_api_v1_imports_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_import_from_pdf_api_v1_imports_pdf_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-organization-id"?: string | null;
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_create_import_from_pdf_api_v1_imports_pdf_post"];
             };
         };
         responses: {
