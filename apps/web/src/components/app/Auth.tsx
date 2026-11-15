@@ -8,7 +8,8 @@ import { Logo, Odometer, money, useTicker } from "@/components/venn/kit"
 import { config } from "@/config"
 import { errorMessage, toastApiError } from "@/lib/errors"
 import { activeOrg, createOrganization, fetchMe, setActiveOrg } from "@/features/identity/api"
-import { AuthError, completeReset, requestReset, resendVerification, signIn, signUp, useResetReady } from "@/auth"
+import { AuthError, completeReset, requestReset, resendVerification, signIn, signUp, useResetReady, useSignedIn } from "@/auth"
+import { request } from "@/api/http"
 import { A, useApp, type Role } from "./store"
 import { Field, NativeSelect } from "./ui"
 import { cn } from "@/lib/utils"
@@ -118,7 +119,8 @@ export function Login() {
       // Real accounts: the server says whether this person already belongs to an organization.
       try {
         const m = (await fetchMe()).memberships.find((x) => x.status === "active")
-        if (m) { setActiveOrg(m.organization_id); A.finishOnboarding(); target = from ?? "/app" } else target = "/onboarding/organization"
+        const pending = localStorage.getItem("venn.invite")
+        if (m) { setActiveOrg(m.organization_id); A.finishOnboarding(); target = pending ? `/invite/${pending}` : from ?? "/app" } else target = pending ? `/invite/${pending}` : "/onboarding/organization"
       } catch (x) { toastApiError(x) }
     } else await new Promise((r) => setTimeout(r, 650))
     A.signIn(name, mail)
@@ -215,7 +217,7 @@ export function Reset() {
     </Card>
   )
 }
-export function Invite() {
+function LocalInvite() {
   const { token } = useParams(), nav = useNavigate()
   const [name, setName] = useState(""), [pw, setPw] = useState(""), [err, setErr] = useState("")
   if (token === "expired") return <Card title="This invitation has expired" sub="Ask the person who invited you to send a new one."><Button className="w-full" render={<Link to="/login" />}>Go to sign in</Button></Card>
@@ -228,6 +230,50 @@ export function Invite() {
     </Card>
   )
 }
+
+type InviteInfo = { organization_name: string; role_name: string; email: string }
+
+/** Joining an organization by emailed link. The server checks that the signed-in address is the invited one. */
+function RemoteInvite() {
+  const { token = "" } = useParams(), nav = useNavigate(), signedIn = useSignedIn()
+  const [info, setInfo] = useState<InviteInfo | "invalid" | null>(null), [err, setErr] = useState(""), [busy, setBusy] = useState(false)
+  useEffect(() => {
+    // Remember the link so signing in or verifying email later brings the person back here.
+    localStorage.setItem("venn.invite", token)
+    request<InviteInfo>(`/invitations/${encodeURIComponent(token)}`).then(setInfo, () => setInfo("invalid"))
+  }, [token])
+  if (info === null || signedIn === undefined) return null
+  if (info === "invalid") return <Card title="This invitation is not valid" sub="It may have expired or been withdrawn. Ask the person who invited you to send a new one."><Button className="w-full" render={<Link to="/login" />}>Go to sign in</Button></Card>
+  const accept = async () => {
+    setBusy(true)
+    try {
+      await request(`/invitations/${encodeURIComponent(token)}/accept`, { method: "POST", idempotent: true })
+      localStorage.removeItem("venn.invite")
+      const m = (await fetchMe()).memberships.find((x) => x.status === "active")
+      if (m) setActiveOrg(m.organization_id)
+      A.finishOnboarding()
+      nav("/app", { replace: true })
+    } catch (x) { setBusy(false); setErr(errorMessage(x)) }
+  }
+  return (
+    <Card title={`Join ${info.organization_name}`} sub={`You were invited as ${info.role_name}.`}>
+      {signedIn ? (
+        <div className="space-y-3">
+          {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
+          <Button className="w-full" disabled={busy} onClick={accept}>Accept invitation</Button>
+          <p className="text-xs text-hushed">Signed in with the wrong address? The invitation is for {info.email}.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <p className="mb-3 text-sm text-hushed">Use <b className="font-normal text-foreground">{info.email}</b> to accept.</p>
+          <Button className="w-full" render={<Link to="/signup" />}>Create an account</Button>
+          <Button className="w-full" variant="outline" render={<Link to="/login" />}>I already have an account</Button>
+        </div>
+      )}
+    </Card>
+  )
+}
+export const Invite = () => (config.authSource === "supabase" ? <RemoteInvite /> : <LocalInvite />)
 
 /* ----------------------------------------------------------------- onboarding */
 const STEPS = [["organization", "Organization", false], ["sources", "Financial sources", true], ["email", "Email", true], ["import", "Import", true], ["team", "Team", true], ["preferences", "Preferences", true]] as const

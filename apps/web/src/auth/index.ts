@@ -17,6 +17,13 @@ export const resendVerification = (email: string) => (real ? sb.resendVerificati
 export const requestReset = async (email: string) => { if (real) await sb.requestReset(email); else local.requestReset(email) }
 export const completeReset = (password: string) => (real ? sb.completeReset(password) : local.completeReset(password))
 
+/** undefined while checking, then whether a Supabase session exists. */
+export function useSignedIn(): boolean | undefined {
+  const [ok, setOk] = useState<boolean | undefined>(real ? undefined : false)
+  useEffect(() => { if (real) void sb.hasRecoverySession().then(setOk) }, [])
+  return ok
+}
+
 /** undefined while checking, then whether this page was opened from a valid reset link. */
 export function useResetReady(): boolean | undefined {
   const [ok, setOk] = useState<boolean | undefined>(real ? undefined : local.hasPendingReset())
