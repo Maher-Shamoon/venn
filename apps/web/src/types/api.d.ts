@@ -276,6 +276,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Settings */
+        get: operations["get_settings_api_v1_settings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/company": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Patch Company */
+        patch: operations["patch_company_api_v1_settings_company_patch"];
+        trace?: never;
+    };
+    "/api/v1/settings/financial": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Patch Financial */
+        patch: operations["patch_financial_api_v1_settings_financial_patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -325,6 +376,36 @@ export interface components {
             data: components["schemas"]["AuditEvent"][];
             /** Next Cursor */
             next_cursor: number | null;
+        };
+        /** CompanyIn */
+        CompanyIn: {
+            /** Company Size */
+            company_size?: string | null;
+            /** Country */
+            country?: string | null;
+            /** Industry */
+            industry?: string | null;
+            /** Legal Name */
+            legal_name?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Website */
+            website?: string | null;
+        };
+        /** FinancialIn */
+        FinancialIn: {
+            /** Auto Apply Exact */
+            auto_apply_exact?: boolean | null;
+            /** Claim Grace Days */
+            claim_grace_days?: number | null;
+            /** Default Currency */
+            default_currency?: string | null;
+            /** Default Terms Days */
+            default_terms_days?: number | null;
+            /** Short Grace Days */
+            short_grace_days?: number | null;
+            /** Timezone */
+            timezone?: string | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1010,6 +1091,118 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_settings_api_v1_settings_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-organization-id"?: string | null;
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_company_api_v1_settings_company_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "if-match"?: string | null;
+                "x-organization-id"?: string | null;
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_financial_api_v1_settings_financial_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "if-match"?: string | null;
+                "x-organization-id"?: string | null;
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FinancialIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
             };
             /** @description Validation Error */
             422: {
