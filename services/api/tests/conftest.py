@@ -10,6 +10,10 @@ from collections.abc import Iterator
 
 import pytest
 
+os.environ.setdefault("VENN_RATE_LIMIT_PER_MINUTE", "1000000")  # the suite makes thousands of requests; the limiter has its own tests
+os.environ.setdefault("VENN_RATE_LIMIT_HEAVY_PER_MINUTE", "1000000")
+os.environ.setdefault("VENN_RATE_LIMIT_ANONYMOUS_PER_MINUTE", "1000000")
+
 
 @pytest.fixture(scope="session")
 def database_url() -> Iterator[str]:

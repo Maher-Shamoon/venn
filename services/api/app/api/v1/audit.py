@@ -66,3 +66,13 @@ def list_events(
               for r in page],
         next_cursor=page[-1].seq if len(rows) > limit else None,
     )
+
+
+@router.get("/audit-events/verify")
+def verify(ctx: Ctx = Depends(require("audit.view"))) -> dict[str, Any]:
+    """Recomputes the hash chain of this organization's audit log. `first_broken_seq` names the first entry that was changed, if any."""
+    from app.services import audit
+
+    broken = audit.verify_chain(ctx.db, ctx.org_id)
+    count = ctx.db.execute(text("select count(*) from audit_events")).scalar_one()
+    return {"valid": broken is None, "first_broken_seq": broken, "events": int(count)}

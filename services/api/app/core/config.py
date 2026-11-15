@@ -8,6 +8,10 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="VENN_", extra="ignore")
 
+    rate_limit_per_minute: int = 600
+    rate_limit_heavy_per_minute: int = 30
+    rate_limit_anonymous_per_minute: int = 120
+
     env: str = "local"
     database_url: str = "postgresql+psycopg://venn:venn@localhost:5432/venn"
     redis_url: str = "redis://localhost:6379/0"

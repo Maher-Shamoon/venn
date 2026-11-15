@@ -150,3 +150,9 @@ def test_shell_frame_and_global_search_use_only_this_organizations_records(org: 
     assert other.get("/search?q=brightwater").json()["customers"] == [] and other.get("/shell").json()["organization"]["name"] == "Other Co"
     ar = auth(join_as_ar(client, auth, mail, org.owner, org.id), org=org.id)
     assert client.get("/api/v1/shell", headers=ar).json()["counts"]["approvals"] == 0
+
+
+def test_the_audit_chain_can_be_verified_through_the_api(org: Org) -> None:
+    org.customer("Chain Co")
+    r = org.get("/audit-events/verify").json()
+    assert r["valid"] is True and r["first_broken_seq"] is None and r["events"] >= 2

@@ -24,7 +24,7 @@ export function TrendArea({ data, h }: { data: TrendPoint[]; h?: number }) {
   const rows = data.map((p) => ({ m: p.label, total: num(p.total), overdue: num(p.overdue) }))
   return (
     <div>
-      <H h={h}><AreaChart data={rows} margin={{ left: -8, right: 8, top: 8 }}>
+      <H h={h} label="Area chart of the outstanding and overdue balance over time"><AreaChart data={rows} margin={{ left: -8, right: 8, top: 8 }}>
         <defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={COLORS.pink} stopOpacity={0.7} /><stop offset="100%" stopColor={COLORS.pink} stopOpacity={0.05} /></linearGradient></defs>
         {grid}<XAxis dataKey="m" {...axis} minTickGap={16} /><YAxis {...axis} tickFormatter={short} /><Tooltip content={<Tip />} />
         <Area type="monotone" dataKey="total" name="Outstanding" stroke={COLORS.deep} strokeWidth={2} fill="url(#gt)" /><Area type="monotone" dataKey="overdue" name="Overdue" stroke={COLORS.ink} strokeWidth={2} fill="none" />
@@ -148,6 +148,6 @@ function Ar() {
 export function RemoteDashboard() { return useRole() === "owner" ? <Owner /> : <Ar /> }
 
 export function RecBars({ rows }: { rows: { label: string; auto: number; manual: number; review: number }[] }) {
-  return <H h={260}><BarChart data={rows} margin={{ left: -16, right: 8, top: 8 }}>{grid}<XAxis dataKey="label" {...axis} minTickGap={8} /><YAxis {...axis} allowDecimals={false} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip money={false} />} /><Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+  return <H h={260} label="Stacked bar chart of reconciliation matches over time"><BarChart data={rows} margin={{ left: -16, right: 8, top: 8 }}>{grid}<XAxis dataKey="label" {...axis} minTickGap={8} /><YAxis {...axis} allowDecimals={false} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip money={false} />} /><Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
     <Bar dataKey="auto" name="Applied automatically" stackId="a" fill={COLORS.ink} /><Bar dataKey="manual" name="Confirmed by a person" stackId="a" fill={COLORS.pink} /><Bar dataKey="review" name="Left for review" stackId="a" fill={COLORS.grey} /></BarChart></H>
 }

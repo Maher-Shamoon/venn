@@ -113,3 +113,9 @@ The `/app` area is now a working frontend with local state (saved in the browser
 - **BLOCKED: E4 (AI analysis) needs an LLM API key.** The deterministic engine works without it. E2 (PDF import review) is also open.
 - Documents have no virus scan and no OCR yet.
 - Next: Stage H first (the real dashboard still shows the prototype page), then Stage F.
+
+## Revision 13: Stages H, F and I (as far as they can go without outside accounts)
+- Real dashboards, six reports with CSV export, search and badge counts (Stage H); collections with fact-checked drafts and an approved final notice, disputes, notifications and tasks (Stage F); rate limiting, migration round trip, accessibility of every signed-in screen and a runbook (Stage I). Evidence: `STAGE-F-H-workflow-and-insight.md` and `STAGE-I-hardening.md` in `docs/testing/checkpoints/`.
+- Real organizations no longer show any prototype data in the app frame or on the dashboard. Integrations in a real organization honestly say that nothing is connected.
+- **Still blocked:** AI analysis (needs an LLM key), Gmail, QuickBooks and Stripe (need accounts and credentials), real email delivery and hosting (Stage J: needs a mail provider, a host, a domain and an error tracker).
+- **Still open without a blocker:** PDF import review, virus scan and OCR for documents, job runner, load tests at 100k invoices, website pre-rendering, a security review by someone else.

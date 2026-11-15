@@ -16,17 +16,17 @@ export function Tip({ active, payload, label, money = true }: { active?: boolean
     </div>
   )
 }
-export const H = ({ h = 260, children }: { h?: number; children: React.ReactElement }) => <div style={{ height: h }} className="w-full" role="img"><ResponsiveContainer width="100%" height="100%">{children}</ResponsiveContainer></div>
+export const H = ({ h = 260, children, label = "Chart" }: { h?: number; children: React.ReactElement; label?: string }) => <div style={{ height: h }} className="w-full" role="img" aria-label={label}><ResponsiveContainer width="100%" height="100%">{children}</ResponsiveContainer></div>
 
 export const AGING_COLORS = ["#d2cecb", "#f9a8d4", "#f472b6", "#1a1919"]
 export function AgingChart({ data, h }: { data: [string, number][]; h?: number }) {
   const rows = data.map(([name, value]) => ({ name, value }))
-  return <H h={h}><BarChart data={rows} margin={{ left: -8, right: 8, top: 8 }}>{grid}<XAxis dataKey="name" {...axis} /><YAxis {...axis} tickFormatter={short} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip />} /><Bar dataKey="value" name="Balance" radius={[6, 6, 0, 0]} maxBarSize={64}>{rows.map((_, i) => <Cell key={i} fill={AGING_COLORS[i]} />)}</Bar></BarChart></H>
+  return <H h={h} label="Bar chart of receivables by age"><BarChart data={rows} margin={{ left: -8, right: 8, top: 8 }}>{grid}<XAxis dataKey="name" {...axis} /><YAxis {...axis} tickFormatter={short} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip />} /><Bar dataKey="value" name="Balance" radius={[6, 6, 0, 0]} maxBarSize={64}>{rows.map((_, i) => <Cell key={i} fill={AGING_COLORS[i]} />)}</Bar></BarChart></H>
 }
 
 export function TrendChart({ total, overdue, h, range }: { total: number; overdue: number; h?: number; range: Range }) {
   return (
-    <H h={h}><AreaChart data={trendData(range, total, overdue)} margin={{ left: -8, right: 8, top: 8 }}>
+    <H h={h} label="Area chart of the outstanding and overdue balance over time"><AreaChart data={trendData(range, total, overdue)} margin={{ left: -8, right: 8, top: 8 }}>
       <defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={COLORS.pink} stopOpacity={0.7} /><stop offset="100%" stopColor={COLORS.pink} stopOpacity={0.05} /></linearGradient></defs>
       {grid}<XAxis dataKey="m" {...axis} minTickGap={16} /><YAxis {...axis} tickFormatter={short} /><Tooltip content={<Tip />} />
       <Area type="monotone" dataKey="total" name="Outstanding" stroke={COLORS.deep} strokeWidth={2} fill="url(#gt)" />
@@ -36,30 +36,30 @@ export function TrendChart({ total, overdue, h, range }: { total: number; overdu
 }
 
 export function CustomerBars({ data, h = 280 }: { data: { name: string; value: number }[]; h?: number }) {
-  return <H h={h}><BarChart data={data} layout="vertical" margin={{ left: 8, right: 16 }}>{grid}<XAxis type="number" {...axis} tickFormatter={short} /><YAxis type="category" dataKey="name" {...axis} width={132} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip />} /><Bar dataKey="value" name="Overdue" fill={COLORS.deep} radius={[0, 6, 6, 0]} maxBarSize={22} /></BarChart></H>
+  return <H h={h} label="Bar chart of overdue balance by customer"><BarChart data={data} layout="vertical" margin={{ left: 8, right: 16 }}>{grid}<XAxis type="number" {...axis} tickFormatter={short} /><YAxis type="category" dataKey="name" {...axis} width={132} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip />} /><Bar dataKey="value" name="Overdue" fill={COLORS.deep} radius={[0, 6, 6, 0]} maxBarSize={22} /></BarChart></H>
 }
 
 export function Donut({ data, h = 220, center }: { data: { name: string; value: number; color: string }[]; h?: number; center?: string }) {
   return (
-    <div className="relative"><H h={h}><PieChart><Pie data={data} dataKey="value" nameKey="name" innerRadius="62%" outerRadius="88%" paddingAngle={2} stroke="none">{data.map((d) => <Cell key={d.name} fill={d.color} />)}</Pie><Tooltip content={<Tip money={false} />} /></PieChart></H>
+    <div className="relative"><H h={h} label="Donut chart of open items by status"><PieChart><Pie data={data} dataKey="value" nameKey="name" innerRadius="62%" outerRadius="88%" paddingAngle={2} stroke="none">{data.map((d) => <Cell key={d.name} fill={d.color} />)}</Pie><Tooltip content={<Tip money={false} />} /></PieChart></H>
       {center && <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-center"><div><div className="text-[30px] leading-8 tracking-[-0.02em]">{center}</div><div className="text-xs text-hushed">open</div></div></div>}
     </div>
   )
 }
 
 export function ReconChart({ h, range }: { h?: number; range: Range }) {
-  return <H h={h}><BarChart data={reconData(range)} margin={{ left: -16, right: 8, top: 8 }}>{grid}<XAxis dataKey="w" {...axis} minTickGap={8} /><YAxis {...axis} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip money={false} />} /><Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+  return <H h={h} label="Stacked bar chart of reconciliation matches over time"><BarChart data={reconData(range)} margin={{ left: -16, right: 8, top: 8 }}>{grid}<XAxis dataKey="w" {...axis} minTickGap={8} /><YAxis {...axis} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip money={false} />} /><Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
     <Bar dataKey="auto" name="Auto-applied" stackId="a" fill={COLORS.ink} maxBarSize={36} /><Bar dataKey="manual" name="Confirmed by a person" stackId="a" fill={COLORS.pink} /><Bar dataKey="review" name="Left for review" stackId="a" fill={COLORS.grey} radius={[6, 6, 0, 0]} /></BarChart></H>
 }
 
 export function RecoveredChart({ h, range }: { h?: number; range: Range }) {
-  return <H h={h}><ComposedChart data={recoveredData(range)} margin={{ left: -8, right: 8, top: 8 }}>{grid}<XAxis dataKey="m" {...axis} minTickGap={8} /><YAxis {...axis} tickFormatter={short} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip />} /><Bar dataKey="v" name="Verified recovered" fill={COLORS.pink} radius={[6, 6, 0, 0]} maxBarSize={40} /><Line type="monotone" dataKey="t" name="Target" stroke={COLORS.ink} strokeDasharray="4 4" dot={false} strokeWidth={2} /></ComposedChart></H>
+  return <H h={h} label="Chart of verified recovered money over time"><ComposedChart data={recoveredData(range)} margin={{ left: -8, right: 8, top: 8 }}>{grid}<XAxis dataKey="m" {...axis} minTickGap={8} /><YAxis {...axis} tickFormatter={short} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip />} /><Bar dataKey="v" name="Verified recovered" fill={COLORS.pink} radius={[6, 6, 0, 0]} maxBarSize={40} /><Line type="monotone" dataKey="t" name="Target" stroke={COLORS.ink} strokeDasharray="4 4" dot={false} strokeWidth={2} /></ComposedChart></H>
 }
 
 export function ResolutionChart({ h, range }: { h?: number; range: Range }) {
-  return <H h={h}><BarChart data={resolutionData(range)} margin={{ left: -16, right: 8, top: 8 }}>{grid}<XAxis dataKey="name" {...axis} interval={0} fontSize={11} /><YAxis {...axis} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip money={false} />} /><Bar dataKey="days" name="Median days to resolve" fill={COLORS.deep} radius={[6, 6, 0, 0]} maxBarSize={44} /></BarChart></H>
+  return <H h={h} label="Bar chart of investigation resolution time"><BarChart data={resolutionData(range)} margin={{ left: -16, right: 8, top: 8 }}>{grid}<XAxis dataKey="name" {...axis} interval={0} fontSize={11} /><YAxis {...axis} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip money={false} />} /><Bar dataKey="days" name="Median days to resolve" fill={COLORS.deep} radius={[6, 6, 0, 0]} maxBarSize={44} /></BarChart></H>
 }
 
 export function ActivityChart({ h, range }: { h?: number; range: Range }) {
-  return <H h={h}><BarChart data={activityData(range)} margin={{ left: -16, right: 8, top: 8 }}>{grid}<XAxis dataKey="d" {...axis} minTickGap={8} /><YAxis {...axis} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip money={false} />} /><Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} /><Bar dataKey="sent" name="Reminders sent" fill={COLORS.ink} radius={[6, 6, 0, 0]} maxBarSize={28} /><Bar dataKey="replied" name="Replies" fill={COLORS.pink} radius={[6, 6, 0, 0]} maxBarSize={28} /></BarChart></H>
+  return <H h={h} label="Bar chart of collections activity over time"><BarChart data={activityData(range)} margin={{ left: -16, right: 8, top: 8 }}>{grid}<XAxis dataKey="d" {...axis} minTickGap={8} /><YAxis {...axis} /><Tooltip cursor={{ fill: "rgba(0,0,0,.04)" }} content={<Tip money={false} />} /><Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} /><Bar dataKey="sent" name="Reminders sent" fill={COLORS.ink} radius={[6, 6, 0, 0]} maxBarSize={28} /><Bar dataKey="replied" name="Replies" fill={COLORS.pink} radius={[6, 6, 0, 0]} maxBarSize={28} /></BarChart></H>
 }
