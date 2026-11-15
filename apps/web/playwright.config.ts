@@ -8,7 +8,9 @@ const api = existsSync("../../services/api/.env")
 export default defineConfig({
   testDir: "e2e",
   timeout: 30_000,
-  fullyParallel: true,
+  // Real-organization tests change shared data, so they run one at a time when the API is configured.
+  fullyParallel: !api,
+  workers: api ? 1 : undefined,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
   use: { baseURL: "http://localhost:4173", trace: "retain-on-failure" },

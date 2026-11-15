@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test"
 import { signIn, testUser } from "./helpers"
 
 test.skip(!testUser, "Supabase test user is not configured")
+// These tests change shared data in one organization, so they run once (desktop) instead of in parallel per project.
+test.beforeEach(({}, info) => { test.skip(info.project.name === "mobile", "desktop only") })
 
 test("company name saves to the server, survives a reload and appears in the audit log", async ({ page }) => {
   await signIn(page)

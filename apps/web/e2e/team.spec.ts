@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test"
 import { signIn, testUser } from "./helpers"
 
 test.skip(!testUser, "Supabase test user is not configured")
+// These tests change shared data in one organization, so they run once (desktop) instead of in parallel per project.
+test.beforeEach(({}, info) => { test.skip(info.project.name === "mobile", "desktop only") })
 
 test("owner sees real members, invites someone and withdraws the invitation", async ({ page }) => {
   await signIn(page)
@@ -36,4 +38,12 @@ test("the owner cannot demote or suspend themselves as the only owner", async ({
   await expect(page.getByRole("combobox", { name: "Role" })).toBeDisabled()
   await expect(page.getByRole("button", { name: "Suspend" })).toBeDisabled()
   await expect(page.getByText("The last owner cannot be changed or suspended.")).toBeVisible()
+})
+
+test("real organizations have no view-as switcher and show the owner navigation", async ({ page }) => {
+  await signIn(page)
+  await page.goto("/app")
+  await expect(page.getByRole("group", { name: "Role switcher" })).toHaveCount(0)
+  await expect(page.getByRole("link", { name: "Team" })).toBeVisible()
+  await expect(page.getByRole("link", { name: "Audit log" })).toBeVisible()
 })
