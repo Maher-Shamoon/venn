@@ -1,3 +1,4 @@
+import pytest
 
 from tests.test_identity_api import Token, auth, client, new_org  # noqa: F401
 from tests.test_ledger_api import Org, fixed_today, org  # noqa: F401
@@ -90,3 +91,26 @@ def test_rerunning_is_idempotent_and_permissions_apply(org: Org, client, auth) -
     assert org.get("/reconciliation/suggestions").json()["total"] == 1
     assert len(org.get("/reconciliation/runs").json()["data"]) == 2
     assert client.post("/api/v1/reconciliation/runs", headers={**org.h, "Authorization": "Bearer nope"}).status_code == 401
+
+
+@pytest.mark.slow
+def test_a_run_over_a_thousand_payments_finishes_in_reasonable_time(org: Org, migrated: str) -> None:
+    import time
+
+    from sqlalchemy import create_engine, text
+
+    cid = org.customer("Bulk Customer")
+    eng = create_engine(migrated)
+    with eng.begin() as c:
+        c.execute(text(
+            "insert into invoices (organization_id, customer_id, invoice_number, issue_date, due_date, currency, total_amount, balance_due) "
+            "select :o, :c, 'BULK-' || n, date '2026-10-01', date '2026-11-01', 'USD', 100 + n, 100 + n from generate_series(1, 1000) n"), {"o": org.id, "c": cid})
+        c.execute(text(
+            "insert into payments (organization_id, number, payment_date, amount, currency, reference, payer_name_raw) "
+            "select :o, 'BP-' || n, date '2026-11-10', case when n % 10 = 0 then 100 + n - 7 else 100 + n end, 'USD', 'pay BULK-' || n, 'Bulk Customer' from generate_series(1, 1000) n"), {"o": org.id})
+    started = time.monotonic()
+    out = run(org)
+    elapsed = time.monotonic() - started
+    print(f"reconciliation of 1000 payments: {elapsed:.1f}s {out}")
+    assert out["payments"] == 1000 and out["auto_applied"] == 900 and out["suggested"] == 100
+    assert elapsed < 120

@@ -66,7 +66,7 @@ def run(db: Session, org: uuid.UUID, actor: AuthUser, today: date, info: Request
             try:
                 with db.begin_nested():
                     for iid, amt in s.allocations:
-                        payments.allocate(db, org, actor, p.id, uuid.UUID(iid), amt, "auto_rule", info)
+                        payments.apply_allocation(db, org, actor, p.id, uuid.UUID(iid), amt, "auto_rule", info)
                 counts["auto_applied"] += 1
                 continue
             except ApiError:
@@ -118,7 +118,7 @@ def accept(db: Session, org: uuid.UUID, actor: AuthUser, sid: uuid.UUID, info: R
     try:
         with db.begin_nested():
             for a in s.allocations:
-                payments.allocate(db, org, actor, s.payment_id, uuid.UUID(a["invoice_id"]), Decimal(a["amount"]), "suggestion_confirmed", info)
+                payments.apply_allocation(db, org, actor, s.payment_id, uuid.UUID(a["invoice_id"]), Decimal(a["amount"]), "suggestion_confirmed", info)
                 db.execute(text("update payment_allocations set reconciliation_match_id = :m where payment_id = :p and invoice_id = :i and voided_at is null"),
                            {"m": sid, "p": s.payment_id, "i": a["invoice_id"]})
     except ApiError as e:  # balances moved since the run: the suggestion no longer describes reality

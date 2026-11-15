@@ -78,6 +78,11 @@ def create(db: Session, org: uuid.UUID, actor: AuthUser, body: PaymentIn, info: 
 
 
 def allocate(db: Session, org: uuid.UUID, actor: AuthUser, pid: uuid.UUID, iid: uuid.UUID, amount: Decimal, method: str, info: RequestInfo) -> PaymentDetail:
+    apply_allocation(db, org, actor, pid, iid, amount, method, info)
+    return get(db, pid)
+
+
+def apply_allocation(db: Session, org: uuid.UUID, actor: AuthUser, pid: uuid.UUID, iid: uuid.UUID, amount: Decimal, method: str, info: RequestInfo) -> None:
     """Applies part of a payment to an invoice. Locks the payment, then the invoice, in that order, so concurrent allocations cannot overspend either."""
     p = db.execute(text("select amount, allocated_amount, currency, direction, reversed_at, number from payments where id = :p for update"), {"p": pid}).first()
     if p is None:
@@ -107,7 +112,6 @@ def allocate(db: Session, org: uuid.UUID, actor: AuthUser, pid: uuid.UUID, iid: 
                  before={"invoice_balance": str(inv.balance_due), "payment_unallocated": str(p.amount - p.allocated_amount)},
                  after={"payment": p.number, "invoice": inv.invoice_number, "amount": str(amount), "invoice_balance": str(inv.balance_due - amount),
                         "payment_unallocated": str(p.amount - p.allocated_amount - amount)}, info=info)
-    return get(db, pid)
 
 
 def _void(db: Session, org: uuid.UUID, actor: AuthUser, a: Any, reason: str, info: RequestInfo) -> None:

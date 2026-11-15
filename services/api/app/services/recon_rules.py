@@ -92,14 +92,23 @@ def normalise(s: str) -> str:
     return re.sub(r"\s+", " ", s.upper()).strip()
 
 
+def find_token(hay: str, needle: str) -> int:
+    """Position of needle in hay as a whole token (not inside a longer letter or digit run), or -1. Plain string search: regexes built per invoice thrash the regex cache."""
+    if not needle:
+        return -1
+    start = hay.find(needle)
+    while start != -1:
+        end = start + len(needle)
+        if (start == 0 or not hay[start - 1].isalnum()) and (end == len(hay) or not hay[end].isalnum()):
+            return start
+        start = hay.find(needle, start + 1)
+    return -1
+
+
 def referenced(text: str, invoices: list[Inv]) -> list[Inv]:
     """Invoices whose number appears as a whole token in the reference or memo, in the order they were found."""
     hay = normalise(text)
-    found: list[tuple[int, Inv]] = []
-    for inv in invoices:
-        m = re.search(rf"(?<![A-Z0-9]){re.escape(normalise(inv.number))}(?![A-Z0-9])", hay)
-        if m:
-            found.append((m.start(), inv))
+    found = [(pos, inv) for inv in invoices if (pos := find_token(hay, normalise(inv.number))) != -1]
     return [i for _, i in sorted(found, key=lambda t: t[0])]
 
 
@@ -133,7 +142,8 @@ def reconcile(pay: Pay, open_invoices: list[Inv], paid_numbers: set[str], priors
         out.discrepancies.append(Discrepancy("currency_mismatch", pay.amount, f"The reference names {inv.number}, which is in {inv.currency}; this payment is in {pay.currency}.", inv.id))
     dup = next((p for p in priors if p.id != pay.id and p.amount == pay.amount and p.currency == pay.currency and (p.customer_id == cust or p.payer.lower() == pay.payer.lower())
                 and p.reference.strip().lower() == pay.reference.strip().lower() and abs((p.payment_date - pay.payment_date).days) <= 14), None)
-    paid_ref = next((n for n in paid_numbers if re.search(rf"(?<![A-Z0-9]){re.escape(normalise(n))}(?![A-Z0-9])", normalise(text))), None)
+    hay = normalise(text)
+    paid_ref = next((n for n in paid_numbers if find_token(hay, normalise(n)) != -1), None)
     if dup or paid_ref:
         out.under_review = True
         why = "Same amount and reference as an earlier payment within 14 days." if dup else f"The reference names {paid_ref}, which is already paid in full."
