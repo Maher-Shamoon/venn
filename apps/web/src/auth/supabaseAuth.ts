@@ -33,6 +33,11 @@ export async function signIn(email: string, password: string): Promise<Account> 
   return { name: nameOf(data.user), email: data.user.email ?? email }
 }
 
+/** Starts Google sign-in. The browser leaves for Google and comes back signed in; it needs the Google provider switched on in Supabase. */
+export async function signInWithGoogle(): Promise<void> {
+  const { error } = await supabase().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/app` } })
+  if (error) throw /provider is not enabled|Unsupported provider/i.test(error.message) ? new Error("Google sign-in is not switched on for this site yet.") : toAuthError(error)
+}
 export const signOut = async () => { await supabase().auth.signOut({ scope: "local" }) }
 export const resendVerification = async (email: string) => {
   const { error } = await supabase().auth.resend({ type: "signup", email, options: { emailRedirectTo: `${location.origin}/onboarding/organization` } })

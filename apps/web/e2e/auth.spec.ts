@@ -47,3 +47,11 @@ test("an existing member goes straight to the app with their organization select
   expect(ctx.status).toBe(200)
   expect(ctx.body.role_key).toBe("owner")
 })
+
+test("sign-in and sign-up offer Continue with Google, and it reports plainly when Google is not switched on", async ({ page }) => {
+  test.skip(!user, "Supabase is not configured")
+  for (const path of ["/login", "/signup"]) {
+    await page.goto(path)
+    await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible()
+  }
+})

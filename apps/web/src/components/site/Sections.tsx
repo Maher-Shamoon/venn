@@ -84,7 +84,7 @@ export function Platform() {
           <Button variant="lime" size="lg" render={<Link to="/demo" />}>See the demo</Button>
         </div>
       </Reveal>
-      <div className="mt-10 grid gap-3 md:grid-cols-2">
+      <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
         <Bento lead="Reconciliation" rest="that explains itself" className="min-h-[520px]">
           <Window title="venn · reconciliation" className="mt-4 translate-y-1">
             <MatchRow pay="PAY-0009" to="INV-1047 + INV-1048" conf="high" tone="bg-[#e3f6e6] text-[#17692b]" />

@@ -12,6 +12,8 @@ const real = config.authSource === "supabase"
 export const signUp = async (name: string, email: string, password: string) =>
   real ? sb.signUp(name, email, password) : { ...(await local.register(name, email, password)), needsVerification: false }
 export const signIn = (email: string, password: string) => (real ? sb.signIn(email, password) : local.verify(email, password))
+export const googleAvailable = real
+export const signInWithGoogle = () => (real ? sb.signInWithGoogle() : Promise.resolve())
 export const signOut = async () => { localStorage.removeItem("venn.org"); if (real) await sb.signOut() }
 export const resendVerification = (email: string) => (real ? sb.resendVerification(email) : Promise.resolve())
 export const requestReset = async (email: string) => { if (real) await sb.requestReset(email); else local.requestReset(email) }

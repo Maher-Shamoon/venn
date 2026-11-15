@@ -133,3 +133,9 @@ The `/app` area is now a working frontend with local state (saved in the browser
 - Gmail: read-only OAuth per organization; "Find emails" on an investigation searches by invoice number and customer address, and a message becomes evidence only when a person links it. The OAuth round trip is tested with mocks; the live consent has to be done by the account owner (Google app is in Testing mode: add yourself as a test user; the login expires every 7 days).
 - Secrets are encrypted in the database (`VENN_SECRETS_KEY`) and never returned. One Stripe or Gmail account per organization.
 - QuickBooks is not built: it needs an Intuit developer app (client id and secret), which has to be created by the account owner.
+
+## Revision 16: QuickBooks, Google sign-in button, screen-size testing
+- QuickBooks Online: read-only OAuth, unpaid invoices into venn (customers created from them). The Intuit app "venn" exists (sandbox) with the redirect address registered; the client id is configured. **The client secret must be copied by the account owner from the Intuit portal into `VENN_QBO_CLIENT_SECRET` (API `.env` and Vercel).** Until then the card shows "Not available yet". Tested with mocked Intuit responses only.
+- "Continue with Google" on sign-in and sign-up (shown when Supabase auth is configured). It needs the Google provider switched on in Supabase (client id and secret) and the Supabase callback address added to the Google client.
+- Screen sizes: public pages (7), the sample workspace (16 screens) and a real organization's screens (16) were checked at 320 to 1920 px for anything drawn off-screen; the home page's feature cards overflowed on phones and were fixed.
+- robots.txt and sitemap.xml added.
