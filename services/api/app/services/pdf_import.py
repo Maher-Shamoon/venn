@@ -49,7 +49,7 @@ def _ask(kind: str, text_in: str) -> str:
     c = get_settings()
     what = "invoices" if kind == "invoices" else "payments received"
     system = SYSTEM.format(what=what, fields=", ".join(f'"{f}": "..."' for f in FIELDS[kind]))
-    return ai.chat({"model": c.llm_model, "temperature": 0, "max_tokens": 3000, "response_format": {"type": "json_object"}, "messages": [{"role": "system", "content": system}, {"role": "user", "content": text_in}]}, timeout=40)
+    return ai.chat({"model": c.llm_model, "temperature": 0, "max_tokens": 1500, "response_format": {"type": "json_object"}, "messages": [{"role": "system", "content": system}, {"role": "user", "content": text_in}]}, timeout=40)
 
 
 def _digits(s: str) -> str:

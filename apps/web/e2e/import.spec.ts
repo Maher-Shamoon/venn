@@ -95,7 +95,7 @@ test("a PDF is read by AI, every row is reviewed, and nothing is saved until con
   await page.goto("/app/invoices/import")
   const doc = pdf([`Invoice QPDF-${s}-1 for QA Pdf ${s}`, "Issued 2026-10-01, due 2026-11-01. Total 2,400.00 USD", `Invoice QPDF-${s}-2 for QA Pdf ${s}`, "Issued 2026-10-05, due 2026-11-05. Total 610.50 USD"])
   await page.getByLabel("Choose CSV file").setInputFiles({ name: "scan.pdf", mimeType: "application/pdf", buffer: doc })
-  await expect(page.getByText(/read from PDF · 2 rows/)).toBeVisible({ timeout: 90_000 })
+  await expect(page.getByText("scan.pdf (read from PDF) · 2 rows")).toBeVisible({ timeout: 90_000 })
   await expect(page.getByRole("button", { name: "Confirm and save 2 rows" })).toBeEnabled()
   await page.getByRole("button", { name: "Confirm and save 2 rows" }).click()
   await expect(page.getByRole("heading", { name: "2 invoices saved" })).toBeVisible()
