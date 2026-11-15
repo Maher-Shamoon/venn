@@ -54,17 +54,19 @@ def record(db: Session, org_id: uuid.UUID, action: str, *, actor_id: uuid.UUID |
     info = info or RequestInfo()
     # One writer per organization at a time keeps the chain linear; released at commit.
     db.execute(text("select pg_advisory_xact_lock(hashtextextended(:o, 0))"), {"o": str(org_id)})
-    last = db.execute(text("select seq, hash from audit_events where organization_id = :o order by seq desc limit 1"),
-                      {"o": org_id}).first()
-    seq = (last.seq if last else 0) + 1
-    now = db.execute(text("select now()")).scalar_one()
+    # Last link and the database clock in one round trip.
+    last = db.execute(text("select (select seq from audit_events where organization_id = :o order by seq desc limit 1) as seq, "
+                           "(select hash from audit_events where organization_id = :o order by seq desc limit 1) as hash, now() as now"),
+                      {"o": org_id}).one()
+    seq = (last.seq or 0) + 1
+    now = last.now
     body = {
         "seq": seq, "occurred_at": _utc(now), "actor_type": "user" if actor_id else "system",
         "actor_id": str(actor_id) if actor_id else None, "action": action, "record_type": record_type,
         "record_id": str(record_id) if record_id is not None else None,
         "before": redact(before), "after": redact(after),
     }
-    prev = bytes(last.hash) if last else None
+    prev = bytes(last.hash) if last.hash else None
     db.execute(
         text("insert into audit_events (organization_id, seq, occurred_at, actor_type, actor_id, action, record_type, "
              "record_id, before, after, request_id, ip, user_agent, prev_hash, hash) values "

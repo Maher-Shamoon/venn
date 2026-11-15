@@ -7,11 +7,13 @@ set, so PostgreSQL row-level security enforces tenancy even if application code 
 import uuid
 from collections.abc import Iterator
 from dataclasses import dataclass
+from datetime import date
 
 from fastapi import Depends, Header, Request
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.core import clock
 from app.core.config import get_settings
 from app.core.db import get_engine
 from app.core.errors import ApiError
@@ -32,10 +34,9 @@ def current_user(authorization: str | None = Header(default=None)) -> AuthUser:
 
 def _scoped_session(user: AuthUser, org_id: uuid.UUID | None) -> Session:
     s = Session(get_engine(), expire_on_commit=False)
-    s.execute(text("set local role venn_app"))
-    s.execute(text("select set_config('app.user_id', :u, true)"), {"u": str(user.id)})
-    if org_id:
-        s.execute(text("select set_config('app.org_id', :o, true)"), {"o": str(org_id)})
+    # One round trip: switch to the non-owner role and set the tenancy values (the same as SET LOCAL ROLE + two set_config calls).
+    s.execute(text("select set_config('role', 'venn_app', true), set_config('app.user_id', :u, true), set_config('app.org_id', :o, true)"),
+              {"u": str(user.id), "o": str(org_id) if org_id else ""})
     return s
 
 
@@ -77,6 +78,11 @@ class Ctx:
     role_key: str
     permissions: frozenset[str]
     info: RequestInfo
+    tz: str = "UTC"
+
+    def today(self) -> date:
+        """Today in the organization's time zone: overdue is decided here, never in UTC."""
+        return clock.today(self.tz)
 
 
 def org_context(
@@ -96,17 +102,18 @@ def org_context(
     s = _scoped_session(user, org_id)
     try:
         # Filter by organization explicitly: the own_memberships policy also exposes the user's other organizations.
+        # One query for membership, role, permissions and the organization's time zone.
         row = s.execute(
-            text("select m.status, r.key, r.id from memberships m join roles r on r.id = m.role_id "
-                 "where m.user_id = :u and m.organization_id = :o"), {"u": user.id, "o": org_id}).first()
+            text("select m.status, r.key, o.timezone, coalesce(array_agg(rp.permission_key) filter (where rp.permission_key is not null), '{}') as perms "
+                 "from memberships m join roles r on r.id = m.role_id and r.organization_id = m.organization_id "
+                 "join organizations o on o.id = m.organization_id left join role_permissions rp on rp.role_id = r.id "
+                 "where m.user_id = :u and m.organization_id = :o group by m.status, r.key, o.timezone"),
+            {"u": user.id, "o": org_id}).first()
         if row is None:
             raise ApiError(403, "not_a_member", "You are not a member of this organization.")
         if row.status != "active":
             raise ApiError(403, "membership_suspended", "Your access to this organization is suspended.")
-        perms = frozenset(
-            r[0] for r in s.execute(text("select permission_key from role_permissions where role_id = :r"),
-                                    {"r": row.id}))
-        yield Ctx(s, user, org_id, row.key, perms, info)
+        yield Ctx(s, user, org_id, row.key, frozenset(row.perms), info, row.timezone)
         s.commit()
     except BaseException:
         s.rollback()
