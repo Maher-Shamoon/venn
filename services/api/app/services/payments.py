@@ -21,7 +21,7 @@ TABS = {
     "allocated": "p.reversed_at is null and p.allocated_amount >= p.amount",
     "review": "p.under_review and p.reversed_at is null",
     "reversed": "p.reversed_at is not null",
-    "duplicate": "false",  # flagged by reconciliation rule R7 (Stage D)
+    "duplicate": "exists (select 1 from discrepancies d where d.payment_id = p.id and d.type = 'duplicate_payment' and d.status = 'open')",
 }
 COLS = ("p.id, p.number, p.customer_id, c.name as customer_name, p.payment_date, p.amount, p.currency, p.allocated_amount, p.method, p.reference, "
         "p.payer_name_raw, p.verification_level, p.under_review, p.reversed_at, p.version, p.memo, p.reversal_reason")
