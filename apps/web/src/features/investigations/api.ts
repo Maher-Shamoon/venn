@@ -11,7 +11,7 @@ export type Finding = { kind: "confirmed" | "calculated" | "possible" | "claim" 
 export type Recommendation = { action: string; label: string; gate: string; amount: string | null; why: string }
 export type Detail = Card & {
   invoice_id: string | null; payment_id: string | null; approval_id: string | null; resolution: string | null; dismiss_reason: string | null; priority_overridden: boolean; version: number
-  analysis: { version: number; status: string; summary: string; findings: Finding[]; recommendation: Recommendation | null; at: string; stale: boolean } | null
+  analysis: { version: number; status: string; summary: string; findings: Finding[]; recommendation: Recommendation | null; ai: { status: string; model: string; sentences: { text: string; cites: number[] }[]; dropped: number } | null; at: string; stale: boolean } | null
   versions: { version: number; status: string; summary: string; at: string }[]
   events: { kind: string; text: string; at: string; by: string | null }[]
   evidence: { id: string; type: string; ref_id: string | null; label: string; tier: string; at: string }[]

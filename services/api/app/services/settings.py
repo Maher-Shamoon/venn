@@ -12,7 +12,7 @@ from app.core.requestinfo import RequestInfo
 from app.core.security import AuthUser
 from app.services import audit
 
-FINANCIAL_DEFAULTS = {"default_terms_days": 30, "auto_apply_exact": True, "short_grace_days": 7, "claim_grace_days": 5}
+FINANCIAL_DEFAULTS = {"default_terms_days": 30, "auto_apply_exact": True, "short_grace_days": 7, "claim_grace_days": 5, "ai_enabled": False}
 
 
 class CompanyIn(BaseModel):
@@ -38,6 +38,7 @@ class FinancialIn(BaseModel):
     auto_apply_exact: bool | None = None
     short_grace_days: int | None = Field(default=None, ge=0, le=90)
     claim_grace_days: int | None = Field(default=None, ge=0, le=90)
+    ai_enabled: bool | None = None
 
     @field_validator("timezone")
     @classmethod

@@ -1784,6 +1784,8 @@ export interface components {
         };
         /** FinancialIn */
         FinancialIn: {
+            /** Ai Enabled */
+            ai_enabled?: boolean | null;
             /** Auto Apply Exact */
             auto_apply_exact?: boolean | null;
             /** Claim Grace Days */

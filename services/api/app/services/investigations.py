@@ -15,8 +15,9 @@ from app.core.errors import ApiError
 from app.core.money import Money
 from app.core.requestinfo import RequestInfo
 from app.core.security import AuthUser
-from app.services import approvals, audit
+from app.services import ai, approvals, audit
 from app.services import investigation_rules as rules
+from app.services.settings import FINANCIAL_DEFAULTS
 
 STATUSES = ("new", "in_progress", "ready_for_review", "awaiting_approval", "monitoring", "resolved", "dismissed")
 CLOSED = ("resolved", "dismissed")
@@ -122,10 +123,12 @@ def run_analysis(db: Session, org: uuid.UUID, actor: AuthUser | None, iid: uuid.
     version = c.analysis_version + 1
     rec = {"action": a.recommendation.action, "amount": str(a.recommendation.amount) if a.recommendation.amount is not None else None, "why": a.recommendation.why,
            "label": rules.ACTIONS[a.recommendation.action]["label"], "gate": rules.ACTIONS[a.recommendation.action]["gate"]} if a.recommendation else None
-    db.execute(text("insert into investigation_analyses (organization_id, investigation_id, version, status, summary, findings, recommendation, snapshot, created_by) "
-                    "values (:o, :i, :v, :s, :sum, cast(:f as jsonb), cast(:r as jsonb), cast(:sn as jsonb), :u)"),
+    fin = {**FINANCIAL_DEFAULTS, **(db.execute(text("select settings from organizations")).scalar_one() or {}).get("financial", {})}
+    ai_out = ai.explain([x.text for x in a.findings]) if ai.enabled(fin) and a.findings else None
+    db.execute(text("insert into investigation_analyses (organization_id, investigation_id, version, status, summary, findings, recommendation, snapshot, ai, created_by) "
+                    "values (:o, :i, :v, :s, :sum, cast(:f as jsonb), cast(:r as jsonb), cast(:sn as jsonb), cast(:ai as jsonb), :u)"),
                {"o": org, "i": iid, "v": version, "s": a.status, "sum": a.summary, "f": json.dumps([{"kind": x.kind, "text": x.text, "cites": x.cites} for x in a.findings]),
-                "r": json.dumps(rec) if rec else None, "sn": json.dumps(snap), "u": actor.id if actor else None})
+                "r": json.dumps(rec) if rec else None, "sn": json.dumps(snap), "ai": json.dumps(ai_out) if ai_out else None, "u": actor.id if actor else None})
     status = c.status
     if a.status == "completed" and a.recommendation and status in ("new", "in_progress"):
         status = "ready_for_review"
@@ -214,12 +217,12 @@ def get(db: Session, iid: uuid.UUID) -> dict[str, Any]:
     out = _card(r)
     out.update({"invoice_id": str(c.invoice_id) if c.invoice_id else None, "payment_id": str(c.payment_id) if c.payment_id else None, "approval_id": str(c.approval_id) if c.approval_id else None,
                 "resolution": c.resolution, "dismiss_reason": c.dismiss_reason, "priority_overridden": c.priority_overridden, "version": c.version})
-    versions = db.execute(text("select version, status, summary, findings, recommendation, snapshot, created_at from investigation_analyses where investigation_id = :i order by version desc"), {"i": iid}).all()
+    versions = db.execute(text("select version, status, summary, findings, recommendation, snapshot, ai, created_at from investigation_analyses where investigation_id = :i order by version desc"), {"i": iid}).all()
     latest = versions[0] if versions else None
     stale = False
     if latest:
         stale = _snapshot(_facts(db, c)) != latest.snapshot
-    out["analysis"] = {"version": latest.version, "status": latest.status, "summary": latest.summary, "findings": latest.findings, "recommendation": latest.recommendation, "at": latest.created_at, "stale": stale} if latest else None
+    out["analysis"] = {"version": latest.version, "status": latest.status, "summary": latest.summary, "findings": latest.findings, "recommendation": latest.recommendation, "ai": latest.ai, "at": latest.created_at, "stale": stale} if latest else None
     out["versions"] = [{"version": v.version, "status": v.status, "summary": v.summary, "at": v.created_at} for v in versions]
     out["events"] = [{"kind": e.kind, "text": e.text, "at": e.created_at, "by": e.who} for e in db.execute(text(
         "select e.kind, e.text, e.created_at, p.full_name as who from investigation_events e left join profiles p on p.id = e.actor_id where e.investigation_id = :i order by e.created_at, e.id"), {"i": iid}).all()]

@@ -8,6 +8,13 @@ test("a short payment opens a case with cited findings; the recommendation goes 
   test.setTimeout(480_000)
   await signIn(page)
   const s = Date.now() % 1_000_000, cust = `QA Case ${s}`, inv = `QC-${s}`
+  const ai = async (on: boolean) => {
+    await page.goto("/app/settings/financial")
+    const sw = page.getByRole("switch", { name: "Explain investigations with AI" })
+    await expect(sw).toBeVisible({ timeout: 30_000 })
+    if ((await sw.getAttribute("aria-checked")) !== String(on)) { await sw.click(); await page.getByRole("button", { name: "Save changes" }).click(); await expect(page.getByText("Settings saved").first()).toBeVisible() }
+  }
+  await ai(true)
   const upload = async (kind: string, csv: string) => {
     await page.goto(`/app/${kind}/import`)
     await page.getByLabel("Choose CSV file").setInputFiles({ name: `${kind}.csv`, mimeType: "text/csv", buffer: Buffer.from(csv) })
@@ -27,6 +34,8 @@ test("a short payment opens a case with cited findings; the recommendation goes 
   await expect(page.getByText("CALCULATED BY venn, NOT BY AI").first()).toBeVisible()
   await expect(page.getByText("analysis v1")).toBeVisible()
   await expect(page.getByText("Request a write-off")).toBeVisible()
+  await expect(page.getByText("Explained by AI")).toBeVisible()
+  await expect(page.getByText(/checked against the findings/)).toBeVisible()
 
   await page.getByRole("button", { name: "Add note" }).click()
   await page.getByRole("textbox", { name: "Note" }).fill("Spoke to the customer")
@@ -50,4 +59,5 @@ test("a short payment opens a case with cited findings; the recommendation goes 
   await page.getByRole("textbox", { name: "Reason" }).fill("Test cleanup")
   await page.getByRole("button", { name: "Dismiss" }).last().click()
   await expect(page.getByText(/This investigation is dismissed/)).toBeVisible({ timeout: 30_000 })
+  await ai(false)
 })

@@ -953,6 +953,17 @@
       },
       "FinancialIn": {
         "properties": {
+          "ai_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Enabled"
+          },
           "auto_apply_exact": {
             "anyOf": [
               {

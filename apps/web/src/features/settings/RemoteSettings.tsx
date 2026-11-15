@@ -67,6 +67,10 @@ function FinancialForm({ initial, version }: { initial: Financial; version: numb
         <Switch checked={f.auto_apply_exact} onCheckedChange={(v) => setF({ ...f, auto_apply_exact: v })} aria-label="Auto-apply exact matches" />
         Apply exact matches automatically. Everything else waits for a person.
       </label>
+      <label className="mt-3 flex max-w-[640px] items-start gap-3 text-sm">
+        <Switch checked={f.ai_enabled} onCheckedChange={(v) => setF({ ...f, ai_enabled: v })} aria-label="Explain investigations with AI" className="mt-0.5" />
+        <span>Explain investigations with AI. Sends the case findings (amounts, dates and record numbers, never customer names) to Groq to write a short cited explanation. The recommendation always comes from fixed rules. Off by default.</span>
+      </label>
       <Button className="mt-4" disabled={save.isPending} onClick={onSave}>Save changes</Button>
     </Box>
   )

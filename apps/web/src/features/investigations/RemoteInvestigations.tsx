@@ -105,6 +105,10 @@ export function RemoteInvestigationDetail() {
           {tab === "findings" ? (
             <div className="space-y-4">
               <Box title="What happened" pad><p>{a?.summary ?? "No analysis yet."}</p></Box>
+              {a?.ai && a.ai.status === "ok" && <Box title="Explained by AI" right={<Pill tone="grey">checked against the findings</Pill>} pad>
+                <div className="space-y-2">{a.ai.sentences.map((x, i) => <p key={i} className="text-sm">{x.text} <span className="font-mono text-[11px] text-hushed">[{x.cites.map((n) => "F" + n).join(", ")}]</span></p>)}</div>
+                <p className="mt-3 text-xs text-hushed">Written by {a.ai.model} from the findings below, numbered F1 onward in the order listed. Sentences that stated something not in the findings were removed{a.ai.dropped ? ` (${a.ai.dropped} removed)` : ""}. It does not choose the recommendation.</p></Box>}
+              {a?.ai?.status === "failed" && <p role="status" className="rounded-lg bg-muted p-3 text-sm text-hushed">The AI explanation was not available this time. The findings and recommendation below come from the records and are not affected.</p>}
               <Box title="Findings" pad><div className="space-y-2">{groups.flatMap((k) => (a?.findings ?? []).filter((x) => x.kind === k).map((x, i) => (
                 <div key={k + i} className={cn("rounded-lg border p-4", KIND[k].box)}><div className={cn("mb-1 font-mono text-[11px]", KIND[k].tag)}>{KIND[k].label}</div><p className="text-sm">{x.text}</p></div>)))}</div></Box>
               <Box title="Recommendation" pad right={rec && <Pill tone="grey">{rec.gate === "approval" ? "needs approval" : "no approval needed"}</Pill>}>

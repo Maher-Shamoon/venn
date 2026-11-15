@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { request } from "@/api/http"
 
 export type Company = { name: string; legal_name: string | null; website: string | null; industry: string; company_size: string; country: string }
-export type Financial = { default_currency: string; timezone: string; default_terms_days: number; auto_apply_exact: boolean; short_grace_days: number; claim_grace_days: number }
+export type Financial = { default_currency: string; timezone: string; default_terms_days: number; auto_apply_exact: boolean; short_grace_days: number; claim_grace_days: number; ai_enabled: boolean }
 export type OrgSettings = { company: Company; financial: Financial; version: number }
 
 export const settingsKey = ["settings"] as const
