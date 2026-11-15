@@ -94,3 +94,7 @@ The `/app` area is now a working frontend with local state (saved in the browser
 ## Revision 8: Stage B in progress (hosted Supabase)
 - Done and tested: identity, tenancy, RBAC, audit chain (B1, B2); real Supabase sign-in/out through the app with the API accepting the token (B3 partly); browser key locked out of application tables.
 - Not yet: sign-up and email-link flows (no readable inbox), team and invitations, settings, audit viewer screen, sandbox organizations (B4, B5). Gate B is not reached.
+
+## Revision 9: Gate B passed (self-review), Stage C started
+- Identity, tenancy, audit, team, invitations, settings (company and financial) and audit viewer are live on the API and tested. See the Gate B section of `docs/testing/checkpoints/STAGE-B-identity-tenancy-audit.md` for the gaps carried forward.
+- Next: Stage C core ledger (customers, invoices, payments, CSV import).

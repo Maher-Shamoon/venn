@@ -43,3 +43,27 @@ The C: drive of this machine is full (1.5 GB free). Docker Desktop's virtual dis
 - The API connects as the migration user and runs each request as `SET LOCAL ROLE venn_app`. Production must grant `venn_app` to the application's database user.
 - Row ids use `gen_random_uuid()` (v4). The architecture asks for UUIDv7; decide before the first large table.
 - The client IP in audit entries is the direct peer; behind a proxy it needs trusted `X-Forwarded-For` handling (Stage J).
+
+---
+
+## Gate B self-review (2026-11-15)
+The owner instructed me to build, test and approve each gate myself and continue. This is that review, with what it does and does not cover.
+
+| Area | Evidence | Verdict |
+|---|---|---|
+| B1 tenancy, RBAC | 47 API tests (RLS, cross-tenant, permissions, last owner), live hosted-DB tests | PASS |
+| B2 audit | append-only, hash chain, tamper detection, 16 concurrent writers, viewer API, real viewer screen with paging | PASS |
+| B3 auth | real sign-in, sign-out (session ended), wrong password, token verified by API with ES256 | PASS for sign-in and sign-out. Sign-up and emailed links NOT TESTED (no inbox) |
+| B4 onboarding | organization created through the API from onboarding; role comes from the server; view-as switcher removed in real organizations | PASS by API tests and e2e login routing; the onboarding screen itself has no automated test |
+| B4 sandbox | `/demo` keeps working with browser-only data, so it cannot touch real data | DEVIATION from P3-D6: no server-side sandbox organization. Browser-local isolation is stronger for privacy and needs no cleanup job; revisit if demo data must be shared |
+| B5 team | members list, invite (validation, duplicates), revoke, resend, accept page, role change, suspend, last-owner guard, AR permission editor with locks | PASS (9 API tests, 3 e2e, 4 component tests) |
+| B5 settings | company and financial on the API with validation and If-Match conflicts; other tabs (approvals, notifications, remittance, security, data) still local | PARTIAL, by design: those tabs belong to later stages |
+| Quality gates | CI green: lint, types, 43 unit and component tests, 47 API tests, 29 e2e (5 skipped by design), secret scan, type drift check | PASS |
+
+Known gaps carried forward (tracked, not hidden):
+- Sign-up verification email and password-reset email links need an inbox to test. Do once with a real address.
+- API responses for identity endpoints are bare objects; the spec envelope `{data: ...}` is used by list endpoints only. Align when the generated client replaces hand-written calls.
+- Rate limiting on invitation and auth-adjacent endpoints is not implemented (Stage I).
+- Invitation emails go through a development mailer that sends nothing; a real SMTP adapter arrives with notifications (Stage F). Until then the link is not delivered.
+
+**Gate B: approved (self-review). Proceeding to Stage C.**
