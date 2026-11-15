@@ -119,3 +119,11 @@ The `/app` area is now a working frontend with local state (saved in the browser
 - Real organizations no longer show any prototype data in the app frame or on the dashboard. Integrations in a real organization honestly say that nothing is connected.
 - **Still blocked:** AI analysis (needs an LLM key), Gmail, QuickBooks and Stripe (need accounts and credentials), real email delivery and hosting (Stage J: needs a mail provider, a host, a domain and an error tracker).
 - **Still open without a blocker:** PDF import review, virus scan and OCR for documents, job runner, load tests at 100k invoices, website pre-rendering, a security review by someone else.
+
+## Revision 14: deployed, email, AI, scheduled jobs, PDF import
+- Live: web https://venn-web-beta.vercel.app, API https://venn-api.vercel.app (both on Vercel, project settings hold the secrets). Deploys are manual with `npx vercel deploy --prod` from `apps/web` and `services/api`.
+- Email: real sending through Brevo SMTP (`VENN_SMTP_*`, `VENN_MAIL_FROM`). The sender is a verified single address; a custom domain with SPF/DKIM is needed for good deliverability. A provider failure records nothing and returns `email_failed`.
+- AI (Groq, `VENN_LLM_*`): opt-in per organization (Settings, Financial). Explains investigations in cited sentences that are checked against the findings, and reads invoices or payments from a PDF into the normal import review. It never chooses an action and never saves anything. The free plan has an 8,000 tokens a minute limit; the app retries briefly and then says it is busy.
+- Scheduled jobs: `POST/GET /api/v1/internal/cron/daily` (Vercel cron, 04:00 UTC, protected by `CRON_SECRET`): expire approvals, refresh the collections queue, follow-up tasks.
+- Phone layout: two-column KPI cards, bottom tab bar, tidier headers.
+- Still open: Gmail, QuickBooks, Stripe (accounts needed); custom domain for email; virus scan and OCR; load tests at 100k invoices; website pre-rendering; outside security review. Vercel's free limits (4.5 MB request bodies, 60 s functions) cap uploads and long runs.
