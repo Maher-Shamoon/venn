@@ -16,7 +16,7 @@ Date: 2026-11-15 · Plan: docs/planning/MODULE_DELIVERY_PLAN.md
 | ID | Check | Result |
 |---|---|---|
 | A1 | FastAPI service runs; `/api/v1/health` 200; `/health/ready` reaches a real PostgreSQL; problem+json with request id; Alembic baseline applies | PASSED (pytest) |
-| A1 | `docker compose up` brings up db, redis, mailpit, api | **BLOCKED locally**: Docker is not installed on this machine. File written, not run. CI starts the same pgvector image as a service container and passes |
+| A1 | `docker compose up -d --build` brings up db, redis, mailpit, api | PASSED 2026-11-15 after installing Docker Desktop: api `/health/ready` returned `{"status":"ready"}`, Mailpit UI 200, Redis PONG, `vector` extension present, pytest against the compose database 6 passed |
 | A2 | CI: lint, types, tests, build, e2e, API tests with pgvector service, OpenAPI and TypeScript type drift check, gitleaks | PASSED on GitHub |
 | A2 | `pip-audit` | Runs but is non-blocking (`|| true`) until a baseline of known findings is reviewed |
 | A3 | TanStack Query, money helpers (exact decimals), MSW, Playwright + axe, generated API types, feature folder convention | PASSED |

@@ -88,5 +88,5 @@ The `/app` area is now a working frontend with local state (saved in the browser
 ## Revision 7: Stage A (foundation) complete, awaiting Gate A approval
 - Backend skeleton `services/api` (FastAPI, SQLAlchemy, Alembic, problem+json, request ids), Docker Compose file, CI with API, web, Playwright and secret-scan jobs, OpenAPI-to-TypeScript generation with drift checks, frontend data layer (TanStack Query, money helpers, MSW, URL-synced tables, API error toasts).
 - Evidence: `docs/testing/checkpoints/STAGE-A-foundation.md`. CI green on all four jobs.
-- Blocked: Docker is not installed locally, so `docker compose up` is unverified here.
+- Docker Desktop installed and `docker compose up` verified (see evidence).
 - Next: Stage B (identity, tenancy, audit) after approval. It needs a Supabase project from you.
