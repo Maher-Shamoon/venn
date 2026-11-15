@@ -25,7 +25,7 @@ export function RemotePayments() {
   const [open, setOpen] = useState(false)
   return (
     <>
-      <Title sub={`${q.data?.total ?? 0} payments`} right={<Button onClick={() => setOpen(true)}><Plus className="size-4" />Record payment</Button>}>Payments</Title>
+      <Title sub={`${q.data?.total ?? 0} payments`} right={<><Button variant="outline" render={<Link to="/app/payments/import" />}>Import CSV</Button><Button onClick={() => setOpen(true)}><Plus className="size-4" />Record payment</Button></>}>Payments</Title>
       <Seg items={TABS} value={tab} onChange={(v) => setParams((p) => { const n = new URLSearchParams(p); if (v === "all") n.delete("tab"); else n.set("tab", v); n.delete("page"); return n }, { replace: true })} />
       <Box>
         {q.isError ? <p role="alert" className="p-5 text-sm text-destructive">{errorMessage(q.error)}</p> : (

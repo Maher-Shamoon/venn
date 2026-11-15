@@ -32,7 +32,7 @@ export function RemoteInvoices() {
   const [open, setOpen] = useState(false)
   return (
     <>
-      <Title sub={`${q.data?.total ?? 0} invoices`} right={<Button onClick={() => setOpen(true)}><Plus className="size-4" />New invoice</Button>}>Invoices</Title>
+      <Title sub={`${q.data?.total ?? 0} invoices`} right={<><Button variant="outline" render={<Link to="/app/invoices/import" />}>Import CSV</Button><Button onClick={() => setOpen(true)}><Plus className="size-4" />New invoice</Button></>}>Invoices</Title>
       <Seg items={TABS} value={tab} onChange={(v) => setParams((p) => { const n = new URLSearchParams(p); if (v === "all") n.delete("tab"); else n.set("tab", v); n.delete("page"); return n }, { replace: true })} />
       <Box>
         {q.isError ? <p role="alert" className="p-5 text-sm text-destructive">{errorMessage(q.error)}</p> : (
