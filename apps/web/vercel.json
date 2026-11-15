@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "rewrites": [{ "source": "/((?!api/|assets/).*)", "destination": "/index.html" }],
+  "rewrites": [{ "source": "/api/v1/:path*", "destination": "https://venn-api.vercel.app/api/v1/:path*" }, { "source": "/((?!api/|assets/).*)", "destination": "/index.html" }],
   "headers": [
     { "source": "/(.*)", "headers": [
       { "key": "X-Content-Type-Options", "value": "nosniff" },

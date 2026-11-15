@@ -17,7 +17,10 @@ _factory: sessionmaker[Session] | None = None
 def get_engine() -> Engine:
     global _engine, _factory
     if _engine is None:
-        _engine = create_engine(get_settings().database_url, pool_pre_ping=True)
+        cfg = get_settings()
+        # Serverless instances multiply: keep each instance's share of the database's connection limit small.
+        pool = {"pool_size": 2, "max_overflow": 1, "pool_recycle": 240} if cfg.env == "production" else {}
+        _engine = create_engine(cfg.database_url, pool_pre_ping=True, **pool)
         _factory = sessionmaker(_engine, expire_on_commit=False)
     return _engine
 
