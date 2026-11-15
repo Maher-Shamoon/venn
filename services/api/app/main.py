@@ -6,7 +6,7 @@ from collections.abc import Awaitable, Callable
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import audit, health, identity, imports, ledger, reconciliation, settings, team
+from app.api.v1 import approvals, audit, health, identity, imports, ledger, reconciliation, settings, team
 from app.core.config import get_settings
 from app.core.errors import install_error_handlers
 from app.core.logging import setup_logging
@@ -42,6 +42,7 @@ def create_app() -> FastAPI:
     app.include_router(settings.router, prefix="/api/v1")
     app.include_router(ledger.router, prefix="/api/v1")
     app.include_router(reconciliation.router, prefix="/api/v1")
+    app.include_router(approvals.router, prefix="/api/v1")
     app.include_router(imports.router, prefix="/api/v1")
     return app
 
