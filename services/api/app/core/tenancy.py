@@ -52,6 +52,20 @@ def user_session(user: AuthUser = Depends(current_user)) -> Iterator[Session]:
         s.close()
 
 
+def public_session() -> Iterator[Session]:
+    """No user and no organization: only for endpoints that answer to a secret token (invitations)."""
+    s = Session(get_engine(), expire_on_commit=False)
+    s.execute(text("set local role venn_app"))
+    try:
+        yield s
+        s.commit()
+    except BaseException:
+        s.rollback()
+        raise
+    finally:
+        s.close()
+
+
 @dataclass
 class Ctx:
     db: Session
