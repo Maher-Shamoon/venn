@@ -39,10 +39,13 @@ def run(db: Session, org: uuid.UUID, actor: AuthUser, today: date, info: Request
         for n in [r.name, *(r.payer_aliases or [])]:
             names.setdefault(n.strip().lower(), str(r.id))
     pays = db.execute(text("select id, amount, allocated_amount, currency, payment_date, coalesce(reference, '') ref, coalesce(memo, '') memo, coalesce(payer_name_raw, '') payer, "
-                           "customer_id, number from payments where reversed_at is null and direction = 'in' and allocated_amount < amount order by payment_date, number")).all()
+                           "customer_id, number, under_review from payments where reversed_at is null and direction = 'in' and allocated_amount < amount order by payment_date, number")).all()
     priors = [rr.PriorPayment(str(r.id), str(r.customer_id) if r.customer_id else None, r.payer, r.amount, r.currency.strip(), r.ref, r.payment_date)
               for r in db.execute(text(f"select id, customer_id, coalesce(payer_name_raw, '') payer, amount, currency, coalesce(reference, '') ref, payment_date from payments "  # noqa: S608
                                        f"where reversed_at is null and payment_date >= :d - {PRIOR_DAYS}"), {"d": today}).all()]
+    rejected: dict[str, set[str]] = {}
+    for r in db.execute(text("select payment_id, allocations from recon_suggestions where status = 'rejected'")).all():
+        rejected.setdefault(str(r.payment_id), set()).add(_key([(a["invoice_id"], Decimal(a["amount"])) for a in r.allocations]))
     run_id = db.execute(text("insert into recon_runs (organization_id, started_by) values (:o, :u) returning id"), {"o": org, "u": actor.id}).scalar_one()
     db.execute(text("update recon_suggestions set status = 'stale' where status = 'pending'"))
     counts = {"payments": len(pays), "suggested": 0, "auto_applied": 0, "discrepancies": 0, "unmatched": 0}
@@ -53,7 +56,7 @@ def run(db: Session, org: uuid.UUID, actor: AuthUser, today: date, info: Request
             n = db.execute(text("insert into discrepancies (organization_id, run_id, type, payment_id, invoice_id, exposure, detail) values (:o, :r, :t, :p, :i, :e, :d) "
                                 "on conflict do nothing returning id"), {"o": org, "r": run_id, "t": d.type, "p": p.id, "i": d.invoice_id, "e": d.exposure, "d": d.detail}).first()
             counts["discrepancies"] += 1 if n else 0
-        if o.under_review and not db.execute(text("select under_review from payments where id = :p"), {"p": p.id}).scalar_one():
+        if o.under_review and not p.under_review:
             payments.set_review(db, org, actor, p.id, True, info)
         s = o.suggestion
         if s is None:
@@ -68,7 +71,7 @@ def run(db: Session, org: uuid.UUID, actor: AuthUser, today: date, info: Request
                 continue
             except ApiError:
                 pass  # fall through: a person will decide
-        if _was_rejected(db, p.id, s.allocations):
+        if _key(s.allocations) in rejected.get(str(p.id), set()):
             continue
         db.execute(text("insert into recon_suggestions (organization_id, run_id, payment_id, rule, confidence, allocations, reason) values (:o, :r, :p, :rule, :c, cast(:a as jsonb), :why)"),
                    {"o": org, "r": run_id, "p": p.id, "rule": s.rule, "c": s.confidence, "a": json.dumps([{"invoice_id": i, "amount": str(a)} for i, a in s.allocations]), "why": s.reason})
@@ -76,11 +79,6 @@ def run(db: Session, org: uuid.UUID, actor: AuthUser, today: date, info: Request
     db.execute(text("update recon_runs set counts = cast(:c as jsonb) where id = :r"), {"c": json.dumps(counts), "r": run_id})
     audit.record(db, org, "reconciliation.run", actor_id=actor.id, record_type="recon_run", record_id=run_id, after=counts, info=info)
     return {"id": str(run_id), **counts}
-
-
-def _was_rejected(db: Session, pid: Any, allocs: list[tuple[str, Decimal]]) -> bool:
-    rows = db.execute(text("select allocations from recon_suggestions where payment_id = :p and status = 'rejected'"), {"p": pid}).all()
-    return any(_key([(a["invoice_id"], Decimal(a["amount"])) for a in r.allocations]) == _key(allocs) for r in rows)
 
 
 def list_runs(db: Session) -> list[dict[str, Any]]:

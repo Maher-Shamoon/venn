@@ -24,7 +24,7 @@ const Payments = lazy(() => import("@/features/ledger/routes").then((m) => ({ de
 const InvestigationDetail = lazy(() => import("@/components/app/Reconcile").then((m) => ({ default: m.InvestigationDetail })))
 const Investigations = lazy(() => import("@/components/app/Reconcile").then((m) => ({ default: m.Investigations })))
 const ReconRun = lazy(() => import("@/components/app/Reconcile").then((m) => ({ default: m.ReconRun })))
-const Reconciliation = lazy(() => import("@/components/app/Reconcile").then((m) => ({ default: m.Reconciliation })))
+const Reconciliation = lazy(() => import("@/features/reconciliation/routes").then((m) => ({ default: m.ReconciliationRoute })))
 const ApprovalDetail = lazy(() => import("@/components/app/Workflows").then((m) => ({ default: m.ApprovalDetail })))
 const Approvals = lazy(() => import("@/components/app/Workflows").then((m) => ({ default: m.Approvals })))
 const CollectionDetail = lazy(() => import("@/components/app/Workflows").then((m) => ({ default: m.CollectionDetail })))
