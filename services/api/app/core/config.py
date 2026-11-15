@@ -13,6 +13,11 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
     cors_origins: list[str] = ["http://localhost:5174", "http://localhost:5180"]
     log_level: str = "INFO"
+    # Supabase tokens: verify with the project JWKS (asymmetric keys) or, for local projects, the shared secret.
+    jwks_url: str = ""
+    jwt_secret: str = ""
+    jwt_audience: str = "authenticated"
+    jwt_issuer: str = ""
 
 
 @lru_cache
