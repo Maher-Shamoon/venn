@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { api, ApiError, bindSession, paginate } from "./http"
+import { api, ApiError, bindSession, paginate, request } from "./http"
 
 const ok = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } })
 afterEach(() => vi.restoreAllMocks())
@@ -26,6 +26,15 @@ describe("http client", () => {
     const e = await api.get("/x").catch((x) => x)
     expect(e).toBeInstanceOf(ApiError)
     expect(e).toMatchObject({ status: 409, code: "version_conflict", requestId: "req_1", isConflict: true })
+  })
+  it("sends uploads as multipart without a JSON content type", async () => {
+    const f = vi.spyOn(globalThis, "fetch").mockImplementation(async () => ok({ id: 1 }))
+    const body = new FormData()
+    body.set("kind", "invoices")
+    await request("/imports", { method: "POST", body })
+    const init = f.mock.calls[0][1]!
+    expect(init.body).toBeInstanceOf(FormData)
+    expect((init.headers as Record<string, string>)["Content-Type"]).toBeUndefined()
   })
   it("survives a non-JSON error body", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("<html>", { status: 502 }))

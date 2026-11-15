@@ -22,13 +22,28 @@ export async function request<T>(path: string, o: Opts = {}): Promise<T> {
   const token = session.token(), org = session.org()
   if (token) headers.Authorization = `Bearer ${token}`
   if (org) headers["X-Organization-Id"] = org
-  if (o.body !== undefined) headers["Content-Type"] = "application/json"
+  const form = typeof FormData !== "undefined" && o.body instanceof FormData
+  // Uploads are sent as multipart: the browser must set the boundary itself, so no Content-Type here.
+  if (o.body !== undefined && !form) headers["Content-Type"] = "application/json"
   if (o.idempotent) headers["Idempotency-Key"] = crypto.randomUUID()
   if (o.version !== undefined) headers["If-Match"] = String(o.version)
-  const res = await fetch(config.apiBase + path + qs(o.query), { method: o.method ?? "GET", headers, body: o.body === undefined ? undefined : JSON.stringify(o.body), signal: o.signal })
+  const res = await fetch(config.apiBase + path + qs(o.query), { method: o.method ?? "GET", headers, body: o.body === undefined ? undefined : form ? (o.body as FormData) : JSON.stringify(o.body), signal: o.signal })
   if (!res.ok) throw await toApiError(res)
   if (res.status === 204) return undefined as T
   return res.json() as Promise<T>
+}
+
+/** Fetches a file from the API (authenticated) and saves it through the browser. */
+export async function downloadFile(path: string, filename: string): Promise<void> {
+  const headers: Record<string, string> = {}
+  const token = session.token(), org = session.org()
+  if (token) headers.Authorization = `Bearer ${token}`
+  if (org) headers["X-Organization-Id"] = org
+  const res = await fetch(config.apiBase + path, { headers })
+  if (!res.ok) throw await toApiError(res)
+  const url = URL.createObjectURL(await res.blob())
+  Object.assign(document.createElement("a"), { href: url, download: filename }).click()
+  URL.revokeObjectURL(url)
 }
 
 export const api = {
