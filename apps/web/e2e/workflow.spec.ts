@@ -1,0 +1,53 @@
+import { expect, test } from "@playwright/test"
+import { signIn, testUser } from "./helpers"
+
+test.skip(!testUser, "Supabase test user is not configured")
+test.beforeEach(({}, info) => { test.skip(info.project.name === "mobile", "desktop only") })
+
+test("collections draft from records and are marked sent; a dispute pauses them; tasks work", async ({ page }) => {
+  test.setTimeout(480_000)
+  await signIn(page)
+  const s = Date.now() % 1_000_000, cust = `QA Work ${s}`, inv = `QW-${s}`
+  await page.goto("/app/invoices/import")
+  await page.getByLabel("Choose CSV file").setInputFiles({ name: "i.csv", mimeType: "text/csv", buffer: Buffer.from(["invoice_number,customer,issue_date,due_date,total_amount,currency", `${inv},${cust},2026-08-01,2026-09-01,4300.00,USD`].join("\n")) })
+  await page.getByRole("button", { name: /Confirm and save/ }).click()
+  await expect(page.getByRole("heading", { name: /saved$/ })).toBeVisible()
+
+  await page.goto("/app/collections")
+  await page.getByRole("row", { name: new RegExp(cust) }).click({ timeout: 60_000 })
+  await expect(page.getByRole("heading", { name: cust })).toBeVisible()
+  await page.getByRole("button", { name: "Draft from records" }).click()
+  await expect(page.getByLabel("Message")).toHaveValue(/4,300\.00/)
+  await page.getByLabel("Message").fill("You owe 9,999.00 in total.")
+  await page.getByRole("button", { name: "Mark as sent" }).click()
+  await expect(page.getByText(/9,999\.00, which is not in this case's records/).first()).toBeVisible()
+  await page.getByRole("button", { name: "Draft from records" }).click()
+  await expect(page.getByLabel("Message")).toHaveValue(new RegExp(inv))
+  await page.getByRole("button", { name: "Mark as sent" }).click()
+  await expect(page.getByText("Marked as sent").first()).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByText(/Moved to reminder 2/)).toBeVisible()
+
+  await page.goto("/app/invoices")
+  await page.getByLabel("Search table").fill(inv)
+  await page.getByRole("row", { name: new RegExp(inv) }).click()
+  await page.getByText("Open dispute", { exact: true }).click()
+  await page.getByLabel("Disputed amount").fill("300.00")
+  await page.getByLabel(/What the customer says/).fill("We agreed 4,000, not 4,300")
+  await page.getByRole("button", { name: "Open dispute" }).click()
+  await expect(page.getByRole("heading", { name: /300\.00 disputed/ })).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByText("UNVERIFIED")).toBeVisible()
+  await page.getByRole("button", { name: "Resolve" }).click()
+  await page.getByRole("textbox", { name: "Why" }).fill("Contract confirms 4,300")
+  await page.getByRole("button", { name: "Resolve" }).last().click()
+  await expect(page.getByText(/This dispute is resolved and read-only/)).toBeVisible({ timeout: 30_000 })
+
+  await page.goto("/app/tasks")
+  await page.getByLabel("Task", { exact: true }).fill(`Call ${cust}`)
+  await page.getByRole("button", { name: "Add task" }).click()
+  const box = page.getByRole("checkbox", { name: new RegExp(`Call ${cust}`) })
+  await expect(box).not.toBeChecked({ timeout: 30_000 })
+  await box.click()
+  await expect(box).toBeChecked({ timeout: 30_000 })
+  await page.goto("/app/notifications")
+  await expect(page.getByRole("heading", { name: "Notifications" })).toBeVisible()
+})

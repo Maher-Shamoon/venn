@@ -108,7 +108,7 @@ export function RemoteInvoiceDetail() {
   return (
     <>
       <Title back={["/app/invoices", "Invoices"]} sub={<>{i.customer_name} · due {day(i.due_date)}</>}
-        right={open && <>{owed && <Button onClick={() => setModal("pay")}>Record payment</Button>}<RequestAdjustment invoiceId={i.id} number={i.invoice_number} balance={i.balance_due} paid={i.amount_paid} currency={i.currency} /><Button variant="outline" onClick={() => setModal("cancel")}>Cancel invoice</Button></>}>
+        right={open && <>{owed && <Button onClick={() => setModal("pay")}>Record payment</Button>}<RequestAdjustment invoiceId={i.id} number={i.invoice_number} balance={i.balance_due} paid={i.amount_paid} currency={i.currency} /><Button variant="outline" render={<Link to={`/app/disputes?invoice=${i.id}`} />}>Open dispute</Button><Button variant="outline" onClick={() => setModal("cancel")}>Cancel invoice</Button></>}>
         {i.invoice_number} <InvoiceBadges i={i} />
       </Title>
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">

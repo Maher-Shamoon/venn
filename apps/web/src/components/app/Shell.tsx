@@ -11,6 +11,8 @@ import { A, balOf, useApp, usd, type Role } from "./store"
 import { Loading, PageSkeleton } from "./ui"
 import { fetchContext, remote } from "@/features/identity/api"
 import { useFrame, useSearch } from "@/features/shell/api"
+import { BellList } from "@/features/workflow/RemoteInbox"
+import { useNotifications } from "@/features/workflow/api"
 import { toastApiError } from "@/lib/errors"
 import { signOut } from "@/auth"
 import { SkipLink } from "@/components/venn/SkipLink"
@@ -72,7 +74,7 @@ export function AppShell() {
   const localCounts: Record<string, number> = { "/app/reconciliation": s.suggs.filter((g) => g.status === "pending").length, "/app/investigations": s.invgs.filter((g) => !["resolved", "dismissed"].includes(g.status) && (role === "owner" || g.assignee === me)).length, "/app/collections": s.cols.filter((c) => c.next <= "2026-11-13").length, "/app/disputes": s.dsps.filter((d) => d.status !== "resolved").length, "/app/approvals": s.aprs.filter((a) => a.status === "pending" && (role === "owner" || a.by === me)).length }
   const counts: Record<string, number> = real ? { "/app/reconciliation": frame.data?.counts.reconciliation ?? 0, "/app/investigations": frame.data?.counts.investigations ?? 0, "/app/approvals": frame.data?.counts.approvals ?? 0 } : localCounts
   const groups = GROUPS.map(([g, items]) => [g, items.filter((i) => role === "owner" || !i.ownerOnly)] as [string, Item[]]).filter(([, i]) => i.length)
-  const unread = real ? 0 : s.notifs.filter((n) => !n.read).length
+  const unreadReal = useNotifications(false, real), unread = real ? (unreadReal.data?.unread ?? 0) : s.notifs.filter((n) => !n.read).length
   const link = ({ isActive }: { isActive: boolean }) => cn("flex items-center gap-3 rounded-md border border-transparent px-3 py-2 text-sm transition-colors duration-[240ms]", isActive ? "border-border bg-white text-foreground shadow-sm" : "text-hushed hover:bg-black/[.04] hover:text-foreground")
   const navEl = (
     <nav aria-label="App" className="space-y-5">{groups.map(([g, items]) => (
@@ -105,8 +107,8 @@ export function AppShell() {
           <div className="ml-auto flex items-center gap-1">
             <button type="button" aria-label="Search" onClick={() => setCmd(true)} className="flex size-10 items-center justify-center rounded-md hover:bg-muted sm:hidden"><Search className="size-4" /></button>
             <Pop label="Notifications" trigger={<><Bell className="size-4" />{unread > 0 && <span className="absolute right-2 top-2 size-2 rounded-full bg-blaze" />}</>}>
-              {(close) => <div><div className="flex items-center justify-between px-3 py-2"><span className="text-sm">Notifications</span><button className="text-xs text-hushed hover:text-foreground" onClick={() => A.markRead()}>Mark all read</button></div>
-                {real ? <p className="px-3 py-6 text-center text-sm text-hushed">No notifications yet.</p> : s.notifs.slice(0, 5).map((n) => <button key={n.id} onClick={() => { A.markRead(n.id); close(); nav(n.to) }} className="flex w-full gap-2 rounded-lg px-3 py-2.5 text-left hover:bg-muted"><span className="mt-1.5 size-2 shrink-0 rounded-full" style={{ background: n.read ? "transparent" : "#f472b6" }} /><span><span className="block text-sm">{n.text}</span><span className="text-xs text-hushed">{n.at}</span></span></button>)}
+              {(close) => real ? <BellList close={close} /> : <div><div className="flex items-center justify-between px-3 py-2"><span className="text-sm">Notifications</span><button className="text-xs text-hushed hover:text-foreground" onClick={() => A.markRead()}>Mark all read</button></div>
+                {s.notifs.slice(0, 5).map((n) => <button key={n.id} onClick={() => { A.markRead(n.id); close(); nav(n.to) }} className="flex w-full gap-2 rounded-lg px-3 py-2.5 text-left hover:bg-muted"><span className="mt-1.5 size-2 shrink-0 rounded-full" style={{ background: n.read ? "transparent" : "#f472b6" }} /><span><span className="block text-sm">{n.text}</span><span className="text-xs text-hushed">{n.at}</span></span></button>)}
                 <Link to="/app/notifications" onClick={close} className="block border-t border-border px-3 py-2.5 text-center text-sm hover:bg-muted">See all</Link></div>}
             </Pop>
             <Pop label="Account menu" trigger={<Avatar className="size-8"><AvatarFallback>{initials}</AvatarFallback></Avatar>}>
