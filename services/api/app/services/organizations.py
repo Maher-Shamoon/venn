@@ -4,7 +4,9 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.core.errors import ApiError
+from app.core.requestinfo import RequestInfo
 from app.core.security import AuthUser
+from app.services import audit
 from app.services.permissions import ALL_KEYS, AR_DEFAULT
 
 ROLES = [("owner", "Owner", True, ALL_KEYS), ("ar_specialist", "AR specialist", False, AR_DEFAULT)]
@@ -19,7 +21,8 @@ def ensure_profile(db: Session, user: AuthUser) -> None:
     )
 
 
-def create_organization(db: Session, user: AuthUser, name: str, **fields: str) -> uuid.UUID:
+def create_organization(db: Session, user: AuthUser, name: str, info: RequestInfo | None = None,
+                        **fields: str) -> uuid.UUID:
     """Creates the organization, its two system roles with their permissions, and the creator as Owner.
 
     Runs in the caller's transaction: either everything exists afterwards or nothing does.
@@ -51,4 +54,6 @@ def create_organization(db: Session, user: AuthUser, name: str, **fields: str) -
     db.execute(text("insert into memberships (organization_id, user_id, role_id) values (:o, :u, :r)"),
                {"o": org, "u": user.id, "r": owner_role})
     db.execute(text("update profiles set last_active_org_id = :o where id = :u"), {"o": org, "u": user.id})
+    audit.record(db, org, "organization.created", actor_id=user.id, record_type="organization", record_id=org,
+                 after={"name": name.strip(), **extra}, info=info)
     return org

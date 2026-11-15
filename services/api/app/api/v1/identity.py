@@ -5,8 +5,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.core.requestinfo import RequestInfo
 from app.core.security import AuthUser
-from app.core.tenancy import Ctx, current_user, org_context, require, user_session
+from app.core.tenancy import Ctx, current_user, org_context, request_info, require, user_session
 from app.services import organizations
 
 router = APIRouter(tags=["identity"])
@@ -75,11 +76,12 @@ def context(ctx: Ctx = Depends(org_context)) -> OrgContext:
 
 @router.post("/organizations", status_code=201)
 def create_organization(body: OrganizationIn, user: AuthUser = Depends(current_user),
-                        db: Session = Depends(user_session)) -> OrganizationOut:
+                        db: Session = Depends(user_session),
+                        info: RequestInfo = Depends(request_info)) -> OrganizationOut:
     if not user.email_verified:
         from app.core.errors import ApiError
         raise ApiError(403, "email_not_verified", "Verify your email address to continue.")
-    org = organizations.create_organization(db, user, **body.model_dump())
+    org = organizations.create_organization(db, user, info=info, **body.model_dump())
     row = db.execute(text("select id, name, default_currency, timezone, status, version "
                           "from organizations where id = :o"), {"o": org}).one()
     return OrganizationOut(**row._mapping)
