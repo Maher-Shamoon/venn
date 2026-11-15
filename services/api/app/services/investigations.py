@@ -266,11 +266,25 @@ def add_note(db: Session, org: uuid.UUID, actor: AuthUser, iid: uuid.UUID, body:
 
 def add_evidence(db: Session, org: uuid.UUID, actor: AuthUser, iid: uuid.UUID, body: EvidenceIn, info: RequestInfo) -> dict[str, Any]:
     _open_case(db, iid)
+    if body.type == "document" and body.ref_id and not db.execute(text("select 1 from documents where id = :d and deleted_at is null"), {"d": body.ref_id}).first():
+        raise ApiError(422, "validation_error", "Choose an uploaded document.")
     db.execute(text("insert into investigation_evidence (organization_id, investigation_id, type, ref_id, label, tier, added_by) values (:o, :i, :t, :r, :l, :ti, :u)"),
                {"o": org, "i": iid, "t": body.type, "r": body.ref_id, "l": body.label.strip(), "ti": body.tier, "u": actor.id})
     _event(db, org, iid, "evidence", f"Added evidence: {body.label.strip()}.", actor.id)
     audit.record(db, org, "investigation.evidence_added", actor_id=actor.id, record_type="investigation", record_id=iid, after={"label": body.label.strip(), "type": body.type}, info=info)
     return get(db, iid)
+
+
+def link_document(db: Session, org: uuid.UUID, actor: AuthUser, iid: uuid.UUID, did: uuid.UUID, filename: str, info: RequestInfo) -> bool:
+    """Links an uploaded document as evidence. Linking the same document twice does nothing."""
+    _open_case(db, iid)
+    if db.execute(text("select 1 from investigation_evidence where investigation_id = :i and ref_id = :d and removed_at is null"), {"i": iid, "d": did}).first():
+        return False
+    db.execute(text("insert into investigation_evidence (organization_id, investigation_id, type, ref_id, label, tier, added_by) values (:o, :i, 'document', :d, :l, 'manual', :u)"),
+               {"o": org, "i": iid, "d": did, "l": filename, "u": actor.id})
+    _event(db, org, iid, "evidence", f"Added evidence: {filename}.", actor.id)
+    audit.record(db, org, "investigation.evidence_added", actor_id=actor.id, record_type="investigation", record_id=iid, after={"label": filename, "type": "document"}, info=info)
+    return True
 
 
 def remove_evidence(db: Session, org: uuid.UUID, actor: AuthUser, iid: uuid.UUID, eid: uuid.UUID, info: RequestInfo) -> dict[str, Any]:
