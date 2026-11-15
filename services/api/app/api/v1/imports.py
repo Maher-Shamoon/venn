@@ -4,10 +4,11 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
+from sqlalchemy import text
 
 from app.core.errors import ApiError
 from app.core.tenancy import Ctx, org_context
-from app.services import imports
+from app.services import imports, pdf_import
 from app.services.importing import MAX_BYTES
 
 router = APIRouter(tags=["imports"])
@@ -37,6 +38,23 @@ def create_import(ctx: Context, kind: Annotated[str, Form()], file: Annotated[Up
         raise ApiError(422, "validation_error", "Unknown date format.")
     content = file.file.read(MAX_BYTES + 1)  # sync endpoint: the database work below must not block the event loop
     return imports.create(ctx.db, ctx.org_id, ctx.user, kind, file.filename or "upload.csv", content, date_format or None, ctx.info)
+
+
+@router.post("/imports/pdf", status_code=201)
+def create_import_from_pdf(ctx: Context, kind: Annotated[str, Form()], file: Annotated[UploadFile, File()]) -> dict[str, Any]:
+    """The rows read from the PDF are reviewed exactly like a CSV: nothing is saved until a person confirms them."""
+    _allow(ctx, kind)
+    content = file.file.read(MAX_BYTES + 1)
+    if len(content) > MAX_BYTES:
+        raise ApiError(413, "payload_too_large", "Files can be up to 20 MB.")
+    if not content.startswith(b"%PDF-"):
+        raise ApiError(415, "unsupported_type", "This is not a PDF file.")
+    if not ctx.db.execute(text("select coalesce((settings->'financial'->>'ai_enabled')::boolean, false) from organizations")).scalar_one():
+        raise ApiError(409, "ai_disabled", "Reading PDFs uses AI. Turn on AI in Settings, Financial first.")
+    csv_bytes, kept, dropped = pdf_import.extract(kind, content)
+    job = imports.create(ctx.db, ctx.org_id, ctx.user, kind, f"{file.filename or 'document'} (read from PDF)", csv_bytes, None, ctx.info)
+    job["pdf"] = {"rows_found": kept, "rows_removed": dropped}
+    return job
 
 
 @router.get("/imports/{job_id}")

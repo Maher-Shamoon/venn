@@ -72,3 +72,31 @@ test("ambiguous dates need an explicit choice", async ({ page }) => {
   await page.getByRole("button", { name: "Use this format" }).click()
   await expect(page.getByRole("button", { name: "Confirm and save 1 row" })).toBeEnabled()
 })
+
+function pdf(lines: string[]): Buffer {
+  const stream = `BT /F1 12 Tf 50 750 Td 16 TL ${lines.map((l) => `(${l}) Tj T*`).join(" ")} ET`
+  const objs = ["<< /Type /Catalog /Pages 2 0 R >>", "<< /Type /Pages /Kids [3 0 R] /Count 1 >>", "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+    `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"]
+  let out = "%PDF-1.4\n"; const offs: number[] = []
+  objs.forEach((o, i) => { offs.push(out.length); out += `${i + 1} 0 obj\n${o}\nendobj\n` })
+  const x = out.length
+  out += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n${offs.map((o) => String(o).padStart(10, "0") + " 00000 n \n").join("")}trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${x}\n%%EOF\n`
+  return Buffer.from(out)
+}
+
+test("a PDF is read by AI, every row is reviewed, and nothing is saved until confirmed", async ({ page }) => {
+  test.setTimeout(360_000)
+  await signIn(page)
+  const s = Date.now() % 1_000_000
+  await page.goto("/app/settings/financial")
+  const sw = page.getByRole("switch", { name: "Explain investigations with AI" })
+  await expect(sw).toBeVisible({ timeout: 30_000 })
+  if ((await sw.getAttribute("aria-checked")) !== "true") { await sw.click(); await page.getByRole("button", { name: "Save changes" }).click(); await expect(page.getByText("Settings saved").first()).toBeVisible() }
+  await page.goto("/app/invoices/import")
+  const doc = pdf([`Invoice QPDF-${s}-1 for QA Pdf ${s}`, "Issued 2026-10-01, due 2026-11-01. Total 2,400.00 USD", `Invoice QPDF-${s}-2 for QA Pdf ${s}`, "Issued 2026-10-05, due 2026-11-05. Total 610.50 USD"])
+  await page.getByLabel("Choose CSV file").setInputFiles({ name: "scan.pdf", mimeType: "application/pdf", buffer: doc })
+  await expect(page.getByText(/read from PDF · 2 rows/)).toBeVisible({ timeout: 90_000 })
+  await expect(page.getByRole("button", { name: "Confirm and save 2 rows" })).toBeEnabled()
+  await page.getByRole("button", { name: "Confirm and save 2 rows" }).click()
+  await expect(page.getByRole("heading", { name: "2 invoices saved" })).toBeVisible()
+})

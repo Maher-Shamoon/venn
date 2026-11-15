@@ -17,7 +17,7 @@ export const useUpload = () => useMutation({
     body.set("kind", kind)
     body.set("file", file)
     if (dateFormat) body.set("date_format", dateFormat)
-    return request<ImportJob>("/imports", { method: "POST", body })
+    return request<ImportJob>(file.name.toLowerCase().endsWith(".pdf") ? "/imports/pdf" : "/imports", { method: "POST", body })
   },
 })
 

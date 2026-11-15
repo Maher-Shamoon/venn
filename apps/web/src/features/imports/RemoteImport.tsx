@@ -36,9 +36,9 @@ export function RemoteImport({ kind }: { kind: Kind }) {
         <Box pad>
           <div className="mx-auto max-w-[560px] rounded-xl border border-dashed border-border p-8 text-center">
             <Upload className="mx-auto size-6 text-hushed" />
-            <p className="mt-3 text-lg">Choose a CSV file</p>
-            <p className="mt-1 text-sm text-hushed">{kind === "invoices" ? "Needs invoice number, customer, issue date, due date and total." : "Needs date and amount. Reference and payer name help matching."} Up to 20 MB.</p>
-            <input ref={file} aria-label="Choose CSV file" type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => pick(e.target.files?.[0])} />
+            <p className="mt-3 text-lg">Choose a CSV or PDF file</p>
+            <p className="mt-1 text-sm text-hushed">{kind === "invoices" ? "Needs invoice number, customer, issue date, due date and total." : "Needs date and amount. Reference and payer name help matching."} Or a PDF with text: venn reads it with AI and you review every row (turn on AI in Settings first). Up to 20 MB.</p>
+            <input ref={file} aria-label="Choose CSV file" type="file" accept=".csv,text/csv,.pdf,application/pdf" className="sr-only" onChange={(e) => pick(e.target.files?.[0])} />
             <div className="mt-4 flex flex-wrap justify-center gap-2"><Button disabled={upload.isPending} onClick={() => file.current?.click()}>{upload.isPending ? "Reading…" : "Choose file"}</Button><Button variant="outline" disabled={upload.isPending} onClick={sample}>Use a sample file</Button></div>
             {err && <p role="alert" className="mt-4 text-sm text-destructive">{err}</p>}
           </div>

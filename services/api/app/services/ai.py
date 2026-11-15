@@ -10,6 +10,7 @@ Rules it cannot break, each enforced here in code and not by asking nicely:
 import json
 import logging
 import re
+import time
 from typing import Any
 
 import httpx
@@ -35,14 +36,32 @@ def enabled(org_financial: dict[str, Any]) -> bool:
     return bool(c.llm_api_key and c.llm_model) and bool(org_financial.get("ai_enabled"))
 
 
+class BusyError(Exception):
+    """The provider's free-tier limit was hit and waiting a few seconds did not help."""
+
+
+def chat(body: dict[str, Any], timeout: int = 25) -> str:
+    """One chat completion with a short, bounded retry for the free tier's rate limit (429) and brief provider errors."""
+    c = get_settings()
+    headers = {"Authorization": f"Bearer {c.llm_api_key}", "Content-Type": "application/json", "User-Agent": "venn/1.0"}
+    for attempt in range(3):
+        r = httpx.post("https://api.groq.com/openai/v1/chat/completions", json=body, timeout=timeout, headers=headers)
+        if r.status_code == 429 or r.status_code >= 500:
+            if attempt < 2:
+                time.sleep(min(float(r.headers.get("retry-after", 2) or 2), 8))
+                continue
+            if r.status_code == 429:
+                raise BusyError
+        r.raise_for_status()
+        return str(r.json()["choices"][0]["message"]["content"])
+    raise BusyError
+
+
 def _call(findings: list[str]) -> str:
     c = get_settings()
     body = {"model": c.llm_model, "temperature": 0, "max_tokens": 600, "response_format": {"type": "json_object"},
             "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": "\n".join(f"{i}. {t}" for i, t in enumerate(findings, 1))}]}
-    r = httpx.post("https://api.groq.com/openai/v1/chat/completions", json=body, timeout=25,
-                   headers={"Authorization": f"Bearer {c.llm_api_key}", "Content-Type": "application/json", "User-Agent": "venn/1.0"})
-    r.raise_for_status()
-    return str(r.json()["choices"][0]["message"]["content"])
+    return chat(body)
 
 
 def validate(raw: str, findings: list[str]) -> tuple[list[dict[str, Any]], int]:
