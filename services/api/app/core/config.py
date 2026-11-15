@@ -8,6 +8,7 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="VENN_", extra="ignore")
 
+    cron_secret: str = ""
     llm_provider: str = ""
     llm_model: str = ""
     llm_api_key: str = ""

@@ -72,6 +72,8 @@ jobs:
       - run: uv run ruff check .
       - run: uv run mypy app
       - run: uv run pytest
+      - name: App imports with production dependencies only
+        run: uv run --no-dev python -c "import app.main"
       - name: OpenAPI document is up to date
         run: |
           PYTHONPATH=. uv run python scripts/dump_openapi.py ../../apps/web/src/types/openapi.json
