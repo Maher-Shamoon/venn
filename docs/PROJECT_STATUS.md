@@ -98,3 +98,7 @@ The `/app` area is now a working frontend with local state (saved in the browser
 ## Revision 9: Gate B passed (self-review), Stage C started
 - Identity, tenancy, audit, team, invitations, settings (company and financial) and audit viewer are live on the API and tested. See the Gate B section of `docs/testing/checkpoints/STAGE-B-identity-tenancy-audit.md` for the gaps carried forward.
 - Next: Stage C core ledger (customers, invoices, payments, CSV import).
+
+## Revision 10: Gate C passed (self-review), Stage D started
+- Customers, invoices, payments, allocations and CSV import run on the real API end to end; see `docs/testing/checkpoints/STAGE-C-core-ledger.md` for gaps (notably the real dashboard, Stage H).
+- Next: reconciliation rules R1 to R8, review workspace, approvals and adjustments.
