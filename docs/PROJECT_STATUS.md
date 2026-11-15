@@ -127,3 +127,9 @@ The `/app` area is now a working frontend with local state (saved in the browser
 - Scheduled jobs: `POST/GET /api/v1/internal/cron/daily` (Vercel cron, 04:00 UTC, protected by `CRON_SECRET`): expire approvals, refresh the collections queue, follow-up tasks.
 - Phone layout: two-column KPI cards, bottom tab bar, tidier headers.
 - Still open: Gmail, QuickBooks, Stripe (accounts needed); custom domain for email; virus scan and OCR; load tests at 100k invoices; website pre-rendering; outside security review. Vercel's free limits (4.5 MB request bodies, 60 s functions) cap uploads and long runs.
+
+## Revision 15: Stripe and Gmail connections
+- Stripe: each organization pastes a restricted read-only key (full secret keys are refused); charges from the last 90 days become payments marked source-verified (net of refunds, zero-decimal currencies handled, safe to sync twice). Tested against a real Stripe test account.
+- Gmail: read-only OAuth per organization; "Find emails" on an investigation searches by invoice number and customer address, and a message becomes evidence only when a person links it. The OAuth round trip is tested with mocks; the live consent has to be done by the account owner (Google app is in Testing mode: add yourself as a test user; the login expires every 7 days).
+- Secrets are encrypted in the database (`VENN_SECRETS_KEY`) and never returned. One Stripe or Gmail account per organization.
+- QuickBooks is not built: it needs an Intuit developer app (client id and secret), which has to be created by the account owner.
