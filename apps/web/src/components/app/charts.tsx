@@ -3,11 +3,11 @@ import { COLORS } from "./ui"
 import { usd } from "./store"
 import { activityData, reconData, recoveredData, resolutionData, trendData, type Range } from "./ranges"
 
-const axis = { stroke: "#8a8582", fontSize: 12, tickLine: false, axisLine: false } as const
-const grid = <CartesianGrid stroke="rgba(33,33,33,.08)" strokeDasharray="3 4" vertical={false} />
-const short = (n: number) => (n >= 1000 ? `$${(n / 1000).toFixed(n % 1000 ? 1 : 0)}k` : `$${n}`)
+export const axis = { stroke: "#8a8582", fontSize: 12, tickLine: false, axisLine: false } as const
+export const grid = <CartesianGrid stroke="rgba(33,33,33,.08)" strokeDasharray="3 4" vertical={false} />
+export const short = (n: number) => (n >= 1000 ? `$${(n / 1000).toFixed(n % 1000 ? 1 : 0)}k` : `$${n}`)
 
-function Tip({ active, payload, label, money = true }: { active?: boolean; payload?: { name: string; value: number; color?: string; fill?: string }[]; label?: string; money?: boolean }) {
+export function Tip({ active, payload, label, money = true }: { active?: boolean; payload?: { name: string; value: number; color?: string; fill?: string }[]; label?: string; money?: boolean }) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-lg border border-border bg-white px-3 py-2 text-xs shadow-lg">
@@ -16,7 +16,7 @@ function Tip({ active, payload, label, money = true }: { active?: boolean; paylo
     </div>
   )
 }
-const H = ({ h = 260, children }: { h?: number; children: React.ReactElement }) => <div style={{ height: h }} className="w-full" role="img"><ResponsiveContainer width="100%" height="100%">{children}</ResponsiveContainer></div>
+export const H = ({ h = 260, children }: { h?: number; children: React.ReactElement }) => <div style={{ height: h }} className="w-full" role="img"><ResponsiveContainer width="100%" height="100%">{children}</ResponsiveContainer></div>
 
 export const AGING_COLORS = ["#d2cecb", "#f9a8d4", "#f472b6", "#1a1919"]
 export function AgingChart({ data, h }: { data: [string, number][]; h?: number }) {

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -54,7 +54,7 @@ function Board({ rows }: { rows: Card[] }) {
 }
 
 export function RemoteInvestigations() {
-  const nav = useNavigate(), [view, setView] = useState<"board" | "table">("board"), [f, setF] = useState<"all" | "mine" | "ready" | "awaiting" | "monitoring">("all")
+  const nav = useNavigate(), [params] = useSearchParams(), [view, setView] = useState<"board" | "table">("board"), [f, setF] = useState<"all" | "mine" | "ready" | "awaiting" | "monitoring">(["mine", "ready", "awaiting", "monitoring"].includes(params.get("filter") ?? "") ? (params.get("filter") as "mine") : "all")
   const q = useCases(f, ""), all = useCases("all", "")
   const open = (all.data ?? []).filter((g) => g.status !== "resolved" && g.status !== "dismissed")
   const rows = q.data ?? []

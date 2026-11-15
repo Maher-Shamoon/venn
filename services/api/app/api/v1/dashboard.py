@@ -4,7 +4,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, Response
 
 from app.core.tenancy import Ctx, require
-from app.services import audit, dashboard
+from app.services import audit, dashboard, shell
 
 router = APIRouter(tags=["dashboard"])
 
@@ -38,3 +38,13 @@ def export(slug: str, range: str = "30d", customer_id: uuid.UUID | None = None, 
 @router.get("/reports/{slug}")
 def report(slug: str, range: str = "30d", customer_id: uuid.UUID | None = None, ctx: Ctx = Depends(require("analytics.view"))) -> dict[str, Any]:
     return dashboard.report(ctx.db, slug, range, ctx.today(), customer_id, *_can(ctx))
+
+
+@router.get("/shell")
+def shell_frame(ctx: Ctx = Depends(require("dashboard.operational"))) -> dict[str, Any]:
+    return shell.frame(ctx.db, ctx.user.id, ctx.permissions)
+
+
+@router.get("/search")
+def search(q: str = "", ctx: Ctx = Depends(require("dashboard.operational"))) -> dict[str, Any]:
+    return shell.search(ctx.db, q, ctx.permissions)

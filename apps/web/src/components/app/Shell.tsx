@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import { A, balOf, useApp, usd, type Role } from "./store"
 import { Loading, PageSkeleton } from "./ui"
 import { fetchContext, remote } from "@/features/identity/api"
+import { useFrame, useSearch } from "@/features/shell/api"
 import { toastApiError } from "@/lib/errors"
 import { signOut } from "@/auth"
 import { SkipLink } from "@/components/venn/SkipLink"
@@ -66,10 +67,12 @@ export function AppShell() {
     return () => { window.removeEventListener("keydown", key); window.removeEventListener("online", on); window.removeEventListener("offline", off) }
   }, [])
   useEffect(() => { setMenu(false); window.scrollTo(0, 0); const t = setTimeout(() => { document.title = `${document.querySelector("main h1")?.textContent?.slice(0, 48) || "venn"} · venn` }, 60); return () => clearTimeout(t) }, [loc.pathname])
-  const me = role === "owner" ? "Dana W." : "Priya R."
-  const counts: Record<string, number> = { "/app/reconciliation": s.suggs.filter((g) => g.status === "pending").length, "/app/investigations": s.invgs.filter((g) => !["resolved", "dismissed"].includes(g.status) && (role === "owner" || g.assignee === me)).length, "/app/collections": s.cols.filter((c) => c.next <= "2026-11-13").length, "/app/disputes": s.dsps.filter((d) => d.status !== "resolved").length, "/app/approvals": s.aprs.filter((a) => a.status === "pending" && (role === "owner" || a.by === me)).length }
+  const frame = useFrame(real), [qtext, setQtext] = useState(""), found = useSearch(qtext, real && cmd)
+  const me = real ? (frame.data?.user.name ?? "") : role === "owner" ? "Dana W." : "Priya R."
+  const localCounts: Record<string, number> = { "/app/reconciliation": s.suggs.filter((g) => g.status === "pending").length, "/app/investigations": s.invgs.filter((g) => !["resolved", "dismissed"].includes(g.status) && (role === "owner" || g.assignee === me)).length, "/app/collections": s.cols.filter((c) => c.next <= "2026-11-13").length, "/app/disputes": s.dsps.filter((d) => d.status !== "resolved").length, "/app/approvals": s.aprs.filter((a) => a.status === "pending" && (role === "owner" || a.by === me)).length }
+  const counts: Record<string, number> = real ? { "/app/reconciliation": frame.data?.counts.reconciliation ?? 0, "/app/investigations": frame.data?.counts.investigations ?? 0, "/app/approvals": frame.data?.counts.approvals ?? 0 } : localCounts
   const groups = GROUPS.map(([g, items]) => [g, items.filter((i) => role === "owner" || !i.ownerOnly)] as [string, Item[]]).filter(([, i]) => i.length)
-  const unread = s.notifs.filter((n) => !n.read).length
+  const unread = real ? 0 : s.notifs.filter((n) => !n.read).length
   const link = ({ isActive }: { isActive: boolean }) => cn("flex items-center gap-3 rounded-md border border-transparent px-3 py-2 text-sm transition-colors duration-[240ms]", isActive ? "border-border bg-white text-foreground shadow-sm" : "text-hushed hover:bg-black/[.04] hover:text-foreground")
   const navEl = (
     <nav aria-label="App" className="space-y-5">{groups.map(([g, items]) => (
@@ -92,7 +95,7 @@ export function AppShell() {
       <aside className="hidden max-h-[calc(100vh-40px)] overflow-y-auto border-r border-border bg-muted p-4 [scrollbar-width:none] lg:sticky lg:top-0 lg:block lg:self-start">
         <Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link>
         {navEl}
-        <div className="mt-8 rounded-lg border border-border bg-white p-3 text-xs text-hushed"><div className="text-sm text-foreground">{s.settings.company.name}</div>{role === "owner" ? "Owner" : "AR specialist"} · {me}</div>
+        <div className="mt-8 rounded-lg border border-border bg-white p-3 text-xs text-hushed"><div className="text-sm text-foreground">{real ? (frame.data?.organization.name ?? "") : s.settings.company.name}</div>{role === "owner" ? "Owner" : "AR specialist"} · {me}</div>
       </aside>
       <div className="min-w-0">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b-[0.8px] border-[rgba(33,33,33,.08)] bg-white/60 px-4 backdrop-blur-[25px] backdrop-saturate-150 md:gap-3 md:px-8">
@@ -103,11 +106,11 @@ export function AppShell() {
             <button type="button" aria-label="Search" onClick={() => setCmd(true)} className="flex size-10 items-center justify-center rounded-md hover:bg-muted sm:hidden"><Search className="size-4" /></button>
             <Pop label="Notifications" trigger={<><Bell className="size-4" />{unread > 0 && <span className="absolute right-2 top-2 size-2 rounded-full bg-blaze" />}</>}>
               {(close) => <div><div className="flex items-center justify-between px-3 py-2"><span className="text-sm">Notifications</span><button className="text-xs text-hushed hover:text-foreground" onClick={() => A.markRead()}>Mark all read</button></div>
-                {s.notifs.slice(0, 5).map((n) => <button key={n.id} onClick={() => { A.markRead(n.id); close(); nav(n.to) }} className="flex w-full gap-2 rounded-lg px-3 py-2.5 text-left hover:bg-muted"><span className="mt-1.5 size-2 shrink-0 rounded-full" style={{ background: n.read ? "transparent" : "#f472b6" }} /><span><span className="block text-sm">{n.text}</span><span className="text-xs text-hushed">{n.at}</span></span></button>)}
+                {real ? <p className="px-3 py-6 text-center text-sm text-hushed">No notifications yet.</p> : s.notifs.slice(0, 5).map((n) => <button key={n.id} onClick={() => { A.markRead(n.id); close(); nav(n.to) }} className="flex w-full gap-2 rounded-lg px-3 py-2.5 text-left hover:bg-muted"><span className="mt-1.5 size-2 shrink-0 rounded-full" style={{ background: n.read ? "transparent" : "#f472b6" }} /><span><span className="block text-sm">{n.text}</span><span className="text-xs text-hushed">{n.at}</span></span></button>)}
                 <Link to="/app/notifications" onClick={close} className="block border-t border-border px-3 py-2.5 text-center text-sm hover:bg-muted">See all</Link></div>}
             </Pop>
             <Pop label="Account menu" trigger={<Avatar className="size-8"><AvatarFallback>{initials}</AvatarFallback></Avatar>}>
-              {(close) => <div className="p-1"><div className="px-3 py-2"><div className="text-sm">{s.session?.name ?? me}</div><div className="text-xs text-hushed">{s.session?.email ?? "sample workspace"}</div></div>
+              {(close) => <div className="p-1"><div className="px-3 py-2"><div className="text-sm">{real ? (frame.data?.user.name ?? "") : (s.session?.name ?? me)}</div><div className="text-xs text-hushed">{real ? (frame.data?.user.email ?? "") : (s.session?.email ?? "sample workspace")}</div></div>
                 <Link to="/app/profile" onClick={close} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted"><User className="size-4" />Profile</Link>
                 <button onClick={() => { close(); void signOut().finally(() => { A.signOut(); nav("/login") }) }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-muted"><LogOut className="size-4" />Sign out</button></div>}
             </Pop>
@@ -118,15 +121,22 @@ export function AppShell() {
       </div>
 
       <Sheet open={menu} onOpenChange={setMenu}><SheetContent side="left" className="w-[280px] overflow-y-auto bg-muted p-4"><SheetTitle className="sr-only">Menu</SheetTitle><Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link>{navEl}</SheetContent></Sheet>
-      <CommandDialog open={cmd} onOpenChange={setCmd} title="Search" description="Search records and pages">
-        <CommandInput placeholder="Search invoices, customers, payments, investigations…" />
+      <CommandDialog open={cmd} onOpenChange={(o) => { setCmd(o); if (!o) setQtext("") }} shouldFilter={!real} title="Search" description="Search records and pages">
+        <CommandInput placeholder="Search invoices, customers, payments, investigations…" value={real ? qtext : undefined} onValueChange={real ? setQtext : undefined} />
         <CommandList>
-          <CommandEmpty>No results.</CommandEmpty>
-          <CommandGroup heading="Go to">{groups.flatMap(([, i]) => i).map((i) => <CommandItem key={i.to} value={"go " + i.label} onSelect={() => { setCmd(false); nav(i.to) }}><i.icon className="size-4" />{i.label}</CommandItem>)}</CommandGroup>
+          <CommandEmpty>{real && qtext.trim().length < 2 ? "Type at least two characters to search your records." : "No results."}</CommandEmpty>
+          <CommandGroup heading="Go to">{groups.flatMap(([, i]) => i).filter((i) => !real || !qtext.trim() || i.label.toLowerCase().includes(qtext.trim().toLowerCase())).map((i) => <CommandItem key={i.to} value={"go " + i.label} onSelect={() => { setCmd(false); nav(i.to) }}><i.icon className="size-4" />{i.label}</CommandItem>)}</CommandGroup>
+          {real ? (<>
+            {found.data?.invoices.length ? <CommandGroup heading="Invoices">{found.data.invoices.map((i) => <CommandItem key={i.id} value={"inv " + i.id} onSelect={() => { setCmd(false); nav("/app/invoices/" + i.id) }}><span className="font-mono text-xs">{i.number}</span><span className="flex-1 truncate">{i.customer}</span><span className="text-xs text-hushed">{i.currency} {i.balance}</span></CommandItem>)}</CommandGroup> : null}
+            {found.data?.customers.length ? <CommandGroup heading="Customers">{found.data.customers.map((c) => <CommandItem key={c.id} value={"cus " + c.id} onSelect={() => { setCmd(false); nav("/app/customers/" + c.id) }}>{c.name}</CommandItem>)}</CommandGroup> : null}
+            {found.data?.payments.length ? <CommandGroup heading="Payments">{found.data.payments.map((p) => <CommandItem key={p.id} value={"pay " + p.id} onSelect={() => { setCmd(false); nav("/app/payments/" + p.id) }}><span className="font-mono text-xs">{p.number}</span><span className="flex-1 truncate">{p.payer}</span><span className="text-xs text-hushed">{p.currency} {p.amount}</span></CommandItem>)}</CommandGroup> : null}
+            {found.data?.investigations.length ? <CommandGroup heading="Investigations">{found.data.investigations.map((g) => <CommandItem key={g.id} value={"case " + g.id} onSelect={() => { setCmd(false); nav("/app/investigations/" + g.id) }}><span className="font-mono text-xs">{g.number}</span><span className="flex-1 truncate">{g.title}</span></CommandItem>)}</CommandGroup> : null}
+          </>) : (<>
           <CommandGroup heading="Invoices">{s.invoices.map((i) => <CommandItem key={i.id} value={`${i.id} ${i.cust}`} onSelect={() => { setCmd(false); nav("/app/invoices/" + i.id) }}><span className="font-mono text-xs">{i.id}</span><span className="flex-1 truncate">{i.cust}</span><span className="text-xs text-hushed">{usd(balOf(s, i), 0)}</span></CommandItem>)}</CommandGroup>
           <CommandGroup heading="Customers">{s.customers.map((c) => <CommandItem key={c.id} value={c.name + " " + c.aliases.join(" ")} onSelect={() => { setCmd(false); nav("/app/customers/" + c.id) }}>{c.name}</CommandItem>)}</CommandGroup>
           <CommandGroup heading="Payments">{s.payments.map((p) => <CommandItem key={p.id} value={`${p.id} ${p.payer} ${p.ref}`} onSelect={() => { setCmd(false); nav("/app/payments/" + p.id) }}><span className="font-mono text-xs">{p.id}</span><span className="flex-1 truncate">{p.payer}</span><span className="text-xs text-hushed">{usd(p.amount, 0)}</span></CommandItem>)}</CommandGroup>
           <CommandGroup heading="Investigations">{s.invgs.map((g) => <CommandItem key={g.id} value={`${g.id} ${g.cust} ${g.type}`} onSelect={() => { setCmd(false); nav("/app/investigations/" + g.id) }}><span className="font-mono text-xs">{g.id}</span><span className="flex-1 truncate">{g.title}</span></CommandItem>)}</CommandGroup>
+        </>)}
         </CommandList>
       </CommandDialog>
       <Toaster position="bottom-right" theme="light" />

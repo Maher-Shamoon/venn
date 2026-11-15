@@ -50,6 +50,16 @@ def test_trend_is_rebuilt_from_history_and_its_last_point_is_live(org: Org, migr
     assert org.get("/dashboard/owner?range=nope").status_code == 400
 
 
+def test_a_cancelled_invoice_with_an_adjustment_leaves_no_trace_in_the_live_point(org: Org, migrated: str) -> None:
+    seed(org, migrated)
+    assert org.c.put("/api/v1/settings/approval-policies", json={"type": "write_off", "auto_approve_below": "50.00", "expiry_days": 30}, headers=org.h).status_code == 200
+    i5 = org.invoice(org.customer("Cobalt"), "100.00", number="D-5")
+    assert org.post("/approvals", {"type": "write_off", "invoice_id": i5["id"], "amount": "10.00", "reason": "x"}).json()["status"] == "approved"
+    assert org.post(f"/invoices/{i5['id']}/cancel", {"reason": "mistake"}).status_code == 200
+    d = org.get("/dashboard/owner?range=30d").json()
+    assert d["trend"][-1]["total"] == d["kpis"]["total_ar"] == "3900.0000" and d["trend"][-1]["overdue"] == d["kpis"]["overdue"]
+
+
 def test_range_points_and_overdue_by_customer(org: Org, migrated: str) -> None:
     today = date(2026, 11, 15)
     assert points("30d", today)[0] == date(2026, 10, 18) and points("12m", today)[0] == date(2025, 12, 31) and points("12m", today)[-1] == today
@@ -61,7 +71,7 @@ def test_range_points_and_overdue_by_customer(org: Org, migrated: str) -> None:
 
 def test_reports_are_permission_checked_and_exports_are_audited_and_safe(org: Org, migrated: str, client: TestClient, auth: Token, mail: LogMailer) -> None:  # noqa: F811
     seed(org, migrated)
-    assert {r["slug"] for r in org.get("/reports").json()["data"]} >= {"aging", "trend", "overdue-by-customer", "verified-recovered", "reconciliation-performance", "investigation-resolution"}
+    assert {r["slug"] for r in org.get("/reports").json()["data"]} >= {"aging", "ar-trend", "overdue-by-customer", "recovered", "reconciliation-performance", "investigation-resolution"}
     rep = org.get("/reports/aging?range=30d").json()
     assert [r["bucket"] for r in rep["rows"]][0] == "Current" and rep["definition"]
     cust = org.get("/reports/aging?customer_id=" + seed_customer(org)).json()
@@ -72,7 +82,7 @@ def test_reports_are_permission_checked_and_exports_are_audited_and_safe(org: Or
     assert any(e["action"] == "report.exported" for e in org.get("/audit-events?limit=20").json()["data"])
     ar = auth(join_as_ar(client, auth, mail, org.owner, org.id), org=org.id)
     assert client.get("/api/v1/dashboard/owner", headers=ar).status_code == 403
-    assert client.get("/api/v1/reports/aging", headers=ar).status_code == 403 and client.get("/api/v1/reports/verified-recovered", headers=ar).status_code == 403
+    assert client.get("/api/v1/reports/aging", headers=ar).status_code == 403 and client.get("/api/v1/reports/recovered", headers=ar).status_code == 403
     assert client.get("/api/v1/reports/reconciliation-performance", headers=ar).status_code == 200
     assert {r["slug"] for r in client.get("/api/v1/reports", headers=ar).json()["data"]} == {"reconciliation-performance", "investigation-resolution"}
     assert client.get("/api/v1/dashboard/ar", headers=ar).status_code == 200
@@ -95,15 +105,15 @@ def test_ar_dashboard_lists_work_to_do_and_an_empty_organization_says_so(org: Or
 
 def test_verified_recovered_counts_only_source_verified_payments_after_a_case_opened(org: Org, migrated: str) -> None:
     s = seed(org, migrated)
-    assert org.get("/reports/verified-recovered?range=90d").json()["rows"] == []
+    assert org.get("/reports/recovered?range=90d").json()["rows"] == []
     case = org.post("/investigations", {"invoice_id": s["i2"]})
     assert case.status_code == 201
     p = org.payment("2000.00")
     assert org.allocate(p["id"], s["i2"], "2000.00").status_code == 201
-    assert org.get("/reports/verified-recovered?range=90d").json()["rows"] == []  # a manual payment is never "verified"
+    assert org.get("/reports/recovered?range=90d").json()["rows"] == []  # a manual payment is never "verified"
     with create_engine(migrated).begin() as c:
         c.execute(text("update payments set verification_level = 'source_verified' where id = :p"), {"p": p["id"]})
-    rec = org.get("/reports/verified-recovered?range=90d").json()
+    rec = org.get("/reports/recovered?range=90d").json()
     assert [r["amount"] for r in rec["rows"]] == ["2000.0000"] and rec["total"] == "2000.0000"
     assert org.get("/dashboard/owner?range=90d").json()["kpis"]["recovered"] == "2000.0000"
 
@@ -125,3 +135,18 @@ def test_owner_dashboard_with_twenty_thousand_invoices(org: Org, migrated: str) 
         d = org.get(f"/dashboard/owner?range={r}")
         print(f"owner dashboard {r}: {time.monotonic() - started:.2f}s")
         assert d.status_code == 200 and d.json()["kpis"]["open_invoices"] == 20000
+
+
+def test_shell_frame_and_global_search_use_only_this_organizations_records(org: Org, migrated: str, client: TestClient, auth: Token, mail: LogMailer) -> None:  # noqa: F811
+    seed(org, migrated)
+    org.payment("123.00", reference="ACH 998877", payer_name_raw="Zeta Corp")
+    f = org.get("/shell").json()
+    assert f["organization"]["name"] == "Acme" and f["user"]["name"] and f["counts"] == {"reconciliation": 0, "investigations": 0, "approvals": 0}
+    r = org.get("/search?q=brightwater").json()
+    assert [c["name"] for c in r["customers"]] == ["=Brightwater"] and {i["number"] for i in r["invoices"]} == {"D-3", "D-4"}
+    assert [p["number"] for p in org.get("/search?q=998877").json()["payments"]] == ["PAY-0002"]
+    assert org.get("/search?q=a").json() == {"customers": [], "invoices": [], "payments": [], "investigations": []}  # too short
+    other = Org(client, auth, "Other Co")
+    assert other.get("/search?q=brightwater").json()["customers"] == [] and other.get("/shell").json()["organization"]["name"] == "Other Co"
+    ar = auth(join_as_ar(client, auth, mail, org.owner, org.id), org=org.id)
+    assert client.get("/api/v1/shell", headers=ar).json()["counts"]["approvals"] == 0

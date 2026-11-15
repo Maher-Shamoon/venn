@@ -62,12 +62,12 @@ select d.d as day,
     and (i.cancelled_at is null or (i.cancelled_at at time zone :tz)::date > d.d)) as inv_all,
  (select coalesce(sum(i.total_amount), 0) from invoices i where i.issue_date <= d.d and i.due_date < d.d and i.lifecycle_status <> 'draft' and i.currency = :cur
     and (i.cancelled_at is null or (i.cancelled_at at time zone :tz)::date > d.d)) as inv_late,
- (select coalesce(sum(a.amount), 0) from payment_allocations a join invoices i on i.id = a.invoice_id where i.currency = :cur and (a.created_at at time zone :tz)::date <= d.d
+ (select coalesce(sum(a.amount), 0) from payment_allocations a join invoices i on i.id = a.invoice_id where i.currency = :cur and i.lifecycle_status <> 'draft' and (i.cancelled_at is null or (i.cancelled_at at time zone :tz)::date > d.d) and (a.created_at at time zone :tz)::date <= d.d
     and (a.voided_at is null or (a.voided_at at time zone :tz)::date > d.d)) as paid_all,
- (select coalesce(sum(a.amount), 0) from payment_allocations a join invoices i on i.id = a.invoice_id where i.currency = :cur and i.due_date < d.d and (a.created_at at time zone :tz)::date <= d.d
+ (select coalesce(sum(a.amount), 0) from payment_allocations a join invoices i on i.id = a.invoice_id where i.currency = :cur and i.due_date < d.d and i.lifecycle_status <> 'draft' and (i.cancelled_at is null or (i.cancelled_at at time zone :tz)::date > d.d) and (a.created_at at time zone :tz)::date <= d.d
     and (a.voided_at is null or (a.voided_at at time zone :tz)::date > d.d)) as paid_late,
- (select coalesce(sum(j.amount), 0) from adjustments j join invoices i on i.id = j.invoice_id where j.affects_balance and i.currency = :cur and (j.created_at at time zone :tz)::date <= d.d) as adj_all,
- (select coalesce(sum(j.amount), 0) from adjustments j join invoices i on i.id = j.invoice_id where j.affects_balance and i.currency = :cur and i.due_date < d.d and (j.created_at at time zone :tz)::date <= d.d) as adj_late
+ (select coalesce(sum(j.amount), 0) from adjustments j join invoices i on i.id = j.invoice_id where j.affects_balance and i.currency = :cur and i.lifecycle_status <> 'draft' and (i.cancelled_at is null or (i.cancelled_at at time zone :tz)::date > d.d) and (j.created_at at time zone :tz)::date <= d.d) as adj_all,
+ (select coalesce(sum(j.amount), 0) from adjustments j join invoices i on i.id = j.invoice_id where j.affects_balance and i.currency = :cur and i.due_date < d.d and i.lifecycle_status <> 'draft' and (i.cancelled_at is null or (i.cancelled_at at time zone :tz)::date > d.d) and (j.created_at at time zone :tz)::date <= d.d) as adj_late
 from unnest(cast(:dates as date[])) as d(d) order by d.d
 """
 
@@ -172,9 +172,9 @@ def ar(db: Session, user: uuid.UUID, today: date) -> dict[str, Any]:
 # ----------------------------------------------------------------------------------------------------------- reports
 REPORTS = {
     "aging": ("Receivables aging", "financial", "Open invoices grouped by how many days past their due date they are today. Balance is total less payments applied and approved adjustments."),
-    "trend": ("Outstanding balance trend", "financial", "What was owed, and how much of it was past due, at the end of each period, rebuilt from invoices, payments applied and approved adjustments as they stood on that day."),
+    "ar-trend": ("Outstanding balance trend", "financial", "What was owed, and how much of it was past due, at the end of each period, rebuilt from invoices, payments applied and approved adjustments as they stood on that day."),
     "overdue-by-customer": ("Overdue by customer", "financial", "Open balance of invoices that fell due in the selected range and are still unpaid, by customer."),
-    "verified-recovered": ("Verified recovered", "financial", "Payments confirmed by a connected source and applied to an invoice that had an investigation open before the payment was applied. Manual payments are never counted."),
+    "recovered": ("Verified recovered", "financial", "Payments confirmed by a connected source and applied to an invoice that had an investigation open before the payment was applied. Manual payments are never counted."),
     "reconciliation-performance": ("Reconciliation performance", "operational", "Matches per period: applied automatically by the exact-match rule, confirmed by a person, and suggestions created that still need a decision."),
     "investigation-resolution": ("Investigation resolution time", "operational", "Investigations resolved in the range, by type, with the average days from opening to resolution."),
 }
@@ -198,13 +198,13 @@ def report(db: Session, slug: str, rng: str, today: date, customer: uuid.UUID | 
     if slug == "aging":
         cols = [{"key": "bucket", "label": "Age"}, {"key": "count", "label": "Invoices", "right": True}, {"key": "amount", "label": "Balance", "money": True}]
         rows = aging(db, today, cur, customer)
-    elif slug == "trend":
+    elif slug == "ar-trend":
         cols = [{"key": "label", "label": "Period end"}, {"key": "total", "label": "Outstanding", "money": True}, {"key": "overdue", "label": "Overdue", "money": True}]
         rows = [{"label": label(rng, h["date"]), "total": h["total"], "overdue": h["overdue"]} for h in history(db, pts, cur, tz)]
     elif slug == "overdue-by-customer":
         cols = [{"key": "customer", "label": "Customer"}, {"key": "invoices", "label": "Invoices", "right": True}, {"key": "oldest_days", "label": "Oldest (days late)", "right": True}, {"key": "amount", "label": "Overdue balance", "money": True}]
         rows = overdue_by_customer(db, today, cur, days, None, customer)
-    elif slug == "verified-recovered":
+    elif slug == "recovered":
         total, items = recovered(db, today - timedelta(days=days), today, cur, tz)
         cols = [{"key": "date", "label": "Date"}, {"key": "customer", "label": "Customer"}, {"key": "invoice", "label": "Invoice"}, {"key": "payment", "label": "Payment"}, {"key": "amount", "label": "Amount", "money": True}]
         rows = items
