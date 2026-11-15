@@ -20,13 +20,14 @@ from app.core.requestinfo import RequestInfo
 from app.core.security import AuthUser
 from app.services import audit
 
-TYPES = ("write_off", "credit", "refund_due")
+TYPES = ("write_off", "credit", "refund_due", "final_notice")
+POLICY_TYPES = ("write_off", "credit", "refund_due")
 OPEN = ("pending", "info_requested")
 TABS = {"pending": "r.status = 'pending'", "info": "r.status = 'info_requested'", "decided": "r.status in ('approved', 'rejected', 'withdrawn', 'expired')", "all": "true"}
 
 
 class RequestIn(BaseModel):
-    type: Literal["write_off", "credit", "refund_due"]
+    type: Literal["write_off", "credit", "refund_due", "final_notice"]
     invoice_id: uuid.UUID
     amount: Money
     reason: str = Field(min_length=1, max_length=2000)
@@ -60,6 +61,7 @@ def expire_due(db: Session, org: uuid.UUID) -> int:
     for r in rows:
         _log(db, org, r.id, "expire", "Not decided before it expired.", None)
         audit.record(db, org, "approval.expired", record_type="approval_request", record_id=r.id, after={"number": r.number})
+        _after_close(db, org, r.id, "expired", None)
     return len(rows)
 
 
@@ -86,6 +88,11 @@ def _check_amount(kind: str, amount: Decimal, inv: Any) -> None:
 
 
 def _execute(db: Session, org: uuid.UUID, actor: AuthUser, req: Any, inv: Any, info: RequestInfo) -> uuid.UUID:
+    if req.type == "final_notice":  # changes no balance: it only allows the collections case to send the notice
+        from app.services import collections
+
+        collections.on_final_notice_approved(db, org, req.id, actor.id)
+        return req.id  # type: ignore[no-any-return]
     affects = req.type in ("write_off", "credit")
     aid = db.execute(text("insert into adjustments (organization_id, invoice_id, approval_id, type, amount, currency, reason, affects_balance, created_by) "
                           "values (:o, :i, :a, :t, :m, :c, :r, :f, :u) returning id"),
@@ -105,7 +112,7 @@ def create(db: Session, org: uuid.UUID, actor: AuthUser, body: RequestIn, info: 
     if db.execute(text("select 1 from approval_requests where invoice_id = :i and type = :t and status in ('pending', 'info_requested')"), {"i": inv.id, "t": body.type}).first():
         raise ApiError(409, "duplicate", "There is already an open request of this kind for this invoice.")
     below, days = _policy(db, body.type)
-    auto = body.type != "refund_due" and below > 0 and body.amount <= below
+    auto = body.type in ("write_off", "credit") and below > 0 and body.amount <= below
     now = clock.now()
     rid = db.execute(text("insert into approval_requests (organization_id, number, type, invoice_id, amount, currency, reason, status, requested_by, balance_at_request, expires_at, decided_at) "
                           "values (:o, next_number(:o, 'approval', 'APR'), :t, :i, :a, :c, :r, :s, :u, :b, :e, :d) returning id"),
@@ -113,6 +120,12 @@ def create(db: Session, org: uuid.UUID, actor: AuthUser, body: RequestIn, info: 
                       "b": inv.balance_due, "e": now + timedelta(days=days), "d": now if auto else None}).scalar_one()
     audit.record(db, org, "approval.requested", actor_id=actor.id, record_type="approval_request", record_id=rid,
                  after={"type": body.type, "invoice": inv.invoice_number, "amount": str(body.amount), "auto_approved": auto}, info=info)
+    if not auto:
+        from app.services import notifications
+
+        number = db.execute(text("select number from approval_requests where id = :r"), {"r": rid}).scalar_one()
+        notifications.notify(db, org, notifications.users_with(db, org, "approvals.decide"), "approval", f"Approval requested: {body.type.replace('_', ' ')} {body.amount:.2f}",
+                             f"{number} · {inv.invoice_number}", f"/app/approvals/{rid}", f"apr-req-{rid}", skip=actor.id)
     if auto:
         _log(db, org, rid, "auto_approve", f"Within the auto-approve limit of {below:.2f}.", None)
         req = db.execute(text("select id, type, amount, reason from approval_requests where id = :r"), {"r": rid}).one()
@@ -188,6 +201,12 @@ def decide(db: Session, org: uuid.UUID, actor: AuthUser, rid: uuid.UUID, body: D
         _execute(db, org, actor, r, inv, info)
         db.execute(text("update approval_requests set status = 'approved', decided_at = now(), version = version + 1 where id = :r"), {"r": rid})
     _log(db, org, rid, body.decision, comment or None, actor.id)
+    from app.services import notifications
+
+    verb = {"approve": "approved", "reject": "rejected", "request_info": "returned with a question"}[body.decision]
+    notifications.notify(db, org, [r.requested_by], "approval", f"Your request {r.number} was {verb}", comment or None, f"/app/approvals/{rid}", f"apr-dec-{rid}-{body.decision}", skip=actor.id)
+    if body.decision != "request_info":
+        _after_close(db, org, rid, "approved" if body.decision == "approve" else "rejected", actor.id)
     audit.record(db, org, f"approval.{body.decision}", actor_id=actor.id, record_type="approval_request", record_id=rid, after={"number": r.number, "comment": comment or None}, info=info)
     return get(db, actor.id, True, rid)
 
@@ -214,13 +233,23 @@ def withdraw(db: Session, org: uuid.UUID, actor: AuthUser, rid: uuid.UUID, info:
         raise ApiError(409, "invalid_state", f"This request is already {r.status}.")
     db.execute(text("update approval_requests set status = 'withdrawn', decided_at = now(), version = version + 1 where id = :r"), {"r": rid})
     _log(db, org, rid, "withdraw", None, actor.id)
+    _after_close(db, org, rid, "withdrawn", actor.id)
     audit.record(db, org, "approval.withdrawn", actor_id=actor.id, record_type="approval_request", record_id=rid, after={"number": r.number}, info=info)
     return get(db, actor.id, False, rid)
 
 
+def _after_close(db: Session, org: uuid.UUID, rid: uuid.UUID, status: str, actor: uuid.UUID | None) -> None:
+    """A request reached a final state: let the dispute or collections case that depends on it finish or reopen."""
+    from app.services import collections, disputes
+
+    disputes.on_approval_decided(db, org, rid, status, actor)
+    if status != "approved":
+        collections.on_final_notice_closed(db, org, rid, status, actor)
+
+
 def read_policies(db: Session) -> list[dict[str, Any]]:
     rows = {r.type: r for r in db.execute(text("select type, auto_approve_below, expiry_days from approval_policies")).all()}
-    return [{"type": t, "auto_approve_below": rows[t].auto_approve_below if t in rows else Decimal(0), "expiry_days": rows[t].expiry_days if t in rows else 30} for t in TYPES]
+    return [{"type": t, "auto_approve_below": rows[t].auto_approve_below if t in rows else Decimal(0), "expiry_days": rows[t].expiry_days if t in rows else 30} for t in POLICY_TYPES]
 
 
 def set_policy(db: Session, org: uuid.UUID, actor: AuthUser, body: PolicyIn, info: RequestInfo) -> list[dict[str, Any]]:

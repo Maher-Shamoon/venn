@@ -4,9 +4,9 @@ nothing here writes to the ledger except by asking the approvals service, which 
 import json
 import uuid
 from decimal import Decimal
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StringConstraints
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -40,7 +40,7 @@ class PatchIn(BaseModel):
 
 
 class NoteIn(BaseModel):
-    text: str = Field(min_length=1, max_length=4000)
+    text: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=4000)]
 
 
 class EvidenceIn(BaseModel):
@@ -57,11 +57,11 @@ class ActionIn(BaseModel):
 
 
 class ResolveIn(BaseModel):
-    outcome: str = Field(min_length=1, max_length=2000)
+    outcome: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)]
 
 
 class DismissIn(BaseModel):
-    reason: str = Field(min_length=1, max_length=2000)
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)]
 
 
 def _event(db: Session, org: uuid.UUID, iid: uuid.UUID, kind: str, body: str, actor: uuid.UUID | None) -> None:
@@ -251,6 +251,10 @@ def patch(db: Session, org: uuid.UUID, actor: AuthUser, iid: uuid.UUID, body: Pa
         args["a"] = None if body.clear_assignee else body.assignee_id
         name = db.execute(text("select full_name from profiles where id = :u"), {"u": body.assignee_id}).scalar() if body.assignee_id else None
         _event(db, org, iid, "assign", f"Assigned to {name}." if name else "Unassigned.", actor.id)
+        if body.assignee_id:
+            from app.services import notifications
+
+            notifications.notify(db, org, [body.assignee_id], "assignment", f"{c.number} was assigned to you", c.title, f"/app/investigations/{iid}", f"assign-{iid}-{body.assignee_id}-{c.version}", skip=actor.id)
     if sets:
         db.execute(text(f"update investigations set {', '.join(sets)}, version = version + 1, updated_at = now() where id = :i"), args)  # noqa: S608
         audit.record(db, org, "investigation.updated", actor_id=actor.id, record_type="investigation", record_id=iid, after={k: str(v) for k, v in args.items() if k != "i"}, info=info)

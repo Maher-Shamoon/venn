@@ -22,14 +22,15 @@ TABS = {
     "overdue": "i.lifecycle_status = 'issued' and i.balance_due > 0 and i.due_date < :today",
     "paid": "i.lifecycle_status = 'issued' and i.balance_due = 0",
     "cancelled": "i.lifecycle_status = 'cancelled'",
-    "disputed": "false",  # disputes arrive with the disputes module
+    "disputed": "exists (select 1 from disputes d where d.invoice_id = i.id and d.status <> 'resolved')",
 }
 COLS = ("i.id, i.invoice_number, i.customer_id, c.name as customer_name, i.po_number, i.issue_date, i.due_date, i.currency, i.total_amount, "
-        "i.amount_paid, i.amount_adjusted, i.balance_due, i.lifecycle_status, i.version, i.description, i.cancel_reason")
+        "i.amount_paid, i.amount_adjusted, i.balance_due, i.lifecycle_status, i.version, i.description, i.cancel_reason, "
+        "exists (select 1 from disputes d where d.invoice_id = i.id and d.status <> 'resolved') as disputed")
 
 
 def _out(r: Any, today: date, cls: type[InvoiceOut] = InvoiceOut, **extra: Any) -> Any:
-    facts = InvoiceFacts(r.lifecycle_status, r.total_amount, r.amount_paid, r.amount_adjusted, r.due_date)
+    facts = InvoiceFacts(r.lifecycle_status, r.total_amount, r.amount_paid, r.amount_adjusted, r.due_date, disputed=bool(getattr(r, "disputed", False)))
     open_ = r.lifecycle_status == "issued"
     keys = set(cls.model_fields) - {"status", "days_late", "balance_due"} - set(extra)
     data = {k: getattr(r, k) for k in keys if hasattr(r, k)}
