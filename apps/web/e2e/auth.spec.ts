@@ -29,3 +29,21 @@ test("signs in with a real account, lands in the app, and signs out", async ({ p
   await page.goto("/app")
   await page.waitForURL(/\/login/)
 })
+
+test("an existing member goes straight to the app with their organization selected", async ({ page }) => {
+  await page.goto("/login")
+  await page.getByLabel("Work email").fill(user!.email)
+  await page.getByLabel("Password", { exact: true }).fill(user!.password)
+  await page.getByRole("button", { name: "Sign in", exact: true }).click()
+  await page.waitForURL(/\/app/)
+  expect(await page.evaluate(() => localStorage.getItem("venn.org"))).toMatch(/^[0-9a-f-]{36}$/)
+  // The browser reaches the API through the same origin and the API accepts the real token.
+  const ctx = await page.evaluate(async () => {
+    const key = Object.keys(localStorage).find((k) => k.startsWith("sb-") && k.endsWith("-auth-token"))!
+    const token = JSON.parse(localStorage.getItem(key)!).access_token
+    const r = await fetch("/api/v1/me/context", { headers: { Authorization: `Bearer ${token}`, "X-Organization-Id": localStorage.getItem("venn.org")! } })
+    return { status: r.status, body: await r.json() }
+  })
+  expect(ctx.status).toBe(200)
+  expect(ctx.body.role_key).toBe("owner")
+})
