@@ -8,14 +8,20 @@ import uuid
 from collections.abc import Iterator
 from dataclasses import dataclass
 
-from fastapi import Depends, Header
+from fastapi import Depends, Header, Request
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.db import get_engine
 from app.core.errors import ApiError
+from app.core.requestinfo import RequestInfo
 from app.core.security import AuthUser, decode_token
+
+
+def request_info(request: Request) -> RequestInfo:
+    return RequestInfo(getattr(request.state, "request_id", None), request.client.host if request.client else None,
+                       request.headers.get("user-agent"))
 
 
 def current_user(authorization: str | None = Header(default=None)) -> AuthUser:
@@ -53,10 +59,12 @@ class Ctx:
     org_id: uuid.UUID
     role_key: str
     permissions: frozenset[str]
+    info: RequestInfo
 
 
 def org_context(
     user: AuthUser = Depends(current_user),
+    info: RequestInfo = Depends(request_info),
     x_organization_id: str | None = Header(default=None),
 ) -> Iterator[Ctx]:
     if not user.email_verified:
@@ -81,7 +89,7 @@ def org_context(
         perms = frozenset(
             r[0] for r in s.execute(text("select permission_key from role_permissions where role_id = :r"),
                                     {"r": row.id}))
-        yield Ctx(s, user, org_id, row.key, perms)
+        yield Ctx(s, user, org_id, row.key, perms, info)
         s.commit()
     except BaseException:
         s.rollback()
