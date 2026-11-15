@@ -102,3 +102,8 @@ The `/app` area is now a working frontend with local state (saved in the browser
 ## Revision 10: Gate C passed (self-review), Stage D started
 - Customers, invoices, payments, allocations and CSV import run on the real API end to end; see `docs/testing/checkpoints/STAGE-C-core-ledger.md` for gaps (notably the real dashboard, Stage H).
 - Next: reconciliation rules R1 to R8, review workspace, approvals and adjustments.
+
+## Revision 11: Gate D passed (self-review), Stage E started
+- Reconciliation rules R1 to R8, the review workspace (run, keyboard review, undo of auto-matches, discrepancies) and approvals with adjustments (separation of duties, staleness, expiry, policies) run on the real API; see `docs/testing/checkpoints/STAGE-D-reconciliation-approvals.md`.
+- Measured: 1,000 payments reconcile in 6.3 s. A run is synchronous, so very large organizations need the job runner (Stage I).
+- Next: Stage E. Documents, deterministic investigations and the evidence model can be built now. **The AI analysis (E4) is blocked until an LLM API key is provided**; the deterministic path will work without it.
