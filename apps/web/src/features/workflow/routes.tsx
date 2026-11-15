@@ -3,7 +3,8 @@ import { CollectionDetail, Collections, DisputeDetail, Disputes } from "@/compon
 import { remote } from "@/features/identity/api"
 import { RemoteCollectionDetail, RemoteCollections } from "./RemoteCollections"
 import { RemoteDisputeDetail, RemoteDisputes } from "./RemoteDisputes"
-import { RemoteIntegrations, RemoteNotifications, RemoteTasks } from "./RemoteInbox"
+import { RemoteNotifications, RemoteTasks } from "./RemoteInbox"
+import { RemoteIntegrations } from "@/features/integrations/RemoteIntegrations"
 
 export const CollectionsRoute = () => (remote() ? <RemoteCollections /> : <Collections />)
 export const CollectionRoute = () => (remote() ? <RemoteCollectionDetail /> : <CollectionDetail />)

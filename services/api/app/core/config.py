@@ -8,6 +8,10 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="VENN_", extra="ignore")
 
+    secrets_key: str = ""
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    google_redirect_uri: str = "https://venn-api.vercel.app/api/v1/integrations/gmail/callback"
     cron_secret: str = ""
     llm_provider: str = ""
     llm_model: str = ""

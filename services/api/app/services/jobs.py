@@ -19,7 +19,7 @@ from app.services import approvals, collections, notifications
 log = logging.getLogger("venn.jobs")
 
 
-def _scoped(org: uuid.UUID) -> Session:
+def scoped(org: uuid.UUID) -> Session:
     s = Session(get_engine(), expire_on_commit=False)
     s.execute(text("select set_config('role', 'venn_app', true), set_config('app.user_id', '', true), set_config('app.org_id', :o, true)"), {"o": str(org)})
     return s
@@ -30,7 +30,7 @@ def run_daily() -> dict[str, Any]:
         orgs = [(r.id, r.timezone) for r in admin.execute(text("select id, timezone from organizations")).all()]
     out = {"organizations": len(orgs), "expired": 0, "opened": 0, "closed": 0, "broken": 0, "tasks": 0, "failed": 0}
     for org, tz in orgs:
-        s = _scoped(org)
+        s = scoped(org)
         try:
             today = clock.today(tz)
             out["expired"] += approvals.expire_due(s, org)

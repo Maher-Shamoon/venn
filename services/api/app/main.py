@@ -14,6 +14,7 @@ from app.api.v1 import (
     health,
     identity,
     imports,
+    integrations,
     internal,
     investigations,
     ledger,
@@ -85,6 +86,7 @@ def create_app() -> FastAPI:
     app.include_router(dashboard.router, prefix="/api/v1")
     app.include_router(workflow.router, prefix="/api/v1")
     app.include_router(internal.router, prefix="/api/v1")
+    app.include_router(integrations.router, prefix="/api/v1")
     app.include_router(imports.router, prefix="/api/v1")
     return app
 

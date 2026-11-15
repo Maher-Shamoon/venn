@@ -12,6 +12,7 @@ import { formatMoney } from "@/lib/money"
 import { cn } from "@/lib/utils"
 import { useMembers } from "@/features/team/api"
 import { useUploadDocument } from "@/features/documents/api"
+import { useCaseEmails, useIntegrations, type Mail } from "@/features/integrations/api"
 import { useAct, useAddEvidence, useCase, useCases, useDismissCase, useMove, useNote, useRemoveEvidence, useRerun, useResolveCase, type Card, type Finding, type Status } from "./api"
 
 const COLS: { k: Status; label: string }[] = [{ k: "new", label: "New" }, { k: "in_progress", label: "In progress" }, { k: "ready_for_review", label: "Ready for review" }, { k: "awaiting_approval", label: "Awaiting approval" }, { k: "monitoring", label: "Monitoring" }, { k: "resolved", label: "Resolved" }]
@@ -78,11 +79,12 @@ const KIND: Record<Finding["kind"], { label: string; box: string; tag: string }>
   claim: { label: "UNVERIFIED CLAIM · NOT CONFIRMED BY A PAYMENT RECORD", box: "border-dashed border-[#e0b13a] bg-[#fff8e1]", tag: "text-[#8a5a00]" },
   missing: { label: "MISSING EVIDENCE", box: "border-dashed border-[#a24a10]/40 bg-[#fdf3ec]", tag: "text-[#a24a10]" },
 }
-type Modal = null | "note" | "assign" | "dismiss" | "evidence" | "resolve"
+type Modal = null | "note" | "assign" | "dismiss" | "evidence" | "resolve" | "emails"
 
 export function RemoteInvestigationDetail() {
   const { id = "" } = useParams(), q = useCase(id), move = useMove(), note = useNote(), addEv = useAddEvidence(), rmEv = useRemoveEvidence(), rerun = useRerun(), act = useAct(), resolve = useResolveCase(), dismiss = useDismissCase()
-  const members = useMembers(), upload = useUploadDocument()
+  const members = useMembers(), upload = useUploadDocument(), ints = useIntegrations(), mails = useCaseEmails(), [found, setFound] = useState<Mail[] | null>(null)
+  const gmail = ints.data?.find((x) => x.provider === "gmail" && x.connected && x.status === "connected")
   const [tab, setTab] = useState<"findings" | "activity">("findings"), [modal, setModal] = useState<Modal>(null), [txt, setTxt] = useState(""), [kind, setKind] = useState<"document" | "email" | "manual">("document"), [assignee, setAssignee] = useState("")
   if (q.isPending) return <Loading />
   if (q.isError || !q.data) return <NotFound what="investigation" back="/app/investigations" />
@@ -123,12 +125,16 @@ export function RemoteInvestigationDetail() {
             </div>
           ) : <Box><ol className="p-5">{g.events.map((t, i) => <li key={i} className="relative border-l border-border pb-5 pl-5 last:pb-0"><span className="absolute -left-[5px] top-1.5 size-2.5 rounded-full bg-lime-light" /><div className="text-sm">{t.text}</div><div className="text-xs text-hushed">{t.by ?? "venn"} · {day(t.at)}</div></li>)}</ol></Box>}
         </div>
-        <aside><Box title="Evidence" right={!ro && <Button variant="ghost" size="sm" onClick={() => setModal("evidence")}>Add</Button>} pad>
+        <aside><Box title="Evidence" right={!ro && <span className="flex gap-1">{gmail && <Button variant="ghost" size="sm" disabled={mails.isPending} onClick={() => mails.mutate(id, { onSuccess: (d) => { setFound(d); setModal("emails") }, onError: (e) => toast.error(errorMessage(e)) })}>{mails.isPending ? "Searching…" : "Find emails"}</Button>}<Button variant="ghost" size="sm" onClick={() => setModal("evidence")}>Add</Button></span>} pad>
           <div className="space-y-2">{g.evidence.map((e) => (
             <div key={e.id} className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm"><span className="min-w-0 flex-1"><span className="block truncate">{e.type === "invoice" && g.invoice_id ? <Link className="underline underline-offset-2" to={"/app/invoices/" + g.invoice_id}>{e.label}</Link> : e.type === "payment" && g.payment_id ? <Link className="underline underline-offset-2" to={"/app/payments/" + g.payment_id}>{e.label}</Link> : e.label}</span><span className="text-xs capitalize text-hushed">{e.type} · {e.tier}</span></span>
               {!ro && ["document", "email", "manual"].includes(e.type) && <Button variant="ghost" size="sm" aria-label={"Remove " + e.label} onClick={() => rmEv.mutate({ id, evidence: e.id }, ok("Evidence removed"))}>Remove</Button>}</div>))}</div>
         </Box></aside>
       </div>
+      <Modal open={modal === "emails"} onOpenChange={(o) => !o && close()} title="Emails that may belong to this case" desc="Found in your connected Gmail by invoice number and customer address. Link only what is relevant." footer={<Button variant="outline" onClick={close}>Done</Button>}>
+        <div className="max-h-80 space-y-2 overflow-auto">{found?.length ? found.map((m) => (
+          <div key={m.id} className="rounded-lg border border-border p-3 text-sm"><div className="font-medium">{m.subject}</div><div className="text-xs text-hushed">{m.from} · {m.date}</div><p className="mt-1 text-xs">{m.snippet}</p>
+            <Button size="sm" variant="outline" className="mt-2" disabled={addEv.isPending} onClick={() => addEv.mutate({ id, type: "email", label: `${m.subject} (${m.from})`.slice(0, 280), tier: "claim" }, ok("Email linked as evidence"))}>Link as evidence</Button></div>)) : <p className="text-sm text-hushed">No messages found.</p>}</div></Modal>
       <Modal open={modal === "note"} onOpenChange={(o) => !o && close()} title="Add note" footer={<><Button variant="outline" onClick={close}>Cancel</Button><Button disabled={!txt.trim() || note.isPending} onClick={() => note.mutate({ id, text: txt }, ok("Note added"))}>Add note</Button></>}><TextArea aria-label="Note" value={txt} onChange={(e) => setTxt(e.target.value)} /></Modal>
       <Modal open={modal === "evidence"} onOpenChange={(o) => !o && close()} title="Add evidence" desc="Upload the document, or describe a message or call you want on record." footer={<><Button variant="outline" onClick={close}>Cancel</Button><Button disabled={!txt.trim() || addEv.isPending} onClick={() => addEv.mutate({ id, type: kind, label: txt, tier: kind === "email" ? "claim" : "manual" }, ok("Evidence linked"))}>Link</Button></>}>
         <div className="space-y-3"><Field label="Upload a file" hint="PDF, PNG, JPEG, CSV or text, up to 20 MB. PDF text is read and searchable."><input type="file" aria-label="Upload evidence file" accept=".pdf,.png,.jpg,.jpeg,.csv,.txt" disabled={upload.isPending} className="block w-full text-sm" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) upload.mutate({ file: f, investigationId: id }, ok(`${f.name} linked`)) }} /></Field><p className="text-xs text-hushed">Or record something without a file:</p><Field label="Kind"><NativeSelect value={kind} onChange={(e) => setKind(e.target.value as typeof kind)}><option value="document">Document</option><option value="email">Message from the customer</option><option value="manual">Note of a phone call or other</option></NativeSelect></Field><Field label="Description"><Input value={txt} onChange={(e) => setTxt(e.target.value)} /></Field></div></Modal>
