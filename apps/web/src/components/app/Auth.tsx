@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import Balatro from "@/components/Balatro"
 import { Logo, Odometer, money, useTicker } from "@/components/venn/kit"
 import { config } from "@/config"
-import { AuthError, completeReset, hasPendingReset, register, requestReset, verify } from "@/auth/localAuth"
+import { AuthError, completeReset, requestReset, resendVerification, signIn, signUp, useResetReady } from "@/auth"
 import { A, useApp, type Role } from "./store"
 import { Field, NativeSelect } from "./ui"
 import { cn } from "@/lib/utils"
@@ -114,7 +114,7 @@ export function Login() {
     e.preventDefault()
     if (!email(f.email) || !f.password) return setErr("Enter your email and password.")
     setBusy(true)
-    try { const u = await verify(f.email, f.password); setErr(""); go(u.name, u.email) }
+    try { const u = await signIn(f.email, f.password); setErr(""); go(u.name, u.email) }
     catch (x) { setBusy(false); setErr(x instanceof AuthError ? x.message : "Something went wrong. Try again.") }
   }
   return (
@@ -136,15 +136,15 @@ export function Signup() {
   const nav = useNavigate()
   const [f, setF] = useState({ name: "", email: "", password: "", terms: false }), [err, setErr] = useState(""), [busy, setBusy] = useState(false)
   const st = strength(f.password)
-  const rules: [string, boolean][] = [["10+ characters", f.password.length >= 10], ["Upper and lower case", /[A-Z]/.test(f.password) && /[a-z]/.test(f.password)], ["A number", /\d/.test(f.password)], ["A symbol", /[^A-Za-z0-9]/.test(f.password)]]
+  const rules: [string, boolean][] = [["12+ characters", f.password.length >= 12], ["Upper and lower case", /[A-Z]/.test(f.password) && /[a-z]/.test(f.password)], ["A number", /\d/.test(f.password)], ["A symbol", /[^A-Za-z0-9]/.test(f.password)]]
   const submit = (e: FormEvent) => {
     e.preventDefault()
     if (!f.name.trim()) return setErr("Enter your full name.")
     if (!email(f.email)) return setErr("Enter a valid work email address.")
-    if (st < 3 || f.password.length < 10) return setErr("Choose a stronger password.")
+    if (st < 3 || f.password.length < 12) return setErr("Choose a stronger password.")
     if (!f.terms) return setErr("Accept the terms to continue.")
     setErr(""); setBusy(true)
-    register(f.name.trim(), f.email, f.password).then((u) => { A.startFresh(u.name, u.email); nav("/verify-email") }, (x) => { setBusy(false); setErr(x instanceof AuthError ? x.message : "Something went wrong. Try again.") })
+    signUp(f.name.trim(), f.email, f.password).then((u) => { if (!u.needsVerification) A.startFresh(u.name, u.email); nav("/verify-email", { state: { email: u.email } }) }, (x) => { setBusy(false); setErr(x instanceof AuthError ? x.message : "Something went wrong. Try again.") })
   }
   return (
     <Card mode="signup" title="Create your account" sub="Start free. No card needed." foot={<>Already have an account? <Link to="/login" className="text-foreground underline underline-offset-4">Sign in</Link></>}>
@@ -163,14 +163,15 @@ export function Signup() {
 }
 
 export function VerifyEmail() {
-  const s = useApp(), nav = useNavigate()
+  const s = useApp(), nav = useNavigate(), loc = useLocation()
+  const addr: string | undefined = (loc.state as { email?: string } | null)?.email ?? s.session?.email
   const [cool, setCool] = useState(0)
   useEffect(() => { if (cool <= 0) return; const t = setTimeout(() => setCool(cool - 1), 1000); return () => clearTimeout(t) }, [cool])
   return (
-    <Card title="Check your email" sub={`We sent a link to ${s.session?.email ?? "your inbox"}.`}>
+    <Card title="Check your email" sub={`We sent a link to ${addr ?? "your inbox"}.`}>
       <div className="flex size-12 items-center justify-center rounded-full bg-lime"><Mail className="size-5" /></div>
       <p className="mt-4 text-sm text-hushed">Open the link to verify your address. It expires in 24 hours.</p>
-      <div className="mt-5 space-y-2"><Button className="w-full" onClick={() => nav("/onboarding/organization")}>I verified my email</Button><Button variant="outline" className="w-full" disabled={cool > 0} onClick={() => setCool(30)}>{cool > 0 ? `Resend in ${cool}s` : "Resend email"}</Button></div>
+      <div className="mt-5 space-y-2"><Button className="w-full" onClick={() => nav("/onboarding/organization")}>I verified my email</Button><Button variant="outline" className="w-full" disabled={cool > 0} onClick={() => { setCool(30); if (addr) void resendVerification(addr).catch(() => undefined) }}>{cool > 0 ? `Resend in ${cool}s` : "Resend email"}</Button></div>
     </Card>
   )
 }
@@ -188,11 +189,12 @@ export function Forgot() {
 }
 export function Reset() {
   const nav = useNavigate()
-  const [p, setP] = useState({ a: "", b: "" }), [err, setErr] = useState("")
-  if (!hasPendingReset()) return <Card title="This reset link is not valid" sub="It may have expired or already been used."><Button className="w-full" render={<Link to="/forgot-password" />}>Request a new link</Button></Card>
+  const [p, setP] = useState({ a: "", b: "" }), [err, setErr] = useState(""), ready = useResetReady()
+  if (ready === undefined) return null
+  if (!ready) return <Card title="This reset link is not valid" sub="It may have expired or already been used."><Button className="w-full" render={<Link to="/forgot-password" />}>Request a new link</Button></Card>
   return (
     <Card title="Choose a new password">
-      <form onSubmit={(e) => { e.preventDefault(); if (strength(p.a) < 3 || p.a.length < 10) return setErr("Choose a stronger password."); if (p.a !== p.b) return setErr("The passwords do not match."); completeReset(p.a).then(() => nav("/login"), (x) => setErr(x instanceof AuthError ? x.message : "Something went wrong. Try again.")) }} className="space-y-4" noValidate>
+      <form onSubmit={(e) => { e.preventDefault(); if (strength(p.a) < 3 || p.a.length < 12) return setErr("Choose a stronger password."); if (p.a !== p.b) return setErr("The passwords do not match."); completeReset(p.a).then(() => nav("/login"), (x) => setErr(x instanceof AuthError ? x.message : "Something went wrong. Try again.")) }} className="space-y-4" noValidate>
         <Field label="New password"><Input type="password" autoComplete="new-password" value={p.a} onChange={(e) => setP({ ...p, a: e.target.value })} /></Field><Field label="Confirm password"><Input type="password" autoComplete="new-password" value={p.b} onChange={(e) => setP({ ...p, b: e.target.value })} /></Field>
         {err && <p role="alert" className="text-sm text-destructive">{err}</p>}<Button type="submit" className="w-full">Update password</Button>
       </form>
