@@ -5,7 +5,7 @@ Date: 2026-11-15
 ## Commands and results
 | Command | Result |
 |---|---|
-| `cd services/api && uv run pytest` | 29 passed (embedded PostgreSQL); also 6 earlier tests passed against the Docker Compose database |
+| `cd services/api && uv run pytest` | 33 passed (embedded PostgreSQL); also 6 earlier tests passed against the Docker Compose database |
 | `uv run ruff check .` / `uv run mypy app` | clean / strict, no issues |
 | GitHub Actions on the B1 commit | web, e2e, api, secrets all green |
 
@@ -21,12 +21,22 @@ Date: 2026-11-15
 | B2 | audit_events append-only for everyone including the owner (UPDATE, DELETE, TRUNCATE rejected) | PASSED |
 | B2 | Hash chain per organization, concurrent writers keep one linear chain (16 parallel writers), tampering detected at the first bad row | PASSED |
 | B2 | Sensitive keys redacted; viewer filters, cursor paging, `audit.view` required, no cross-tenant entries | PASSED |
-| B3 | Frontend sign-up, verification, sign-in and reset through real Supabase Auth | NOT STARTED: blocked, see below |
+| B3 | Real sign-in, wrong password, sign-out, return to login after sign-out, existing member lands in the app with the organization selected, browser to API through the dev proxy with a real ES256 token | PASSED (Playwright against the hosted Supabase project, 3 tests; API live tests 4 passed) |
+| B3 | Sign-up and the verification and reset email links | NOT TESTED: needs an inbox I can read. Supabase accepts only real addresses and its built-in sender allows a few emails an hour |
+| B4 | Onboarding creates the organization through the API | Implemented; API side tested (`POST /organizations`), the onboarding screen path is not exercised by an automated test yet |
 
 ## Defect found by the tests and fixed
 - **Cross-organization permission leak (security).** The `own_memberships` policy lets a user read their memberships in every organization. The membership check did not filter by the requested organization, so a user who named an organization they did not belong to was treated as a member using the permissions of a different organization. Fixed by filtering on `organization_id` explicitly; covered by `test_organization_header_is_required_and_checked` and `test_cross_tenant_access_is_denied`.
 
-## Blocker
+## Defects found by live testing and fixed
+- Supabase exposed `permissions` to the browser key through its REST API. Migration 0004 revokes `anon` and `authenticated` access; verified: the browser key now gets 401 on every application table.
+- Signing out cleared only the app store, not the Supabase session, so a reload signed the user straight back in. Sign-out now ends the Supabase session; covered by an e2e test.
+- The `.env` had been saved in `apps/web/services/api/`; moved to `services/api/` and the database password URL-encoded (it contained `@`).
+
+## Resolved blocker (disk space)
+Switched to a hosted Supabase project, so no local images are needed. The earlier notes follow.
+
+## Blocker (history)
 The C: drive of this machine is full (1.5 GB free). Docker Desktop's virtual disk turned read-only while pulling the local Supabase images (about 3 to 4 GB), so the local Supabase stack could not start. Options: free at least 10 GB on C:, or give me a Supabase cloud project (URL and anon key) so no local images are needed.
 
 ## Notes

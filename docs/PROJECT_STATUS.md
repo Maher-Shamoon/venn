@@ -90,3 +90,7 @@ The `/app` area is now a working frontend with local state (saved in the browser
 - Evidence: `docs/testing/checkpoints/STAGE-A-foundation.md`. CI green on all four jobs.
 - Docker Desktop installed and `docker compose up` verified (see evidence).
 - Next: Stage B (identity, tenancy, audit) after approval. It needs a Supabase project from you.
+
+## Revision 8: Stage B in progress (hosted Supabase)
+- Done and tested: identity, tenancy, RBAC, audit chain (B1, B2); real Supabase sign-in/out through the app with the API accepting the token (B3 partly); browser key locked out of application tables.
+- Not yet: sign-up and email-link flows (no readable inbox), team and invitations, settings, audit viewer screen, sandbox organizations (B4, B5). Gate B is not reached.
