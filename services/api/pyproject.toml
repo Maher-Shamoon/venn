@@ -44,6 +44,7 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.Header", "fastapi.Query", 
 "tests/**" = ["S", "B", "E501", "F811"]
 "migrations/**" = ["E501", "S608"]
 "scripts/**" = ["E501", "S608"]
+"app/services/dashboard.py" = ["S608"]  # SQL is assembled only from module constants; every value is a bound parameter
 
 [tool.mypy]
 python_version = "3.12"
