@@ -49,7 +49,7 @@ export function RemoteReconciliation() {
   return (
     <>
       <Title sub={last ? `Last run ${day(last.started_at)}${last.by ? ` by ${last.by}` : ""}` : "No run yet. Run reconciliation to match payments to invoices."} right={<Button onClick={doRun} disabled={run.isPending}><Play className="size-4" />{run.isPending ? "Running…" : "Run reconciliation"}</Button>}>Reconciliation</Title>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
         <Kpi dark label="Auto-applied" value={String(auto.data?.total ?? 0)} note="Exact matches only" />
         <Kpi label="Needs review" value={String(sug.data?.total ?? 0)} note="A person decides" />
         <Kpi label="Unmatched" value={String(last?.counts.unmatched ?? 0)} note="Found by the last run" />

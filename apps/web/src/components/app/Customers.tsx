@@ -80,7 +80,7 @@ export function CustomerDetail() {
   return (
     <>
       <Title back={["/app/customers", "Customers"]} sub={`${c.contact} · ${c.email} · terms ${c.terms} days`} right={<Button variant="outline" onClick={() => setEdit(true)}>Edit</Button>}>{c.name}</Title>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
         <Kpi dark label="Open balance" value={usd(st.open, 0)} note={`${st.openN} open invoices`} />
         <Kpi label="Overdue" value={usd(st.overdue, 0)} note="Past due date" />
         <Kpi label="Avg days to pay" value={String(st.avg)} note={`Terms are ${c.terms} days`} />

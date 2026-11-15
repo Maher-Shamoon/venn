@@ -79,7 +79,7 @@ export function RemoteCustomerDetail() {
   return (
     <>
       <Title back={["/app/customers", "Customers"]} sub={[x.contact_name, x.contact_email, x.city].filter(Boolean).join(" · ") || undefined} right={<Button variant="outline" onClick={() => setEdit(true)}>Edit</Button>}>{x.name}</Title>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
         <Kpi dark label="Open balance" value={formatMoney(x.open_balance)} note={`${x.open_invoices} open invoices`} />
         <Kpi label="Overdue" value={formatMoney(x.overdue)} />
         <Kpi label="Avg days to pay" value={x.avg_days_to_pay == null ? "—" : String(x.avg_days_to_pay)} note={x.payment_terms_days == null ? undefined : `Terms are ${x.payment_terms_days} days`} />

@@ -154,3 +154,6 @@
 .voices figure { transition-property: transform, border-color, box-shadow, opacity; }
 .voices:hover figure, .voices:focus-within figure { opacity: .5; }
 .voices figure:hover, .voices figure:focus-visible { opacity: 1; }
+
+/* Table cells that hold record numbers must not break in the middle (INV-1037 stays on one line). */
+table .font-mono { white-space: nowrap; }

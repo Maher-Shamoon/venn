@@ -119,9 +119,14 @@ export function AppShell() {
           </div>
         </header>
         {!online && <div role="status" className="flex items-center gap-2 bg-[#fff1c7] px-5 py-2 text-sm text-[#8a5a00]"><WifiOff className="size-4" />You are offline. Changes are paused until the connection returns.</div>}
-        <main className="mx-auto max-w-[1180px] px-4 py-8 md:px-8 md:py-10">{ctxReady ? <Loading key={loc.pathname} path={loc.pathname}><Outlet context={{ role }} /></Loading> : <PageSkeleton path="/app" />}</main>
+        <main className="mx-auto max-w-[1180px] px-4 py-5 pb-24 md:px-8 md:py-10 lg:pb-10">{ctxReady ? <Loading key={loc.pathname} path={loc.pathname}><Outlet context={{ role }} /></Loading> : <PageSkeleton path="/app" />}</main>
       </div>
 
+      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+        {([["/app", LayoutGrid, "Home", true], ["/app/invoices", FileText, "Invoices", false], ["/app/payments", CreditCard, "Payments", false], ["/app/reconciliation", GitMerge, "Match", false]] as const).map(([to, Icon, label, end]) => (
+          <NavLink key={to} to={to} end={end} className={({ isActive }) => cn("flex flex-col items-center gap-0.5 py-2 text-[11px]", isActive ? "text-foreground" : "text-hushed")}><Icon className="size-5" />{label}</NavLink>))}
+        <button type="button" onClick={() => setMenu(true)} className="flex flex-col items-center gap-0.5 py-2 text-[11px] text-hushed"><Menu className="size-5" />More</button>
+      </nav>
       <Sheet open={menu} onOpenChange={setMenu}><SheetContent side="left" className="w-[280px] overflow-y-auto bg-muted p-4"><SheetTitle className="sr-only">Menu</SheetTitle><Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link>{navEl}</SheetContent></Sheet>
       <CommandDialog open={cmd} onOpenChange={(o) => { setCmd(o); if (!o) setQtext("") }} shouldFilter={!real} title="Search" description="Search records and pages">
         <CommandInput placeholder="Search invoices, customers, payments, investigations…" value={real ? qtext : undefined} onValueChange={real ? setQtext : undefined} />

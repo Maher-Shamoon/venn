@@ -76,7 +76,7 @@ function Owner() {
     <>
       <Title sub={new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} right={<RangeSeg />}>{greeting()}</Title>
       {k.other_currencies > 0 && <p className="mb-3 text-sm text-hushed">Figures are in {cur}. {k.other_currencies} other {k.other_currencies === 1 ? "currency is" : "currencies are"} not included and not converted.</p>}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-5">
         <Kpi dark label="Total receivable" value={formatMoney(k.total_ar, cur)} note={`${k.open_invoices} open invoices`} to="/app/invoices" delta={change === 0 ? undefined : { v: formatMoney(Math.abs(change).toFixed(2), cur), good: change < 0, up: change > 0 }} spark={d.trend.map((p) => num(p.total))} />
         <Kpi label="Overdue" value={formatMoney(k.overdue, cur)} note={`${k.overdue_invoices} invoices`} to="/app/invoices?tab=overdue" spark={d.trend.map((p) => num(p.overdue))} />
         <Kpi label="Unmatched payments" value={formatMoney(k.unmatched, cur)} note={`${k.unmatched_payments} payments to match`} to="/app/payments?tab=unallocated" />
@@ -125,7 +125,7 @@ function Ar() {
   return (
     <>
       <Title sub={new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) + " · your queue"}>My work today</Title>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
         <Kpi dark label="Needs review" value={String(d.needs_review.count)} note="Suggested matches" to="/app/reconciliation" />
         <Kpi label="My investigations" value={String(d.my_investigations.length)} note={`${d.my_investigations.filter((g) => g.status === "ready_for_review").length} ready for review`} to="/app/investigations?filter=mine" />
         <Kpi label="Unmatched payments" value={String(d.kpis.unmatched_payments)} note="Money not yet applied" to="/app/payments?tab=unallocated" />

@@ -37,7 +37,7 @@ export function Reconciliation() {
   return (
     <>
       <Title sub={<>Last run today, 09:30 · <Link to="/app/reconciliation/runs/RUN-0042" className="underline underline-offset-2">run details</Link></>} right={<Button onClick={doRun} disabled={run}><Play className="size-4" />{run ? "Running…" : "Run reconciliation"}</Button>}>Reconciliation</Title>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
         <Kpi dark label="Auto-applied" value={String(auto.filter((a) => !a.void).length)} note="Exact matches only" />
         <Kpi label="Needs review" value={String(pending.length)} note="A person decides" />
         <Kpi label="Unmatched" value={String(t.unmatched.length)} note="No candidate invoice" />
@@ -199,7 +199,7 @@ export function ReconRun() {
   return (
     <>
       <Title back={["/app/reconciliation", "Reconciliation"]} sub="Started 13 Nov 09:30 · finished in 4 seconds">{id}</Title>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Kpi dark label="Payments read" value={String(s.payments.length)} /><Kpi label="Auto-applied" value={String(auto)} note="Exact matches" /><Kpi label="Needs review" value={String(pend)} /><Kpi label="Unmatched" value={String(totals(s).unmatched.length)} /></div>
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4"><Kpi dark label="Payments read" value={String(s.payments.length)} /><Kpi label="Auto-applied" value={String(auto)} note="Exact matches" /><Kpi label="Needs review" value={String(pend)} /><Kpi label="Unmatched" value={String(totals(s).unmatched.length)} /></div>
       <Box className="mt-4" title="Rule breakdown"><DataTable rows={rules} id={(r) => r[0]} empty={<Empty title="No rules fired" />} cols={[{ key: "r", label: "Rule", render: (r) => <Mono>{r[0]}</Mono> }, { key: "n", label: "Suggestions", right: true, render: (r) => r[1] }]} /></Box>
     </>
   )

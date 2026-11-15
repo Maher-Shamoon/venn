@@ -40,7 +40,7 @@ function OwnerDashboard() {
     <>
       <Title sub="Friday 13 November · Brightpath Digital" right={<RangeSeg />}>Good morning, Dana</Title>
       <Checklist />
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-5">
         <Kpi dark label="Total receivable" value={usd(t.receivable, 0)} note={`${t.open} open invoices`} spark={SPARK_AR} delta={{ v: "9%", good: false, up: true }} to="/app/invoices" />
         <Kpi label="Overdue" value={usd(t.overdue, 0)} note={`${t.overdueCount} invoices`} spark={SPARK_OV} to="/app/invoices" />
         <Kpi label="Unmatched payments" value={String(t.unmatched.length + t.needsReview)} note="Need review in reconciliation" to="/app/reconciliation" />
@@ -108,7 +108,7 @@ function ArDashboard() {
     <>
       <Title sub="Friday 13 November · your queue" right={<RangeSeg />}>My work today</Title>
       <Checklist />
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
         <Kpi dark label="Tasks due" value={String(mine.filter((x) => !x.done).length)} note="Today and tomorrow" to="/app/tasks" />
         <Kpi label="Needs review" value={String(t.needsReview)} note="Suggested matches" to="/app/reconciliation" />
         <Kpi label="My investigations" value={String(myInvg.length)} note={`${myInvg.filter((g) => g.status === "ready for review").length} ready for review`} to="/app/investigations" />
@@ -179,7 +179,7 @@ function FirstRun() {
           <p className="mt-2 text-xs text-hushed">Replaces this empty workspace with a complete set of records so you can look around. You can empty it again in Settings.</p>
         </section>
       </div>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{["Total receivable", "Overdue", "Unmatched payments", "Open exposure"].map((l) => <Kpi key={l} label={l} value="—" note="Appears after your first import" />)}</div>
+      <div className="mt-3 grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">{["Total receivable", "Overdue", "Unmatched payments", "Open exposure"].map((l) => <Kpi key={l} label={l} value="—" note="Appears after your first import" />)}</div>
     </>
   )
 }

@@ -16,11 +16,11 @@ export type { Tone }
 export const COLORS = { pink: "#f9a8d4", deep: "#f472b6", ink: "#1a1919", grey: "#d2cecb", blue: "#5683d2", orange: "#e96516", green: "#2f9e44", amber: "#e0b13a" }
 
 export const Title = ({ children, sub, right, back }: { children: ReactNode; sub?: ReactNode; right?: ReactNode; back?: [string, string] }) => (
-  <div className="mb-8">
+  <div className="mb-5 md:mb-8">
     {back && <Link to={back[0]} className="mb-3 inline-flex items-center gap-1.5 text-sm text-hushed hover:text-foreground"><ArrowLeft className="size-4" />{back[1]}</Link>}
     <div className="flex flex-wrap items-end gap-4">
-      <div className="min-w-0"><h1 className="text-[30px] leading-9 tracking-[-0.015em] md:text-[40px] md:leading-[44px]">{children}</h1>{sub && <p className="mt-1 text-hushed">{sub}</p>}</div>
-      <div className="ml-auto flex flex-wrap gap-2">{right}</div>
+      <div className="min-w-0"><h1 className="text-[26px] leading-8 tracking-[-0.015em] sm:text-[30px] sm:leading-9 md:text-[40px] md:leading-[44px]">{children}</h1>{sub && <p className="mt-1 text-hushed">{sub}</p>}</div>
+      <div className="flex w-full flex-wrap gap-2 sm:ml-auto sm:w-auto [&>*]:min-w-0 max-sm:[&>*]:flex-1 max-sm:[&>button]:justify-center">{right}</div>
     </div>
   </div>
 )
@@ -32,11 +32,11 @@ export function Spark({ data, color = COLORS.deep, className }: { data: number[]
 }
 
 export const Kpi = ({ label, value, note, to, dark, spark, delta }: { label: string; value: string; note?: string; to?: string; dark?: boolean; spark?: number[]; delta?: { v: string; good: boolean; up: boolean } }) => {
-  const cls = cn("group block rounded-xl border-[0.8px] p-5 transition-all duration-300 ease-[var(--ease-out-soft)]", dark ? "border-transparent bg-[#1a1919] text-white" : "border-border bg-muted hover:-translate-y-0.5 hover:bg-[#efece8]", to && "cursor-pointer")
+  const cls = cn("group block rounded-xl border-[0.8px] p-3.5 sm:p-5 transition-all duration-300 ease-[var(--ease-out-soft)]", dark ? "border-transparent bg-[#1a1919] text-white" : "border-border bg-muted hover:-translate-y-0.5 hover:bg-[#efece8]", to && "cursor-pointer")
   const inner = (
     <>
       <div className={cn("flex items-center justify-between text-sm", dark ? "text-white/60" : "text-hushed")}>{label}{delta && <span className={cn("inline-flex items-center gap-0.5 rounded-full px-1.5 text-xs", delta.good ? "bg-[#e3f6e6] text-[#17692b]" : "bg-[#fbe9dd] text-[#a24a10]")}>{delta.up ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />}{delta.v}</span>}</div>
-      <div className={cn("tick mt-2 text-[30px] leading-9 tracking-[-0.02em] md:text-[34px] md:leading-10", dark && "text-lime")}>{value}</div>
+      <div className={cn("tick mt-1.5 text-[22px] leading-7 tracking-[-0.02em] sm:mt-2 sm:text-[30px] sm:leading-9 md:text-[34px] md:leading-10", dark && "text-lime")}>{value}</div>
       {spark && <Spark data={spark} color={dark ? COLORS.pink : COLORS.deep} className="mt-2" />}
       {note && <div className={cn("mt-1 text-sm", dark ? "text-white/60" : "text-hushed")}>{note}</div>}
     </>
@@ -153,7 +153,7 @@ export function DataTable<T>({ rows, cols, id, onRow, search, pageSize = 10, emp
 }
 
 export const Row = ({ k, children }: { k: string; children: ReactNode }) => <div className="flex items-start justify-between gap-4 border-b border-border py-2.5 text-sm last:border-0"><span className="text-hushed">{k}</span><span className="text-right">{children}</span></div>
-export const Mono = ({ children }: { children: ReactNode }) => <span className="font-mono text-xs">{children}</span>
+export const Mono = ({ children }: { children: ReactNode }) => <span className="whitespace-nowrap font-mono text-xs">{children}</span>
 
 /* ------------------------------------------------------------------ loading */
 const seen = new Set<string>()
@@ -165,7 +165,7 @@ export function PageSkeleton({ path }: { path: string }) {
       <span className="sr-only">Loading</span>
       <div className="mb-6 flex items-end justify-between gap-4"><div className="space-y-2"><Bone className="h-8 w-56" /><Bone className="h-4 w-72 max-w-full" /></div><Bone className="hidden h-9 w-44 rounded-full sm:block" /></div>
       {home ? <>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">{[0, 1, 2, 3, 4].map((i) => <Bone key={i} className="h-[132px] rounded-xl" />)}</div>
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-5">{[0, 1, 2, 3, 4].map((i) => <Bone key={i} className="h-[132px] rounded-xl" />)}</div>
         <div className="mt-3 grid gap-3 lg:grid-cols-2"><Bone className="h-[340px] rounded-xl" /><Bone className="h-[340px] rounded-xl" /></div>
         <div className="mt-3 grid gap-3 lg:grid-cols-3">{[0, 1, 2].map((i) => <Bone key={i} className="h-[260px] rounded-xl" />)}</div>
       </> : detail ? (
