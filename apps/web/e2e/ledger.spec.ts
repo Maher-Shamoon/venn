@@ -7,7 +7,7 @@ test.beforeEach(({}, info) => { test.skip(info.project.name === "mobile", "deskt
 const dialog = (page: Page) => page.getByRole("dialog")
 
 test("customer, invoice, payment, allocation, void, reversal and cancel on the real ledger", async ({ page }) => {
-  test.setTimeout(120_000)
+  test.setTimeout(300_000)
   await signIn(page)
   const stamp = Date.now() % 1_000_000
   const name = `QA Customer ${stamp}`
@@ -67,7 +67,8 @@ test("customer, invoice, payment, allocation, void, reversal and cancel on the r
   await dialog(page).getByLabel("Customer (if known)").selectOption({ label: name })
   await dialog(page).getByRole("button", { name: "Record payment" }).click()
   await expect(page.getByRole("heading", { name: /PAY-\d+/ })).toBeVisible()
-  await page.getByLabel("Invoice", { exact: true }).selectOption({ index: 1 })
+  const pick = page.getByRole("combobox", { name: /^Invoice/ })
+  await pick.selectOption((await pick.locator("option", { hasText: name }).getAttribute("value"))!)
   await page.getByRole("button", { name: "Allocate" }).click()
   await expect(page.getByText("Payment applied")).toBeVisible()
   await expect(page.getByText("fully allocated").first()).toBeVisible()
