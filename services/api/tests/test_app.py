@@ -38,8 +38,8 @@ def test_too_many_requests_get_a_429_with_retry_after() -> None:
     app.state.limiter = RateLimiter(2, 1, 2)
     try:
         c = TestClient(app)
-        assert [c.get("/api/v1/invitations/nothing").status_code for _ in range(2)] == [404, 404]
-        r = c.get("/api/v1/invitations/nothing")
+        assert [c.get("/api/v1/no-such-route").status_code for _ in range(2)] == [404, 404]
+        r = c.get("/api/v1/no-such-route")
         assert r.status_code == 429 and r.json()["code"] == "rate_limited" and int(r.headers["Retry-After"]) >= 1 and r.headers["x-request-id"]
         assert c.get("/api/v1/health").status_code == 200  # health checks are never limited
     finally:
