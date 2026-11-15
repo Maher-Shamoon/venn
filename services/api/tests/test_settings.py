@@ -34,7 +34,7 @@ def test_financial_update_merges_and_persists(client: TestClient, auth: Token) -
     client.patch("/api/v1/settings/financial", json={"default_currency": "EUR", "timezone": "Europe/London", "default_terms_days": 45}, headers=h)
     r = client.patch("/api/v1/settings/financial", json={"auto_apply_exact": False}, headers=h).json()["financial"]
     assert r == {"default_currency": "EUR", "timezone": "Europe/London", "default_terms_days": 45, "auto_apply_exact": False,
-                 "short_grace_days": 7, "claim_grace_days": 5}
+                 "short_grace_days": 7, "claim_grace_days": 5, "ai_enabled": False}
 
 
 def test_stale_version_is_a_conflict(client: TestClient, auth: Token) -> None:  # noqa: F811
