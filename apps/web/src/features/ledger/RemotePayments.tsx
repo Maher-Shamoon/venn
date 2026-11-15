@@ -66,7 +66,9 @@ function PaymentModal({ open, onOpenChange }: { open: boolean; onOpenChange: (o:
 }
 
 export function RemotePaymentDetail() {
-  const { id = "" } = useParams(), q = usePayment(id), open = useInvoices({ tab: "open", limit: 100, sort: "due", desc: false })
+  const { id = "" } = useParams(), q = usePayment(id)
+  // When the payer is known, offer that customer's open invoices; otherwise the oldest 100 open invoices.
+  const open = useInvoices({ tab: "open", limit: 100, sort: "due", desc: false, customer_id: q.data?.customer_id ?? undefined })
   const alloc = useAllocate(), voidA = useVoidAllocation(), reverse = useReversePayment(), review = useReviewPayment()
   const [inv, setInv] = useState(""), [amt, setAmt] = useState(""), [err, setErr] = useState(""), [modal, setModal] = useState<null | "reverse">(null), [reason, setReason] = useState("")
   if (q.isPending) return <Loading />

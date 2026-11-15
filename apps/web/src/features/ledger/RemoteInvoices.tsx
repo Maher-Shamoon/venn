@@ -16,6 +16,13 @@ const day = (iso: string) => new Date(iso + "T00:00:00Z").toLocaleDateString("en
 const Loading = () => <div role="status" aria-busy="true" className="h-48 animate-pulse rounded-xl bg-muted" />
 export const STATUS_TONE: Record<string, Tone> = { paid: "green", overdue: "red", partially_paid: "amber", disputed: "amber", cancelled: "grey", draft: "grey", issued: "grey" }
 export const StatusPill = ({ s }: { s: string }) => <Pill tone={STATUS_TONE[s] ?? "grey"}>{s.replace("_", " ")}</Pill>
+/** The display status is the first match in the documented order; the other facts stay visible as secondary badges (A.3). */
+export const InvoiceBadges = ({ i }: { i: Pick<Invoice, "status" | "amount_paid"> }) => (
+  <span className="inline-flex flex-wrap items-center gap-1.5">
+    <StatusPill s={i.status} />
+    {i.status === "overdue" && cmp(i.amount_paid, "0") > 0 && <StatusPill s="partially_paid" />}
+  </span>
+)
 const TABS = [{ v: "all", label: "All" }, { v: "open", label: "Open" }, { v: "overdue", label: "Overdue" }, { v: "paid", label: "Paid" }, { v: "cancelled", label: "Cancelled" }] as const
 
 export function RemoteInvoices() {
@@ -36,7 +43,7 @@ export function RemoteInvoices() {
               { key: "due", label: "Due", sort: () => 0, hide: "md", render: (i) => day(i.due_date) },
               { key: "total", label: "Total", right: true, sort: () => 0, hide: "md", render: (i) => formatMoney(i.total_amount, i.currency) },
               { key: "balance", label: "Balance", right: true, sort: () => 0, render: (i) => formatMoney(i.balance_due, i.currency) },
-              { key: "status", label: "Status", render: (i) => <span className="inline-flex items-center gap-2"><StatusPill s={i.status} />{i.days_late > 0 && <span className="text-xs text-hushed">{i.days_late}d</span>}</span> },
+              { key: "status", label: "Status", render: (i) => <span className="inline-flex items-center gap-2"><InvoiceBadges i={i} />{i.days_late > 0 && <span className="text-xs text-hushed">{i.days_late}d</span>}</span> },
             ]} />)}
       </Box>
       <InvoiceModal open={open} onOpenChange={setOpen} />
@@ -101,7 +108,7 @@ export function RemoteInvoiceDetail() {
     <>
       <Title back={["/app/invoices", "Invoices"]} sub={<>{i.customer_name} · due {day(i.due_date)}</>}
         right={open && <>{owed && <Button onClick={() => setModal("pay")}>Record payment</Button>}<Button variant="outline" onClick={() => setModal("cancel")}>Cancel invoice</Button></>}>
-        {i.invoice_number} <StatusPill s={i.status} />
+        {i.invoice_number} <InvoiceBadges i={i} />
       </Title>
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
         <div className="min-w-0 space-y-4">
