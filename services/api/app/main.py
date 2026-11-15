@@ -10,6 +10,7 @@ from app.api.v1 import approvals, audit, dashboard, documents, health, identity,
 from app.core.config import get_settings
 from app.core.errors import install_error_handlers, problem
 from app.core.logging import setup_logging
+from app.core.mailer import MailError
 from app.core.ratelimit import RateLimiter
 
 log = logging.getLogger("venn.request")
@@ -51,6 +52,11 @@ def create_app() -> FastAPI:
         return await call_next(request)
 
     install_error_handlers(app)
+
+    @app.exception_handler(MailError)
+    async def mail_failed(request: Request, exc: MailError) -> Response:
+        return problem(request, 502, "email_failed", "Email failed", "The email could not be sent, so nothing was recorded. Try again in a moment.")
+
     app.include_router(health.router, prefix="/api/v1")
     app.include_router(identity.router, prefix="/api/v1")
     app.include_router(audit.router, prefix="/api/v1")

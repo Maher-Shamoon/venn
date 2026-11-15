@@ -8,6 +8,12 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="VENN_", extra="ignore")
 
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    mail_from: str = ""
+    mail_from_name: str = "venn"
     rate_limit_per_minute: int = 600
     rate_limit_heavy_per_minute: int = 30
     rate_limit_anonymous_per_minute: int = 120

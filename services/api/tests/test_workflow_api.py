@@ -202,3 +202,23 @@ def test_a_rejected_credit_reopens_the_dispute(org: Org, client: TestClient, aut
     assert d["status"] == "open" and d["outcome"] is None and org.get(f"/invoices/{inv['id']}").json()["balance_due"] == "4300.00"
     assert d["events"][-1]["text"].startswith("The credit was rejected")
     assert org.get("/disputes?filter=open").json()["data"][0]["id"] == did and org.get("/disputes?filter=resolved").json()["data"] == []
+
+
+def test_a_mail_provider_failure_records_nothing_and_reports_it(org: Org, client: TestClient) -> None:  # noqa: F811
+    from app.core.mailer import MailError, Message, get_mailer
+
+    class Down:
+        def send(self, message: Message) -> None:
+            raise MailError("down")
+
+    overdue(org, contact_email="ap@northwind.example")
+    cid = cases(org)[0]["id"]
+    d = org.post(f"/collections/{cid}/drafts", {"tone": "friendly"}).json()
+    client.app.dependency_overrides[get_mailer] = lambda: Down()  # type: ignore[attr-defined]
+    try:
+        r = org.post(f"/collections/{cid}/send", {"subject": d["subject"], "body": d["body"], "mode": "email"})
+    finally:
+        client.app.dependency_overrides.pop(get_mailer, None)  # type: ignore[attr-defined]
+    assert r.status_code == 502 and r.json()["code"] == "email_failed"
+    c = org.get(f"/collections/{cid}").json()
+    assert c["stage"] == "reminder_1" and not any(e["kind"] == "sent" for e in c["events"])
