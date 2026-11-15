@@ -35,6 +35,13 @@ test("a short payment opens a case with cited findings; the recommendation goes 
   await expect(page.getByText("Spoke to the customer")).toBeVisible()
   await page.getByRole("tab", { name: "findings" }).click()
 
+  await page.getByRole("button", { name: "Add", exact: true }).click()
+  await page.getByLabel("Upload evidence file").setInputFiles({ name: `qa-evidence-${s}.txt`, mimeType: "text/plain", buffer: Buffer.from(`Remittance advice ${s}: fee of 100.00 deducted`) })
+  await expect(page.getByText(`qa-evidence-${s}.txt linked`).first()).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByText(/records or evidence changed since this analysis/)).toBeVisible()
+  await page.getByRole("button", { name: "Re-run analysis" }).first().click()
+  await expect(page.getByText("analysis v2")).toBeVisible({ timeout: 30_000 })
+
   await page.getByRole("button", { name: "Submit for approval" }).click()
   await expect(page.getByText("Open the request")).toBeVisible({ timeout: 30_000 })
   await expect(page.getByText("awaiting approval").first()).toBeVisible()

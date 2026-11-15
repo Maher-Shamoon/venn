@@ -107,3 +107,9 @@ The `/app` area is now a working frontend with local state (saved in the browser
 - Reconciliation rules R1 to R8, the review workspace (run, keyboard review, undo of auto-matches, discrepancies) and approvals with adjustments (separation of duties, staleness, expiry, policies) run on the real API; see `docs/testing/checkpoints/STAGE-D-reconciliation-approvals.md`.
 - Measured: 1,000 payments reconcile in 6.3 s. A run is synchronous, so very large organizations need the job runner (Stage I).
 - Next: Stage E. Documents, deterministic investigations and the evidence model can be built now. **The AI analysis (E4) is blocked until an LLM API key is provided**; the deterministic path will work without it.
+
+## Revision 12: Stage E (documents and investigations), AI step blocked
+- Investigations open from discrepancies, with cited findings in five kinds, versioned analyses, evidence, timeline and approval-gated actions; documents with PDF text extraction. See `docs/testing/checkpoints/STAGE-E-documents-investigations.md`.
+- **BLOCKED: E4 (AI analysis) needs an LLM API key.** The deterministic engine works without it. E2 (PDF import review) is also open.
+- Documents have no virus scan and no OCR yet.
+- Next: Stage H first (the real dashboard still shows the prototype page), then Stage F.

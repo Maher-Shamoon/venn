@@ -11,6 +11,7 @@ import { errorMessage } from "@/lib/errors"
 import { formatMoney } from "@/lib/money"
 import { cn } from "@/lib/utils"
 import { useMembers } from "@/features/team/api"
+import { useUploadDocument } from "@/features/documents/api"
 import { useAct, useAddEvidence, useCase, useCases, useDismissCase, useMove, useNote, useRemoveEvidence, useRerun, useResolveCase, type Card, type Finding, type Status } from "./api"
 
 const COLS: { k: Status; label: string }[] = [{ k: "new", label: "New" }, { k: "in_progress", label: "In progress" }, { k: "ready_for_review", label: "Ready for review" }, { k: "awaiting_approval", label: "Awaiting approval" }, { k: "monitoring", label: "Monitoring" }, { k: "resolved", label: "Resolved" }]
@@ -81,7 +82,7 @@ type Modal = null | "note" | "assign" | "dismiss" | "evidence" | "resolve"
 
 export function RemoteInvestigationDetail() {
   const { id = "" } = useParams(), q = useCase(id), move = useMove(), note = useNote(), addEv = useAddEvidence(), rmEv = useRemoveEvidence(), rerun = useRerun(), act = useAct(), resolve = useResolveCase(), dismiss = useDismissCase()
-  const members = useMembers()
+  const members = useMembers(), upload = useUploadDocument()
   const [tab, setTab] = useState<"findings" | "activity">("findings"), [modal, setModal] = useState<Modal>(null), [txt, setTxt] = useState(""), [kind, setKind] = useState<"document" | "email" | "manual">("document"), [assignee, setAssignee] = useState("")
   if (q.isPending) return <Loading />
   if (q.isError || !q.data) return <NotFound what="investigation" back="/app/investigations" />
@@ -125,8 +126,8 @@ export function RemoteInvestigationDetail() {
         </Box></aside>
       </div>
       <Modal open={modal === "note"} onOpenChange={(o) => !o && close()} title="Add note" footer={<><Button variant="outline" onClick={close}>Cancel</Button><Button disabled={!txt.trim() || note.isPending} onClick={() => note.mutate({ id, text: txt }, ok("Note added"))}>Add note</Button></>}><TextArea aria-label="Note" value={txt} onChange={(e) => setTxt(e.target.value)} /></Modal>
-      <Modal open={modal === "evidence"} onOpenChange={(o) => !o && close()} title="Add evidence" desc="Describe the document or message you are linking. Uploads arrive with the documents module." footer={<><Button variant="outline" onClick={close}>Cancel</Button><Button disabled={!txt.trim() || addEv.isPending} onClick={() => addEv.mutate({ id, type: kind, label: txt, tier: kind === "email" ? "claim" : "manual" }, ok("Evidence linked"))}>Link</Button></>}>
-        <div className="space-y-3"><Field label="Kind"><NativeSelect value={kind} onChange={(e) => setKind(e.target.value as typeof kind)}><option value="document">Document</option><option value="email">Message from the customer</option><option value="manual">Note of a phone call or other</option></NativeSelect></Field><Field label="Description"><Input value={txt} onChange={(e) => setTxt(e.target.value)} /></Field></div></Modal>
+      <Modal open={modal === "evidence"} onOpenChange={(o) => !o && close()} title="Add evidence" desc="Upload the document, or describe a message or call you want on record." footer={<><Button variant="outline" onClick={close}>Cancel</Button><Button disabled={!txt.trim() || addEv.isPending} onClick={() => addEv.mutate({ id, type: kind, label: txt, tier: kind === "email" ? "claim" : "manual" }, ok("Evidence linked"))}>Link</Button></>}>
+        <div className="space-y-3"><Field label="Upload a file" hint="PDF, PNG, JPEG, CSV or text, up to 20 MB. PDF text is read and searchable."><input type="file" aria-label="Upload evidence file" accept=".pdf,.png,.jpg,.jpeg,.csv,.txt" disabled={upload.isPending} className="block w-full text-sm" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) upload.mutate({ file: f, investigationId: id }, ok(`${f.name} linked`)) }} /></Field><p className="text-xs text-hushed">Or record something without a file:</p><Field label="Kind"><NativeSelect value={kind} onChange={(e) => setKind(e.target.value as typeof kind)}><option value="document">Document</option><option value="email">Message from the customer</option><option value="manual">Note of a phone call or other</option></NativeSelect></Field><Field label="Description"><Input value={txt} onChange={(e) => setTxt(e.target.value)} /></Field></div></Modal>
       <Modal open={modal === "assign"} onOpenChange={(o) => !o && close()} title="Assign investigation" footer={<><Button variant="outline" onClick={close}>Cancel</Button><Button disabled={move.isPending} onClick={() => move.mutate({ id, assignee_id: assignee || undefined, clear_assignee: !assignee }, ok("Assignment saved"))}>Assign</Button></>}>
         <Field label="Assignee"><NativeSelect value={assignee} onChange={(e) => setAssignee(e.target.value)}><option value="">Unassigned</option>{(members.data ?? []).filter((m) => m.status === "active").map((m) => <option key={m.user_id} value={m.user_id}>{m.full_name}</option>)}</NativeSelect></Field></Modal>
       <Modal open={modal === "resolve"} onOpenChange={(o) => !o && close()} title="Mark resolved" desc="Say how it was settled. It becomes read-only." footer={<><Button variant="outline" onClick={close}>Cancel</Button><Button disabled={!txt.trim() || resolve.isPending} onClick={() => resolve.mutate({ id, outcome: txt }, ok("Investigation resolved"))}>Resolve</Button></>}><TextArea aria-label="Outcome" value={txt} onChange={(e) => setTxt(e.target.value)} /></Modal>
