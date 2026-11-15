@@ -9,6 +9,7 @@ import { Logo } from "@/components/venn/kit"
 import { cn } from "@/lib/utils"
 import { A, balOf, useApp, usd, type Role } from "./store"
 import { Loading } from "./ui"
+import { signOut } from "@/auth"
 import { SkipLink } from "@/components/venn/SkipLink"
 
 export type { Role }
@@ -99,7 +100,7 @@ export function AppShell() {
             <Pop label="Account menu" trigger={<Avatar className="size-8"><AvatarFallback>{initials}</AvatarFallback></Avatar>}>
               {(close) => <div className="p-1"><div className="px-3 py-2"><div className="text-sm">{s.session?.name ?? me}</div><div className="text-xs text-hushed">{s.session?.email ?? "sample workspace"}</div></div>
                 <Link to="/app/profile" onClick={close} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted"><User className="size-4" />Profile</Link>
-                <button onClick={() => { close(); A.signOut(); nav("/login") }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-muted"><LogOut className="size-4" />Sign out</button></div>}
+                <button onClick={() => { close(); void signOut().finally(() => { A.signOut(); nav("/login") }) }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-muted"><LogOut className="size-4" />Sign out</button></div>}
             </Pop>
           </div>
         </header>
