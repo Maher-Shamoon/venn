@@ -15,6 +15,8 @@ Token = Callable[..., dict[str, str]]
 @pytest.fixture
 def client(migrated: str, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setenv("VENN_JWT_SECRET", SECRET)
+    monkeypatch.setenv("VENN_JWKS_URL", "")  # a developer .env may point at a real project; tests use the shared secret
+    monkeypatch.setenv("VENN_JWT_ISSUER", "")
     from app.core import db
     from app.core.config import get_settings
     from app.main import create_app
