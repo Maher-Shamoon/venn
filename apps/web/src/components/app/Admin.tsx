@@ -1,3 +1,6 @@
+import { remote } from "@/features/identity/api"
+import { RemoteCompany, RemoteFinancial } from "@/features/settings/RemoteSettings"
+import { RemoteAuditLog } from "@/features/audit/RemoteAuditLog"
 import { useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { Download, Lock, Mail, Plus } from "lucide-react"
@@ -97,6 +100,9 @@ export function MemberDetail() {
 
 /* ---------------------------------------------------------------------- audit */
 export function AuditLog() {
+  return remote() ? <RemoteAuditLog /> : <LocalAuditLog />
+}
+function LocalAuditLog() {
   const s = useApp(), role = useRole()
   const [g, setG] = useState("all"), [sel, setSel] = useState<string | null>(null)
   if (role !== "owner") return <Locked what="The audit log" />
@@ -128,8 +134,10 @@ export function Settings() {
     <>
       <Title sub="Organization-wide rules. Changes are recorded in the audit log.">Settings</Title>
       <Seg items={TABS} value={t as (typeof TABS)[number]} onChange={(v) => nav("/app/settings/" + v)} />
-      {t === "company" && <Box pad><div className="grid max-w-[640px] gap-3 sm:grid-cols-2">{([["name", "Name"], ["legal", "Legal name"], ["industry", "Industry"], ["size", "Company size"], ["website", "Website"], ["address", "Address"]] as const).map(([k, l]) => <Field key={k} label={l}><Input value={co[k]} onChange={(e) => setCo({ ...co, [k]: e.target.value })} /></Field>)}</div><Button className="mt-4" onClick={() => co.name.trim() ? A.saveSettings("company", co) : toast.error("A company name is required.")}>Save changes</Button></Box>}
-      {t === "financial" && <Box pad><div className="grid max-w-[640px] gap-3 sm:grid-cols-2"><Field label="Default currency"><NativeSelect value={fin.currency} onChange={(e) => setFin({ ...fin, currency: e.target.value })}>{["USD", "EUR", "GBP", "CAD"].map((c) => <option key={c}>{c}</option>)}</NativeSelect></Field><Field label="Timezone"><NativeSelect value={fin.timezone} onChange={(e) => setFin({ ...fin, timezone: e.target.value })}>{["America/Chicago", "America/New_York", "Europe/London", "Asia/Dubai"].map((c) => <option key={c}>{c}</option>)}</NativeSelect></Field><Field label="Default payment terms (days)"><Input type="number" value={fin.terms} onChange={(e) => setFin({ ...fin, terms: +e.target.value })} /></Field><Field label="Short-payment grace (days)"><Input type="number" value={fin.shortGrace} onChange={(e) => setFin({ ...fin, shortGrace: +e.target.value })} /></Field><Field label="Claim grace (days)"><Input type="number" value={fin.claimGrace} onChange={(e) => setFin({ ...fin, claimGrace: +e.target.value })} /></Field></div>
+      {t === "company" && remote() && <RemoteCompany />}
+      {t === "financial" && remote() && <RemoteFinancial />}
+      {t === "company" && !remote() && <Box pad><div className="grid max-w-[640px] gap-3 sm:grid-cols-2">{([["name", "Name"], ["legal", "Legal name"], ["industry", "Industry"], ["size", "Company size"], ["website", "Website"], ["address", "Address"]] as const).map(([k, l]) => <Field key={k} label={l}><Input value={co[k]} onChange={(e) => setCo({ ...co, [k]: e.target.value })} /></Field>)}</div><Button className="mt-4" onClick={() => co.name.trim() ? A.saveSettings("company", co) : toast.error("A company name is required.")}>Save changes</Button></Box>}
+      {t === "financial" && !remote() && <Box pad><div className="grid max-w-[640px] gap-3 sm:grid-cols-2"><Field label="Default currency"><NativeSelect value={fin.currency} onChange={(e) => setFin({ ...fin, currency: e.target.value })}>{["USD", "EUR", "GBP", "CAD"].map((c) => <option key={c}>{c}</option>)}</NativeSelect></Field><Field label="Timezone"><NativeSelect value={fin.timezone} onChange={(e) => setFin({ ...fin, timezone: e.target.value })}>{["America/Chicago", "America/New_York", "Europe/London", "Asia/Dubai"].map((c) => <option key={c}>{c}</option>)}</NativeSelect></Field><Field label="Default payment terms (days)"><Input type="number" value={fin.terms} onChange={(e) => setFin({ ...fin, terms: +e.target.value })} /></Field><Field label="Short-payment grace (days)"><Input type="number" value={fin.shortGrace} onChange={(e) => setFin({ ...fin, shortGrace: +e.target.value })} /></Field><Field label="Claim grace (days)"><Input type="number" value={fin.claimGrace} onChange={(e) => setFin({ ...fin, claimGrace: +e.target.value })} /></Field></div>
         <label className="mt-4 flex max-w-[640px] items-center gap-3 text-sm"><Switch checked={fin.autoApply} onCheckedChange={(v) => setFin({ ...fin, autoApply: v })} aria-label="Auto-apply exact matches" />Apply exact matches automatically. Everything else waits for a person.</label>
         <Button className="mt-4" onClick={() => (fin.terms > 0 ? A.saveSettings("financial", fin) : toast.error("Payment terms must be above zero."))}>Save changes</Button></Box>}
       {t === "approvals" && <Box pad><p className="mb-4 max-w-[560px] text-sm text-hushed">Requests at or above the threshold need an owner. A threshold of 0 means every request needs approval. Separation of duties applies: nobody approves their own request when another owner exists.</p><div className="grid max-w-[560px] gap-2">{Object.entries(ap).map(([k, v]) => <div key={k} className="flex items-center gap-3 rounded-lg border border-border p-3 text-sm"><span className="flex-1 capitalize">{k}</span><span className="text-hushed">from $</span><Input aria-label={`${k} threshold`} type="number" className="h-8 w-24" value={v} onChange={(e) => setAp({ ...ap, [k]: +e.target.value })} /></div>)}</div><Button className="mt-4" onClick={() => A.saveSettings("approvals", ap)}>Save policy</Button></Box>}
