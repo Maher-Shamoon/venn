@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input"
 import Balatro from "@/components/Balatro"
 import { Logo, Odometer, money, useTicker } from "@/components/venn/kit"
 import { config } from "@/config"
+import { errorMessage, toastApiError } from "@/lib/errors"
+import { activeOrg, createOrganization, fetchMe, setActiveOrg } from "@/features/identity/api"
 import { AuthError, completeReset, requestReset, resendVerification, signIn, signUp, useResetReady } from "@/auth"
 import { A, useApp, type Role } from "./store"
 import { Field, NativeSelect } from "./ui"
@@ -109,7 +111,19 @@ export function Login() {
   const s = useApp(), nav = useNavigate(), from = (useLocation().state as { from?: string } | null)?.from
   const [f, setF] = useState({ email: "", password: "" }), [err, setErr] = useState(""), [busy, setBusy] = useState(false)
   if (s.session && !busy) return <Navigate to="/app" replace />
-  const go = (name: string, mail: string) => { setBusy(true); setTimeout(() => { A.signIn(name, mail); nav(s.onboarded ? from ?? "/app" : "/onboarding/organization") }, 650) }
+  const go = async (name: string, mail: string) => {
+    setBusy(true)
+    let target = s.onboarded ? from ?? "/app" : "/onboarding/organization"
+    if (config.authSource === "supabase") {
+      // Real accounts: the server says whether this person already belongs to an organization.
+      try {
+        const m = (await fetchMe()).memberships.find((x) => x.status === "active")
+        if (m) { setActiveOrg(m.organization_id); A.finishOnboarding(); target = from ?? "/app" } else target = "/onboarding/organization"
+      } catch (x) { toastApiError(x) }
+    } else await new Promise((r) => setTimeout(r, 650))
+    A.signIn(name, mail)
+    nav(target)
+  }
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     if (!email(f.email) || !f.password) return setErr("Enter your email and password.")
@@ -227,8 +241,15 @@ export function Onboarding() {
   const [prefs, setPrefs] = useState({ tz: "America/Chicago", terms: 30, auto: true })
   const [src, setSrc] = useState<string[]>(["csv"]), [mail, setMail] = useState<string | null>(null), [err, setErr] = useState("")
   const next = () => { setErr(""); if (idx === STEPS.length - 1) { A.saveSettings("financial", { ...s.settings.financial, timezone: prefs.tz, terms: prefs.terms, autoApply: prefs.auto }); A.finishOnboarding(); nav("/app"); return } nav("/onboarding/" + STEPS[idx + 1][0]) }
-  const cont = () => {
-    if (idx === 0) { if (!org.name.trim()) return setErr("Organization name is required."); A.saveSettings("company", { ...s.settings.company, name: org.name, industry: org.industry, size: org.size, website: org.website }) }
+  const cont = async () => {
+    if (idx === 0) {
+      if (!org.name.trim()) return setErr("Organization name is required.")
+      if (config.authSource === "supabase" && !activeOrg()) {
+        try { setActiveOrg((await createOrganization({ name: org.name.trim(), industry: org.industry, company_size: org.size, website: org.website || undefined })).id) }
+        catch (x) { toastApiError(x); return setErr(errorMessage(x)) }
+      }
+      A.saveSettings("company", { ...s.settings.company, name: org.name, industry: org.industry, size: org.size, website: org.website })
+    }
     if (idx === 4) { const bad = rows.find((r) => r.email && !email(r.email)); if (bad) return setErr(`${bad.email} is not a valid email address.`); rows.filter((r) => r.email).forEach((r) => A.invite(r.email, r.role)); A.setSetup("team", true) }
     if (idx === 1) A.setSetup("sources", true); if (idx === 2 && mail) A.setSetup("email", true); if (idx === 3) A.setSetup("import", true); if (idx === 5) A.setSetup("prefs", true)
     next()
