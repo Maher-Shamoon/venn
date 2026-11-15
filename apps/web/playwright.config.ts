@@ -8,6 +8,8 @@ const api = existsSync("../../services/api/.env")
 export default defineConfig({
   testDir: "e2e",
   timeout: 30_000,
+  // The hosted database adds latency per request; give assertions room when real-organization tests run.
+  expect: { timeout: api ? 15_000 : 5_000 },
   // Real-organization tests change shared data, so they run one at a time when the API is configured.
   fullyParallel: !api,
   workers: api ? 1 : undefined,
