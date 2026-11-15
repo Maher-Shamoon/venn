@@ -61,12 +61,12 @@ def revoke_invitation(inv_id: uuid.UUID, ctx: Ctx = Depends(require("team.manage
 
 
 @router.get("/invitations/{token}")
-def describe_invitation(token: str, db: Session = Depends(public_session)) -> dict[str, Any]:
+def describe_invitation(token: str, db: Session = Depends(public_session, scope="function")) -> dict[str, Any]:
     return team.describe(db, token)
 
 
 @router.post("/invitations/{token}/accept")
-def accept_invitation(token: str, user: AuthUser = Depends(current_user), db: Session = Depends(user_session),
+def accept_invitation(token: str, user: AuthUser = Depends(current_user), db: Session = Depends(user_session, scope="function"),
                       info: RequestInfo = Depends(request_info)) -> dict[str, Any]:
     return team.accept(db, user, token, info)
 

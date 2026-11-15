@@ -40,7 +40,10 @@ def _scoped_session(user: AuthUser, org_id: uuid.UUID | None) -> Session:
 
 
 def user_session(user: AuthUser = Depends(current_user)) -> Iterator[Session]:
-    """A session for endpoints that run before any organization exists (profile, create organization)."""
+    """A session for endpoints that run before any organization exists (profile, create organization).
+
+    Used with scope="function" so the commit happens before the response is sent: a failed commit is an error, never a silent 200.
+    """
     s = _scoped_session(user, None)
     try:
         yield s
@@ -115,7 +118,7 @@ def org_context(
 def require(permission: str):  # type: ignore[no-untyped-def]
     """Dependency factory: `ctx: Ctx = Depends(require("invoices.view"))`. The server decides, never the client."""
 
-    def dep(ctx: Ctx = Depends(org_context)) -> Ctx:
+    def dep(ctx: Ctx = Depends(org_context, scope="function")) -> Ctx:
         if permission not in ctx.permissions:
             raise ApiError(403, "permission_denied", "You do not have permission to do that.")
         return ctx

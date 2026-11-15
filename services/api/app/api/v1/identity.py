@@ -55,7 +55,7 @@ class OrganizationOut(BaseModel):
 
 
 @router.get("/me")
-def me(user: AuthUser = Depends(current_user), db: Session = Depends(user_session)) -> Me:
+def me(user: AuthUser = Depends(current_user), db: Session = Depends(user_session, scope="function")) -> Me:
     """The signed-in user and the organizations they belong to. Needs no organization header."""
     rows = db.execute(text(
         "select o.id, o.name, r.key, r.name as role_name, m.status from memberships m "
@@ -69,14 +69,14 @@ def me(user: AuthUser = Depends(current_user), db: Session = Depends(user_sessio
 
 
 @router.get("/me/context")
-def context(ctx: Ctx = Depends(org_context)) -> OrgContext:
+def context(ctx: Ctx = Depends(org_context, scope="function")) -> OrgContext:
     """Role and permissions in the organization named by X-Organization-Id. The UI uses it only to hide controls."""
     return OrgContext(organization_id=ctx.org_id, role_key=ctx.role_key, permissions=sorted(ctx.permissions))
 
 
 @router.post("/organizations", status_code=201)
 def create_organization(body: OrganizationIn, user: AuthUser = Depends(current_user),
-                        db: Session = Depends(user_session),
+                        db: Session = Depends(user_session, scope="function"),
                         info: RequestInfo = Depends(request_info)) -> OrganizationOut:
     if not user.email_verified:
         from app.core.errors import ApiError
