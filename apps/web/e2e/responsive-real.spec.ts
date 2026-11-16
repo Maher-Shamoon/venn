@@ -1,24 +1,7 @@
 import { expect, test, type Page } from "@playwright/test"
 import { signIn, testUser } from "./helpers"
+import { detect, SIZES } from "./overflow"
 
-/** Text that spills out of, or is clipped inside, its box; and a page that scrolls sideways. Ellipsis on names is allowed, on figures it is not. */
-const detect = () => {
-  const out: string[] = []
-  if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 1) out.push("page scrolls sideways")
-  document.querySelectorAll("main *, aside *, header *").forEach((el) => {
-    const cs = getComputedStyle(el), r = el.getBoundingClientRect()
-    if (!r.width || !r.height || cs.display === "none" || cs.visibility === "hidden" || el.closest("[aria-hidden='true'],.sr-only,[hidden]")) return
-    if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim())) return
-    const txt = el.textContent!.trim().slice(0, 30), tag = `${el.tagName.toLowerCase()}.${String(el.className).split(" ").slice(0, 3).join(".")}`
-    if (el.scrollWidth > el.clientWidth + 1 && cs.display !== "inline") {
-      const figure = /[$€£]\s?\d|^\d[\d,.]*$/.test(txt)
-      if (cs.overflowX === "visible") out.push(`SPILL ${tag} "${txt}"`)
-      else if (cs.overflowX !== "auto" && cs.overflowX !== "scroll" && (cs.textOverflow !== "ellipsis" || figure)) out.push(`CLIPPED ${tag} "${txt}"`)
-    }
-  })
-  return out
-}
-const SIZES = [280, 320, 360, 390, 430, 600, 768, 820, 1024, 1100, 1280, 1440, 1920]
 const ROUTES = ["/app", "/app/customers", "/app/invoices", "/app/payments", "/app/reconciliation", "/app/investigations", "/app/approvals", "/app/collections", "/app/disputes", "/app/reports", "/app/reports/aging", "/app/documents", "/app/tasks", "/app/integrations", "/app/team", "/app/audit-log", "/app/notifications", "/app/settings", "/app/profile", "/app/invoices/import", "/app/payments/import"]
 
 async function seed(page: Page) {

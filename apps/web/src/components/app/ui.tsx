@@ -19,7 +19,7 @@ export const Title = ({ children, sub, right, back }: { children: ReactNode; sub
   <div className="mb-5 md:mb-8">
     {back && <Link to={back[0]} className="mb-3 inline-flex items-center gap-1.5 text-sm text-hushed hover:text-foreground"><ArrowLeft className="size-4" />{back[1]}</Link>}
     <div className="flex flex-wrap items-end gap-4">
-      <div className="min-w-0"><h1 className="text-[26px] leading-8 tracking-[-0.015em] sm:text-[30px] sm:leading-9 md:text-[40px] md:leading-[44px]">{children}</h1>{sub && <p className="mt-1 text-hushed">{sub}</p>}</div>
+      <div className="min-w-0"><h1 className="[overflow-wrap:anywhere] text-[26px] leading-8 tracking-[-0.015em] sm:text-[30px] sm:leading-9 md:text-[40px] md:leading-[44px]">{children}</h1>{sub && <p className="mt-1 text-hushed [overflow-wrap:anywhere]">{sub}</p>}</div>
       <div className="flex w-full flex-wrap gap-2 sm:ml-auto sm:w-auto [&>*]:min-w-0 max-sm:[&>*]:flex-1 max-sm:[&>a]:min-w-fit max-sm:[&>button]:min-w-fit max-sm:[&>button]:justify-center">{right}</div>
     </div>
   </div>
