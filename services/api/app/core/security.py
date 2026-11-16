@@ -1,9 +1,12 @@
 """Verifies Supabase access tokens. Nothing sensitive is trusted from the token except who the user is."""
 
+import hashlib
+import time
 import uuid
 from dataclasses import dataclass
 from functools import lru_cache
 
+import httpx
 import jwt
 from jwt import PyJWKClient
 
@@ -22,6 +25,26 @@ class AuthUser:
 @lru_cache
 def _jwks(url: str) -> PyJWKClient:
     return PyJWKClient(url, cache_keys=True, lifespan=3600)  # keys cached for an hour
+
+
+_confirmed: dict[str, float] = {}  # token hash -> when we may ask Supabase again
+
+
+def _email_confirmed(token: str, s: Settings) -> bool:
+    """Asks Supabase whether this account's email is confirmed. The token's own metadata is writable by the user, so it proves nothing."""
+    k = hashlib.sha256(token.encode()).hexdigest()
+    if _confirmed.get(k, 0) > time.monotonic():
+        return True
+    try:
+        r = httpx.get(f"{s.jwt_issuer}/user", headers={"Authorization": f"Bearer {token}", "apikey": s.supabase_anon_key}, timeout=5)
+    except httpx.HTTPError as e:
+        raise ApiError(503, "unavailable", "Sign-in could not be checked. Try again in a moment.") from e
+    ok = r.status_code == 200 and bool(r.json().get("email_confirmed_at"))
+    if ok:
+        if len(_confirmed) > 5000:
+            _confirmed.clear()
+        _confirmed[k] = time.monotonic() + 600
+    return ok
 
 
 def decode_token(token: str, s: Settings) -> AuthUser:
@@ -51,6 +74,6 @@ def decode_token(token: str, s: Settings) -> AuthUser:
     meta = claims.get("user_metadata") or {}
     return AuthUser(
         id=uid, email=str(claims.get("email", "")).lower(),
-        email_verified=bool(meta.get("email_verified", False)),
+        email_verified=_email_confirmed(token, s) if s.jwks_url and s.supabase_anon_key else bool(meta.get("email_verified", False)),
         name=str(meta.get("full_name") or meta.get("name") or claims.get("email", "")).strip(),
     )

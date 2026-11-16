@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import date
 
 from fastapi import Depends, Header, Request
-from sqlalchemy import text
+from sqlalchemy import Connection, event, text
 from sqlalchemy.orm import Session
 
 from app.core import clock
@@ -32,12 +32,22 @@ def current_user(authorization: str | None = Header(default=None)) -> AuthUser:
     return decode_token(authorization[7:].strip(), get_settings())
 
 
-def _scoped_session(user: AuthUser, org_id: uuid.UUID | None) -> Session:
-    s = Session(get_engine(), expire_on_commit=False)
-    # One round trip: switch to the non-owner role and set the tenancy values (the same as SET LOCAL ROLE + two set_config calls).
-    s.execute(text("select set_config('role', 'venn_app', true), set_config('app.user_id', :u, true), set_config('app.org_id', :o, true)"),
-              {"u": str(user.id), "o": str(org_id) if org_id else ""})
+def scope_session(s: Session, user_id: str, org_id: str) -> Session:
+    """Switches to the non-owner role and sets the tenancy values, now and at the start of every later transaction.
+
+    The values are transaction-local, so after a commit inside a request they would vanish and the connection would be back to its owner role.
+    """
+    def apply(_s: Session, _tx: object, conn: Connection) -> None:
+        conn.execute(text("select set_config('role', 'venn_app', true), set_config('app.user_id', :u, true), set_config('app.org_id', :o, true)"),
+                     {"u": user_id, "o": org_id})  # one round trip
+
+    event.listen(s, "after_begin", apply)
+    s.connection()  # begins the first transaction, which runs the listener
     return s
+
+
+def _scoped_session(user: AuthUser, org_id: uuid.UUID | None) -> Session:
+    return scope_session(Session(get_engine(), expire_on_commit=False), str(user.id), str(org_id) if org_id else "")
 
 
 def user_session(user: AuthUser = Depends(current_user)) -> Iterator[Session]:

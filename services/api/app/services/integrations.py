@@ -7,6 +7,7 @@ not configured, so it is listed as unavailable.
 """
 
 import json
+import secrets
 import uuid
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -70,11 +71,24 @@ def _stripe(key: str, path: str, params: dict[str, Any] | None = None) -> dict[s
     return dict(r.json())
 
 
+def _refuse_write_access(key: str) -> None:
+    """A key that can write is refused. Each probe targets an object that does not exist, so it changes nothing: Stripe answers 403 when
+    the key lacks the permission and 404 (no such object) when it has it."""
+    for path, params in (("charges/ch_venn_probe/capture", {}), ("payment_intents/pi_venn_probe/cancel", {}), ("refunds", {"charge": "ch_venn_probe"})):
+        try:
+            r = httpx.post(f"https://api.stripe.com/v1/{path}", data=params, headers={"Authorization": f"Bearer {key}"}, timeout=20)
+        except httpx.HTTPError as e:
+            raise ApiError(502, "provider_unreachable", "Stripe could not be reached. Try again.") from e
+        if r.status_code != 403:
+            raise ApiError(422, "validation_error", "This key can change data in Stripe. Create a restricted key with read-only access and use that.")
+
+
 def connect_stripe(db: Session, org: uuid.UUID, actor: AuthUser, key: str, info: RequestInfo) -> dict[str, Any]:
     key = key.strip()
     if not key.startswith("rk_"):
         raise ApiError(422, "validation_error", "Use a restricted key (it starts with rk_) with read access only. Full secret keys are refused.")
     _stripe(key, "charges", {"limit": 1})
+    _refuse_write_access(key)
     _store(db, org, "stripe", key, "test mode" if key.startswith("rk_test_") else "live mode", actor.id)
     audit.record(db, org, "integration.connected", actor_id=actor.id, record_type="integration", record_id="stripe", info=info)
     return {"connected": True}
@@ -119,7 +133,7 @@ def gmail_start(org: uuid.UUID, actor: AuthUser) -> str:
     c = get_settings()
     if not (c.google_client_id and c.google_client_secret and c.secrets_key):
         raise ApiError(503, "not_configured", "Gmail is not configured on this server.")
-    q = {"client_id": c.google_client_id, "redirect_uri": c.google_redirect_uri, "response_type": "code", "scope": GMAIL_SCOPE, "access_type": "offline", "prompt": "consent", "state": sign_state(f"gmail:{org}:{actor.id}")}
+    q = {"client_id": c.google_client_id, "redirect_uri": c.google_redirect_uri, "response_type": "code", "scope": GMAIL_SCOPE, "access_type": "offline", "prompt": "consent", "state": sign_state(f"gmail:{org}:{actor.id}:{secrets.token_urlsafe(12)}")}
     return "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(q)
 
 
@@ -133,7 +147,7 @@ def _token(grant: dict[str, str]) -> dict[str, Any]:
 
 def gmail_finish(code: str, state: str) -> tuple[uuid.UUID, uuid.UUID, str, str]:
     """Exchanges the one-time code. Returns (organization, user, refresh token, email address)."""
-    provider, org, user = read_state(state).split(":")
+    provider, org, user, _ = read_state(state).split(":")
     if provider != "gmail":  # a state minted for another provider is not accepted here
         raise ApiError(400, "bad_request", "The sign-in link is not valid.")
     t = _token({"grant_type": "authorization_code", "code": code, "redirect_uri": get_settings().google_redirect_uri})
@@ -143,6 +157,18 @@ def gmail_finish(code: str, state: str) -> tuple[uuid.UUID, uuid.UUID, str, str]
     me = httpx.get("https://gmail.googleapis.com/gmail/v1/users/me/profile", headers={"Authorization": f"Bearer {t['access_token']}"}, timeout=20)
     email = me.json().get("emailAddress", "Gmail") if me.status_code == 200 else "Gmail"
     return uuid.UUID(org), uuid.UUID(user), str(refresh), str(email)
+
+
+def claim_state(db: Session, state: str) -> None:
+    """Lets a connect link finish once, and only while its person still may manage connections (the signature alone proves neither)."""
+    _, org, user, nonce = read_state(state).split(":")
+    db.execute(text("delete from oauth_used where used_at < now() - interval '1 day'"))
+    if db.execute(text("insert into oauth_used (nonce) values (:n) on conflict do nothing returning 1"), {"n": nonce}).first() is None:
+        raise ApiError(400, "bad_request", "This connect link was already used. Start again.")
+    allowed = db.execute(text("select 1 from memberships m join role_permissions rp on rp.role_id = m.role_id where m.user_id = :u and m.organization_id = :o "
+                              "and m.status = 'active' and rp.permission_key = 'integrations.manage'"), {"u": user, "o": org}).first()
+    if allowed is None:
+        raise ApiError(403, "permission_denied", "You can no longer manage connections for this organization.")
 
 
 def gmail_store(db: Session, org: uuid.UUID, user: uuid.UUID, refresh: str, email: str) -> None:

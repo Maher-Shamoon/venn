@@ -14,15 +14,14 @@ from sqlalchemy.orm import Session
 
 from app.core import clock
 from app.core.db import get_engine
+from app.core.tenancy import scope_session
 from app.services import approvals, collections, notifications
 
 log = logging.getLogger("venn.jobs")
 
 
 def scoped(org: uuid.UUID) -> Session:
-    s = Session(get_engine(), expire_on_commit=False)
-    s.execute(text("select set_config('role', 'venn_app', true), set_config('app.user_id', '', true), set_config('app.org_id', :o, true)"), {"o": str(org)})
-    return s
+    return scope_session(Session(get_engine(), expire_on_commit=False), "", str(org))
 
 
 def run_daily() -> dict[str, Any]:

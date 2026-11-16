@@ -56,9 +56,10 @@ def gmail_callback(code: str = "", state: str = "", error: str = "") -> Redirect
         return RedirectResponse(f"{back}?error=gmail_failed", status_code=303)
     s = jobs.scoped(org)
     try:
+        svc.claim_state(s, state)
         svc.gmail_store(s, org, user, refresh, email)
         s.commit()
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001  # includes a replayed or no-longer-allowed link
         s.rollback()
         return RedirectResponse(f"{back}?error=gmail_failed", status_code=303)
     finally:
@@ -92,6 +93,7 @@ def qbo_callback(code: str = "", state: str = "", realmId: str = "", error: str 
         return RedirectResponse(f"{back}?error=quickbooks_failed", status_code=303)
     s = jobs.scoped(org)
     try:
+        svc.claim_state(s, state)
         qbo.store(s, org, user, refresh, realm)
         s.commit()
     except Exception:  # noqa: BLE001

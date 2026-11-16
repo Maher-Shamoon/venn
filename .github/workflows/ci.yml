@@ -78,7 +78,7 @@ jobs:
         run: |
           PYTHONPATH=. uv run python scripts/dump_openapi.py ../../apps/web/src/types/openapi.json
           git diff --exit-code -- ../../apps/web/src/types/openapi.json
-      - run: uvx pip-audit --skip-editable -r <(uv export --frozen --no-dev --no-hashes --no-emit-project) || true
+      - run: uvx pip-audit --skip-editable -r <(uv export --frozen --no-dev --no-hashes --no-emit-project)
 
   secrets:
     runs-on: ubuntu-latest

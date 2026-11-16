@@ -33,6 +33,22 @@ def charge(i: int, amount: int = 5000, **kw: object) -> dict:  # type: ignore[ty
             "billing_details": {"name": "Northwind Labs"}, "receipt_email": None, "metadata": {}, **kw}
 
 
+@pytest.fixture(autouse=True)
+def no_write_probe(monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest) -> None:
+    if request.node.name != "test_stripe_write_keys_are_refused":
+        monkeypatch.setattr(svc, "_refuse_write_access", lambda key: None)
+
+
+def test_stripe_write_keys_are_refused(monkeypatch: pytest.MonkeyPatch) -> None:
+    status = {"v": 403}
+    monkeypatch.setattr(svc.httpx, "post", lambda *a, **k: type("R", (), {"status_code": status["v"]})())
+    svc._refuse_write_access("rk_test_x")  # every probe was forbidden: read-only
+    status["v"] = 404  # "no such charge" means the key was allowed to try
+    with pytest.raises(ApiError) as e:
+        svc._refuse_write_access("rk_test_x")
+    assert e.value.status == 422
+
+
 def fake_stripe(charges: list[dict]):  # type: ignore[no-untyped-def,type-arg]
     def _stripe(key: str, path: str, params: dict | None = None) -> dict:  # type: ignore[type-arg]
         if key != KEY:
@@ -97,11 +113,13 @@ def test_gmail_connect_flow_and_case_search(org: Org, client: TestClient, monkey
     bad = client.get("/api/v1/integrations/gmail/callback?code=abc&state=tampered", follow_redirects=False)
     assert bad.status_code == 303 and "error=gmail_failed" in bad.headers["location"]
     assert "error=gmail_denied" in client.get("/api/v1/integrations/gmail/callback?error=access_denied", follow_redirects=False).headers["location"]
-    state = secrets.sign_state(f"gmail:{org.id}:{org.owner}")
+    state = secrets.sign_state(f"gmail:{org.id}:{org.owner}:n1")
     monkeypatch.setattr(svc, "_token", lambda grant: {"refresh_token": "r1", "access_token": "a1"})
     monkeypatch.setattr(svc.httpx, "get", lambda *a, **k: type("R", (), {"status_code": 200, "json": lambda self: {"emailAddress": "ap@acme.example"}})())
     ok = client.get(f"/api/v1/integrations/gmail/callback?code=abc&state={state}", follow_redirects=False)
     assert ok.status_code == 303 and "connected=gmail" in ok.headers["location"]
+    again = client.get(f"/api/v1/integrations/gmail/callback?code=abc&state={state}", follow_redirects=False)  # a link works once
+    assert "error=gmail_failed" in again.headers["location"]
     g = next(i for i in org.get("/integrations").json()["data"] if i["provider"] == "gmail")
     assert g["connected"] and g["account"] == "ap@acme.example"
     inv = org.invoice(org.customer("Northwind Labs", contact_email="ap@northwind.example"), "5000.00", number="INV-1042")

@@ -1,4 +1,5 @@
 import json
+import uuid
 
 import pytest
 from cryptography.fernet import Fernet
@@ -28,7 +29,7 @@ def q(i: int, balance: str, total: str | None = None, **kw: object) -> dict:  # 
 
 
 def connect(client: TestClient, o: Org, monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: F811
-    state = secrets.sign_state(f"quickbooks:{o.id}:{o.owner}")
+    state = secrets.sign_state(f"quickbooks:{o.id}:{o.owner}:{uuid.uuid4().hex}")
     monkeypatch.setattr(qbo, "_token", lambda grant: {"refresh_token": "r1", "access_token": "a1"})
     r = client.get(f"/api/v1/integrations/quickbooks/callback?code=c&state={state}&realmId=9341458710863639", follow_redirects=False)
     assert r.status_code == 303 and "connected=quickbooks" in r.headers["location"]
