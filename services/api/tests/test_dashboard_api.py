@@ -156,3 +156,29 @@ def test_the_audit_chain_can_be_verified_through_the_api(org: Org) -> None:
     org.customer("Chain Co")
     r = org.get("/audit-events/verify").json()
     assert r["valid"] is True and r["first_broken_seq"] is None and r["events"] >= 2
+
+
+@pytest.mark.slow
+def test_concurrent_readers_over_twenty_thousand_invoices(org: Org, migrated: str) -> None:
+    """Twenty people at once on the busiest screens: reports the slowest quarter of requests (p95)."""
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+
+    c = org.customer("Load Customer")
+    with create_engine(migrated).begin() as conn:
+        conn.execute(text(
+            "insert into invoices (organization_id, customer_id, invoice_number, issue_date, due_date, currency, total_amount, balance_due) "
+            "select :o, :c, 'L-' || n, date '2026-01-01' + (n % 300), date '2026-02-01' + (n % 300), 'USD', 100 + n % 50, 100 + n % 50 from generate_series(1, 20000) n"), {"o": org.id, "c": c})
+    paths = ["/dashboard/owner?range=30d", "/invoices?tab=overdue&limit=25", "/reports/aging", "/customers?limit=25", "/invoices?q=L-1999&limit=25"]
+
+    def hit(i: int) -> float:
+        t = time.monotonic()
+        r = org.get(paths[i % len(paths)])
+        assert r.status_code == 200
+        return time.monotonic() - t
+
+    with ThreadPoolExecutor(20) as pool:
+        times = sorted(pool.map(hit, range(100)))
+    p95 = times[int(len(times) * 0.95) - 1]
+    print(f"100 requests, 20 at a time, 20,000 invoices: median {times[50]:.2f}s p95 {p95:.2f}s max {times[-1]:.2f}s")
+    assert p95 < 5

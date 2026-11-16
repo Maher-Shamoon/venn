@@ -139,3 +139,11 @@ The `/app` area is now a working frontend with local state (saved in the browser
 - "Continue with Google" on sign-in and sign-up (shown when Supabase auth is configured). It needs the Google provider switched on in Supabase (client id and secret) and the Supabase callback address added to the Google client.
 - Screen sizes: public pages (7), the sample workspace (16 screens) and a real organization's screens (16) were checked at 320 to 1920 px for anything drawn off-screen; the home page's feature cards overflowed on phones and were fixed.
 - robots.txt and sitemap.xml added.
+
+## Revision 17: Docker, virus scan hook, journeys, load
+- Docker: `docker compose up --build` runs the database, API (migrations apply on start, verified on the real pgvector image), web (nginx, `/api` proxied) and a mail inbox; `--profile scan` adds ClamAV. CI builds the images on every push.
+- Uploads are scanned through ClamAV when `VENN_CLAMD_HOST` is set (refused when the scanner is configured but unreachable). Not active on the free Vercel deployment, which has no scanner.
+- Whole-journey tests: visitors (public pages, protected routes, sign-up and sign-in validation, password reset form) and a signed-in owner (wrong password, every main screen, sign-out closes the app), plus every module spec. The end-to-end helper now reuses the first sign-in so long runs do not hit the auth provider's rate limit.
+- Load: 100 requests, 20 at a time, over 20,000 invoices: median 0.47 s, p95 0.86 s (laptop, shared with a browser run).
+- Security scan (bandit): no high findings; the medium ones are the reviewed SQL-string constructions that use only constants and bound parameters.
+- Google sign-in verified to redirect to Google through Supabase.
