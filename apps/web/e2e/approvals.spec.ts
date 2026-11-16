@@ -7,6 +7,12 @@ test.beforeEach(({}, info) => { test.skip(info.project.name === "mobile", "deskt
 test("an adjustment is requested, cannot be self-approved, can be withdrawn, and a policy limit applies it directly", async ({ page }) => {
   test.setTimeout(420_000)
   await signIn(page)
+  // an aborted earlier run can leave the write-off limit raised; start from "no auto-approval"
+  await page.goto("/app/settings/approvals")
+  const base = page.locator("div", { has: page.getByText("Write-off", { exact: true }) }).filter({ has: page.getByLabel("Auto-approve up to") }).last()
+  await base.getByLabel("Auto-approve up to").fill("0")
+  await base.getByRole("button", { name: "Save" }).click()
+  await expect(page.getByText("Write-off policy saved")).toBeVisible()
   const s = Date.now() % 1_000_000, cust = `QA Approvals ${s}`
   await page.goto("/app/invoices/import")
   await page.getByLabel("Choose CSV file").setInputFiles({ name: "i.csv", mimeType: "text/csv", buffer: Buffer.from(["invoice_number,customer,issue_date,due_date,total_amount,currency", `QP-${s},${cust},2026-10-01,2026-11-01,700.00,USD`].join("\n")) })
