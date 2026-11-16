@@ -63,7 +63,8 @@ function GoogleButton({ onError }: { onError: (m: string) => void }) {
 export function Login() {
   const s = useApp(), nav = useNavigate(), from = (useLocation().state as { from?: string } | null)?.from
   const [f, setF] = useState({ email: "", password: "" }), [err, setErr] = useState(""), [busy, setBusy] = useState(false)
-  if (s.session && !busy && !inDemo()) return <Navigate to="/app" replace />
+  // Real accounts always enter their credentials here; only the local sample sign-in skips ahead.
+  if (s.session && !busy && !inDemo() && config.authSource !== "supabase") return <Navigate to="/app" replace />
   const go = async (name: string, mail: string) => {
     setBusy(true)
     endDemo()

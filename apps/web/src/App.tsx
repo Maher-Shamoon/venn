@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate, useSe
 import { A, getState, useApp } from "@/components/app/store"
 import { config } from "@/config"
 import { onAuthChange } from "@/auth/supabaseAuth"
+import { useSignedIn } from "@/auth"
 import { activeOrg, fetchMe, inDemo, setActiveOrg, startDemo } from "@/features/identity/api"
 import { toastApiError } from "@/lib/errors"
 import { ErrorBoundary } from "@/components/app/ErrorBoundary"
@@ -84,13 +85,15 @@ function SessionBridge() {
         const mem = m.memberships.find((x) => x.status === "active"), pending = localStorage.getItem("venn.invite")
         if (mem) { setActiveOrg(mem.organization_id); A.finishOnboarding(); A.signIn(me.name, me.email); /^\/app/.test(window.location.pathname) ? window.location.reload() : window.location.replace("/app") }
         else { setActiveOrg(null); A.signIn(me.name, me.email); if (!/^\/(onboarding|invite)/.test(window.location.pathname)) nav(pending ? `/invite/${pending}` : "/onboarding/organization", { replace: true }) }
-      }).catch(toastApiError).finally(() => { busy = false }), 0)
+      }).catch((e) => { toastApiError(e); nav("/login", { replace: true }) }).finally(() => { busy = false }), 0)
     })
   }, [nav])
   return null
 }
 function Guard({ children }: { children: React.ReactNode }) {
-  const s = useApp(), loc = useLocation()
+  const s = useApp(), loc = useLocation(), signedIn = useSignedIn()
+  // A real session with no organization chosen yet is sent to set one up (SessionBridge); never flash sample data meanwhile.
+  if (config.authSource === "supabase" && signedIn && !activeOrg() && !inDemo()) return <div className="h-1 w-full animate-pulse bg-[#f9a8d4]" role="status" aria-label="Loading" />
   return s.session ? <>{children}</> : <Navigate to="/login" state={{ from: loc.pathname }} replace />
 }
 

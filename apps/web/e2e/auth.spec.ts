@@ -101,3 +101,19 @@ test("See a demo shows sample data even to a signed-in person, and sign in still
   await page.waitForURL(/\/app/)
   await expect(page.getByText("view as")).toHaveCount(0)
 })
+
+test("someone already signed in who opens the sign-in page is asked for their credentials, and never sees sample data on the way", async ({ page }) => {
+  await page.goto("/login")
+  await page.getByLabel("Work email").fill(user!.email)
+  await page.getByLabel("Password", { exact: true }).fill(user!.password)
+  await page.getByRole("button", { name: "Sign in", exact: true }).click()
+  await page.waitForURL(/\/app/)
+  await page.evaluate(() => localStorage.removeItem("venn.org")) // as a brand-new account that has not created an organization yet
+  await page.goto("/login")
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible()
+  expect(new URL(page.url()).pathname).toBe("/login")
+  const seen: string[] = []
+  page.on("framenavigated", (f) => { if (f === page.mainFrame()) seen.push(new URL(f.url()).pathname) })
+  await page.goto("/app")
+  await expect(page.getByText("view as")).toHaveCount(0)
+})
