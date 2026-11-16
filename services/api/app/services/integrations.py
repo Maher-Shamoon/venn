@@ -119,7 +119,7 @@ def gmail_start(org: uuid.UUID, actor: AuthUser) -> str:
     c = get_settings()
     if not (c.google_client_id and c.google_client_secret and c.secrets_key):
         raise ApiError(503, "not_configured", "Gmail is not configured on this server.")
-    q = {"client_id": c.google_client_id, "redirect_uri": c.google_redirect_uri, "response_type": "code", "scope": GMAIL_SCOPE, "access_type": "offline", "prompt": "consent", "state": sign_state(f"{org}:{actor.id}")}
+    q = {"client_id": c.google_client_id, "redirect_uri": c.google_redirect_uri, "response_type": "code", "scope": GMAIL_SCOPE, "access_type": "offline", "prompt": "consent", "state": sign_state(f"gmail:{org}:{actor.id}")}
     return "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(q)
 
 
@@ -133,7 +133,9 @@ def _token(grant: dict[str, str]) -> dict[str, Any]:
 
 def gmail_finish(code: str, state: str) -> tuple[uuid.UUID, uuid.UUID, str, str]:
     """Exchanges the one-time code. Returns (organization, user, refresh token, email address)."""
-    org, user = read_state(state).split(":")
+    provider, org, user = read_state(state).split(":")
+    if provider != "gmail":  # a state minted for another provider is not accepted here
+        raise ApiError(400, "bad_request", "The sign-in link is not valid.")
     t = _token({"grant_type": "authorization_code", "code": code, "redirect_uri": get_settings().google_redirect_uri})
     refresh = t.get("refresh_token")
     if not refresh:

@@ -27,6 +27,8 @@ def _jwks(url: str) -> PyJWKClient:
 def decode_token(token: str, s: Settings) -> AuthUser:
     try:
         if s.jwks_url:
+            if not s.jwt_issuer:  # without an issuer, a token from any project signed by the same keys would pass
+                raise ApiError(500, "internal_error", "Authentication is not configured.")
             key: object = _jwks(s.jwks_url).get_signing_key_from_jwt(token).key
             algorithms = ["RS256", "ES256"]
         elif s.jwt_secret:

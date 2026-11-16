@@ -97,7 +97,7 @@ def test_gmail_connect_flow_and_case_search(org: Org, client: TestClient, monkey
     bad = client.get("/api/v1/integrations/gmail/callback?code=abc&state=tampered", follow_redirects=False)
     assert bad.status_code == 303 and "error=gmail_failed" in bad.headers["location"]
     assert "error=gmail_denied" in client.get("/api/v1/integrations/gmail/callback?error=access_denied", follow_redirects=False).headers["location"]
-    state = secrets.sign_state(f"{org.id}:{org.owner}")
+    state = secrets.sign_state(f"gmail:{org.id}:{org.owner}")
     monkeypatch.setattr(svc, "_token", lambda grant: {"refresh_token": "r1", "access_token": "a1"})
     monkeypatch.setattr(svc.httpx, "get", lambda *a, **k: type("R", (), {"status_code": 200, "json": lambda self: {"emailAddress": "ap@acme.example"}})())
     ok = client.get(f"/api/v1/integrations/gmail/callback?code=abc&state={state}", follow_redirects=False)

@@ -36,7 +36,8 @@ def create_app() -> FastAPI:
     s = get_settings()
     setup_logging(s.log_level)
     app = FastAPI(title="venn API", version="0.1.0",
-                  docs_url="/docs" if s.env != "production" else None)
+                  docs_url="/docs" if s.env != "production" else None,
+                  openapi_url="/openapi.json" if s.env != "production" else None)
     app.add_middleware(CORSMiddleware, allow_origins=s.cors_origins, allow_credentials=True,
                        allow_methods=["*"], allow_headers=["*"], expose_headers=["X-Request-Id"])
 

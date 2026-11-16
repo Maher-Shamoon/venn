@@ -42,7 +42,7 @@ def start(org: uuid.UUID, actor: AuthUser) -> str:
     c = get_settings()
     if not configured():
         raise ApiError(503, "not_configured", "QuickBooks is not configured on this server.")
-    q = {"client_id": c.qbo_client_id, "redirect_uri": c.qbo_redirect_uri, "response_type": "code", "scope": SCOPE, "state": sign_state(f"{org}:{actor.id}")}
+    q = {"client_id": c.qbo_client_id, "redirect_uri": c.qbo_redirect_uri, "response_type": "code", "scope": SCOPE, "state": sign_state(f"quickbooks:{org}:{actor.id}")}
     return f"{AUTHORIZE}?{urlencode(q)}"
 
 
@@ -56,7 +56,9 @@ def _token(grant: dict[str, str]) -> dict[str, Any]:
 
 
 def finish(code: str, state: str, realm: str) -> tuple[uuid.UUID, uuid.UUID, str, str]:
-    org, user = read_state(state).split(":")
+    provider, org, user = read_state(state).split(":")
+    if provider != "quickbooks":
+        raise ApiError(400, "bad_request", "The sign-in link is not valid.")
     t = _token({"grant_type": "authorization_code", "code": code, "redirect_uri": get_settings().qbo_redirect_uri})
     if not realm.isdigit() or not t.get("refresh_token"):
         raise ApiError(409, "reconnect", "QuickBooks did not return a company. Connect again.")

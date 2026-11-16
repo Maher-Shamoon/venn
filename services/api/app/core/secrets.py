@@ -31,8 +31,11 @@ def unseal(token: str) -> str:
 
 def sign_state(payload: str, ttl: int = 600) -> str:
     """A tamper-proof, short-lived value for the OAuth round trip, so a callback can only finish a flow this server started."""
+    key = get_settings().secrets_key
+    if not key:  # an empty key would make every state forgeable
+        raise ApiError(500, "internal_error", "Connections are not configured.")
     body = f"{payload}|{int(time.time()) + ttl}"
-    mac = hmac.new(get_settings().secrets_key.encode(), body.encode(), hashlib.sha256).hexdigest()
+    mac = hmac.new(key.encode(), body.encode(), hashlib.sha256).hexdigest()
     return base64.urlsafe_b64encode(f"{body}|{mac}".encode()).decode()
 
 
@@ -42,6 +45,8 @@ def read_state(state: str) -> str:
         payload, exp = body.rsplit("|", 1)
     except ValueError as e:
         raise ApiError(400, "bad_request", "The sign-in link is not valid.") from e
+    if not get_settings().secrets_key:
+        raise ApiError(500, "internal_error", "Connections are not configured.")
     good = hmac.new(get_settings().secrets_key.encode(), body.encode(), hashlib.sha256).hexdigest()
     if not hmac.compare_digest(mac, good) or int(exp) < time.time():
         raise ApiError(400, "bad_request", "The sign-in link expired or was changed. Start again.")
