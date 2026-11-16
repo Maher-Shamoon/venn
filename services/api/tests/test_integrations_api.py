@@ -22,6 +22,7 @@ def configured(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("VENN_SECRETS_KEY", Fernet.generate_key().decode())
     monkeypatch.setenv("VENN_GOOGLE_CLIENT_ID", "gid")
     monkeypatch.setenv("VENN_GOOGLE_CLIENT_SECRET", "gsecret")
+    monkeypatch.setenv("VENN_QBO_CLIENT_SECRET", "")  # QuickBooks is unavailable here whatever the developer machine has configured
     get_settings.cache_clear()
     yield  # type: ignore[misc]
     get_settings.cache_clear()

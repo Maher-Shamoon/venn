@@ -56,6 +56,11 @@ def test_a_cancelled_invoice_with_an_adjustment_leaves_no_trace_in_the_live_poin
     i5 = org.invoice(org.customer("Cobalt"), "100.00", number="D-5")
     assert org.post("/approvals", {"type": "write_off", "invoice_id": i5["id"], "amount": "10.00", "reason": "x"}).json()["status"] == "approved"
     assert org.post(f"/invoices/{i5['id']}/cancel", {"reason": "mistake"}).status_code == 200
+    with create_engine(migrated).begin() as c:  # the database stamps rows with the real time; pin them to the test's fixed "today" so the test does not depend on the date it runs
+        c.execute(text("alter table adjustments disable trigger adjustments_append_only"))
+        c.execute(text("update adjustments set created_at = timestamptz '2026-11-13 10:00+00'"))
+        c.execute(text("alter table adjustments enable trigger adjustments_append_only"))
+        c.execute(text("update invoices set cancelled_at = timestamptz '2026-11-14 10:00+00' where invoice_number = 'D-5'"))
     d = org.get("/dashboard/owner?range=30d").json()
     assert d["trend"][-1]["total"] == d["kpis"]["total_ar"] == "3900.0000" and d["trend"][-1]["overdue"] == d["kpis"]["overdue"]
 
@@ -113,6 +118,8 @@ def test_verified_recovered_counts_only_source_verified_payments_after_a_case_op
     assert org.get("/reports/recovered?range=90d").json()["rows"] == []  # a manual payment is never "verified"
     with create_engine(migrated).begin() as c:
         c.execute(text("update payments set verification_level = 'source_verified' where id = :p"), {"p": p["id"]})
+        c.execute(text("update investigations set created_at = timestamptz '2026-11-13 10:00+00'"))
+        c.execute(text("update payment_allocations set created_at = timestamptz '2026-11-14 10:00+00' where payment_id = :p"), {"p": p["id"]})
     rec = org.get("/reports/recovered?range=90d").json()
     assert [r["amount"] for r in rec["rows"]] == ["2000.0000"] and rec["total"] == "2000.0000"
     assert org.get("/dashboard/owner?range=90d").json()["kpis"]["recovered"] == "2000.0000"

@@ -36,8 +36,8 @@ def test_daily_run_expires_requests_opens_cases_and_creates_one_task_a_day(org: 
     assert first.status_code == 200 and first.json()["failed"] == 0 and first.json()["opened"] >= 1 and first.json()["tasks"] >= 1
     assert [x["title"] for x in org.get("/tasks").json()["data"]] == ["Follow up with Northwind Labs (COL-0001)"]
     assert org.get("/collections").json()["data"][0]["customer"] == "Northwind Labs"
-    again = client.get("/api/v1/internal/cron/daily", headers={"Authorization": cron}).json()
-    assert again["tasks"] == 0 and again["opened"] == 0  # safe to run twice
+    assert client.get("/api/v1/internal/cron/daily", headers={"Authorization": cron}).status_code == 200
+    assert len(org.get("/tasks").json()["data"]) == 1 and len(org.get("/collections").json()["data"]) == 1  # safe to run twice: nothing doubled for this organization
     clock._override = datetime(2026, 12, 20, 12, 0, tzinfo=UTC)
     try:
         r = client.get("/api/v1/internal/cron/daily", headers={"Authorization": cron}).json()

@@ -59,7 +59,7 @@ def _follow_up_tasks(s: Session, org: uuid.UUID, today: Any) -> int:
         link = f"/app/collections/{c.id}"
         title = f"Follow up with {c.name} ({c.number})"
         for u in users:
-            if s.execute(text("select 1 from tasks where link = :l and assignee_id = :u and system and created_at::date = :t"), {"l": link, "u": u, "t": today}).first():
+            if s.execute(text("select 1 from tasks where link = :l and assignee_id = :u and system and due_date = :t"), {"l": link, "u": u, "t": today}).first():
                 continue
             s.execute(text("insert into tasks (organization_id, title, due_date, assignee_id, link, system) values (:o, :ti, :t, :u, :l, true)"), {"o": org, "ti": title, "t": today, "u": u, "l": link})
             made += 1
