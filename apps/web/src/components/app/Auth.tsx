@@ -114,8 +114,8 @@ function GoogleButton({ onError }: { onError: (m: string) => void }) {
   if (!googleAvailable) return null
   return (
     <>
+      <div className="relative py-1 text-center text-xs text-hushed"><span className="bg-white px-3">or</span><span className="absolute inset-x-0 top-1/2 -z-10 border-t border-border" /></div>
       <Button type="button" variant="outline" size="lg" className="h-11 w-full gap-3 text-base" onClick={() => void signInWithGoogle().catch((e) => onError(e instanceof Error ? e.message : "Google sign-in failed."))}><GoogleG />Continue with Google</Button>
-      <div className="relative py-1 text-center text-xs text-hushed"><span className="bg-white px-3">or use your email</span><span className="absolute inset-x-0 top-1/2 -z-10 border-t border-border" /></div>
     </>
   )
 }
@@ -148,13 +148,12 @@ export function Login() {
   return (
     <Card mode="login" title="Sign in" sub="Welcome back." foot={<>New to venn? <Link to="/signup" className="text-foreground underline underline-offset-4">Create an account</Link></>}>
       <form onSubmit={submit} className="space-y-4" noValidate>
-        <GoogleButton onError={setErr} />
         <Field label="Work email"><Input type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} aria-invalid={!!err} className="h-11 text-base" /></Field>
         <Field label="Password"><PasswordInput autoComplete="current-password" value={f.password} onChange={(v) => setF({ ...f, password: v })} invalid={!!err} /></Field>
         {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
         <div className="flex items-center justify-between text-sm"><label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="size-4 accent-[#f472b6]" />Keep me signed in</label><Link to="/forgot-password" className="underline underline-offset-4">Forgot password?</Link></div>
         <Submit busy={busy}>Sign in</Submit>
-        <div className="relative py-1 text-center text-xs text-hushed"><span className="bg-white px-3">or</span><span className="absolute inset-x-0 top-1/2 -z-10 border-t border-border" /></div>
+        {googleAvailable ? <GoogleButton onError={setErr} /> : <div className="relative py-1 text-center text-xs text-hushed"><span className="bg-white px-3">or</span><span className="absolute inset-x-0 top-1/2 -z-10 border-t border-border" /></div>}
         <Button type="button" variant="outline" size="lg" disabled={busy} className="h-11 w-full text-base" onClick={() => go("Dana Whitfield", "dana@brightpath.example")}>Continue with the sample workspace</Button>
       </form>
     </Card>
@@ -178,7 +177,6 @@ export function Signup() {
   return (
     <Card mode="signup" title="Create your account" sub="Start free. No card needed." foot={<>Already have an account? <Link to="/login" className="text-foreground underline underline-offset-4">Sign in</Link></>}>
       <form onSubmit={submit} className="space-y-4" noValidate>
-        <GoogleButton onError={setErr} />
         <Field label="Full name"><Input autoComplete="name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="h-11 text-base" /></Field>
         <Field label="Work email"><Input type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} className="h-11 text-base" /></Field>
         <Field label="Password"><PasswordInput autoComplete="new-password" value={f.password} onChange={(v) => setF({ ...f, password: v })} /></Field>
@@ -187,6 +185,7 @@ export function Signup() {
         <label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={f.terms} onChange={(e) => setF({ ...f, terms: e.target.checked })} className="mt-1 size-4 accent-[#f472b6]" />I agree to the terms and the privacy policy.</label>
         {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
         <Submit busy={busy}>Create account</Submit>
+        <GoogleButton onError={setErr} />
       </form>
     </Card>
   )
