@@ -147,3 +147,10 @@ The `/app` area is now a working frontend with local state (saved in the browser
 - Load: 100 requests, 20 at a time, over 20,000 invoices: median 0.47 s, p95 0.86 s (laptop, shared with a browser run).
 - Security scan (bandit): no high findings; the medium ones are the reviewed SQL-string constructions that use only constants and bound parameters.
 - Google sign-in verified to redirect to Google through Supabase.
+
+## Revision 18: user flow, demo isolation, navigation speed
+- Flow (decided): landing → Get started → sign-up → verify email → setup (new accounts only) → dashboard. Sign-in always asks for credentials; a member goes straight to the dashboard, a new account to setup. "See a demo" opens the sample workspace (labelled "Sample data", with a Create account button) and never touches a real organization; the demo ends on any sign-in or on opening sign-in or sign-up.
+- Fixed: a signed-in account without an organization flashed sample data before setup (now a loader, then setup); a Google sign-in after a demo stayed in the sample workspace; the landing page redirected signed-in visitors into setup; token checks tolerate 30 s of clock skew (sign-in failed intermittently).
+- Fixed: setup's Team step saved invitations only in the browser for real organizations; they are now sent through the invitation API. Setup redirects existing members to their organization instead of creating a second one.
+- Navigation: pages were separate lazy chunks behind a thin loader, so clicking a link showed a blank page while the chunk downloaded. The site header/footer are no longer lazy and stay on screen, and every page's code is fetched in the background once the first page has loaded.
+- Setup uses the sign-in/sign-up split screen (animated venn that closes as steps are completed); wording unchanged except that QuickBooks, Stripe and Gmail no longer say "planned".
