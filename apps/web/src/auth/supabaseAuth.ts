@@ -35,6 +35,7 @@ export async function signIn(email: string, password: string): Promise<Account> 
 
 /** Starts Google sign-in. The browser leaves for Google and comes back signed in; it needs the Google provider switched on in Supabase. */
 export async function signInWithGoogle(): Promise<void> {
+  sessionStorage.removeItem("venn.demo") // signing in ends any demo in this tab
   const { error } = await supabase().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/app` } })
   if (error) throw /provider is not enabled|Unsupported provider/i.test(error.message) ? new Error("Google sign-in is not switched on for this site yet.") : toAuthError(error)
 }

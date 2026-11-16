@@ -117,3 +117,17 @@ test("someone already signed in who opens the sign-in page is asked for their cr
   await page.goto("/app")
   await expect(page.getByText("view as")).toHaveCount(0)
 })
+
+test("navigating between public pages and into sign-in never shows a blank page", async ({ page }) => {
+  await page.goto("/")
+  await page.waitForLoadState("networkidle")
+  const blanks: string[] = []
+  for (const [href, h] of [["/pricing", /pricing|plans|price/i], ["/about", /./], ["/login", /./], ["/signup", /./], ["/", /./]] as const) {
+    await page.evaluate((to) => { history.pushState({}, "", to); dispatchEvent(new PopStateEvent("popstate")) }, href)
+    // the header stays on screen the whole time and the page body fills in
+    await expect(page.getByRole("banner").first().or(page.getByRole("main").first())).toBeVisible({ timeout: 5000 })
+    if (!(await page.locator("body *:visible").count())) blanks.push(href)
+    void h
+  }
+  expect(blanks).toEqual([])
+})

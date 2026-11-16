@@ -62,6 +62,7 @@ function GoogleButton({ onError }: { onError: (m: string) => void }) {
 
 export function Login() {
   const s = useApp(), nav = useNavigate(), from = (useLocation().state as { from?: string } | null)?.from
+  useEffect(() => endDemo(), []) // opening sign-in leaves the demo
   const [f, setF] = useState({ email: "", password: "" }), [err, setErr] = useState(""), [busy, setBusy] = useState(false)
   // Real accounts always enter their credentials here; only the local sample sign-in skips ahead.
   if (s.session && !busy && !inDemo() && config.authSource !== "supabase") return <Navigate to="/app" replace />
@@ -104,6 +105,7 @@ export function Login() {
 
 export function Signup() {
   const nav = useNavigate()
+  useEffect(() => endDemo(), [])
   const [f, setF] = useState({ name: "", email: "", password: "", terms: false }), [err, setErr] = useState(""), [busy, setBusy] = useState(false)
   const st = strength(f.password)
   const rules: [string, boolean][] = [["12+ characters", f.password.length >= 12], ["Upper and lower case", /[A-Z]/.test(f.password) && /[a-z]/.test(f.password)], ["A number", /\d/.test(f.password)], ["A symbol", /[^A-Za-z0-9]/.test(f.password)]]

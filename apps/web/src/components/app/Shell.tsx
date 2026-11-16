@@ -88,10 +88,12 @@ export function AppShell() {
       <SkipLink />
       <div className="flex h-10 items-center bg-[#1a1919] px-4 text-xs text-white lg:col-span-2">
         <Link to="/" className="font-medium hover:underline">← venn.com</Link>
+        {!real && <span className="ml-3 hidden text-white/65 md:inline">Sample data. Nothing here is real.</span>}
         {!real && <span className="ml-auto flex items-center gap-2">view as
           <span className="inline-flex rounded-md border border-white/25 p-0.5" role="group" aria-label="Role switcher">
             {(["owner", "ar"] as Role[]).map((r) => <button key={r} onClick={() => A.setRole(r)} aria-pressed={role === r} className={cn("rounded px-2.5 py-0.5 transition-colors duration-300", role === r ? "bg-lime text-foreground" : "text-white/80 hover:text-white")}>{r === "owner" ? "Owner" : "AR specialist"}</button>)}
           </span>
+          <Link to="/signup" className="ml-1 rounded bg-white px-2.5 py-0.5 text-foreground transition-opacity hover:opacity-90">Create account</Link>
         </span>}
       </div>
       <aside className="hidden max-h-[calc(100vh-40px)] overflow-y-auto border-r border-border bg-muted p-4 [scrollbar-width:none] lg:sticky lg:top-0 lg:block lg:self-start">

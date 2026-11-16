@@ -7,6 +7,8 @@ import { useSignedIn } from "@/auth"
 import { activeOrg, fetchMe, inDemo, setActiveOrg, startDemo } from "@/features/identity/api"
 import { toastApiError } from "@/lib/errors"
 import { ErrorBoundary } from "@/components/app/ErrorBoundary"
+import { SiteLayout } from "@/components/site/SiteLayout"
+import { preloadPages } from "@/preload"
 
 const AppShell = lazy(() => import("@/components/app/Shell").then((m) => ({ default: m.AppShell })))
 const Forgot = lazy(() => import("@/components/app/Auth").then((m) => ({ default: m.Forgot })))
@@ -61,7 +63,6 @@ const About = lazy(() => import("@/components/site/Company").then((m) => ({ defa
 const Contact = lazy(() => import("@/components/site/Company").then((m) => ({ default: m.Contact })))
 const Privacy = lazy(() => import("@/components/site/Company").then((m) => ({ default: m.Privacy })))
 const Terms = lazy(() => import("@/components/site/Company").then((m) => ({ default: m.Terms })))
-const SiteLayout = lazy(() => import("@/components/site/SiteLayout").then((m) => ({ default: m.SiteLayout })))
 
 /** Signs into the sample workspace, then goes where the visitor was headed. */
 function Demo() {
@@ -98,6 +99,7 @@ function Guard({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  useEffect(() => { if (document.readyState === "complete") preloadPages(); else window.addEventListener("load", preloadPages, { once: true }) }, [])
   return (
     <BrowserRouter>
       <ErrorBoundary>

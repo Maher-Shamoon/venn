@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { Outlet, useLocation } from "react-router-dom"
 import { SiteFooter } from "./Footer"
 import { SiteHeader } from "./Header"
@@ -16,7 +16,8 @@ export function SiteLayout() {
     <>
       <SkipLink />
       <SiteHeader />
-      <Outlet />
+      {/* The header and footer stay on screen while a page's code arrives, so moving around never shows a blank page. */}
+      <Suspense fallback={<main className="min-h-[70vh]" role="status" aria-label="Loading" />}><Outlet /></Suspense>
       <SiteFooter />
     </>
   )
