@@ -125,7 +125,8 @@ test("navigating between public pages and into sign-in never shows a blank page"
   for (const [href, h] of [["/pricing", /pricing|plans|price/i], ["/about", /./], ["/login", /./], ["/signup", /./], ["/", /./]] as const) {
     await page.evaluate((to) => { history.pushState({}, "", to); dispatchEvent(new PopStateEvent("popstate")) }, href)
     // the header stays on screen the whole time and the page body fills in
-    await expect(page.getByRole("banner").first().or(page.getByRole("main").first())).toBeVisible({ timeout: 5000 })
+    await expect(page.locator("body")).not.toBeEmpty()
+    await expect(page.locator("main, form, h1").first()).toBeVisible({ timeout: 5000 })
     if (!(await page.locator("body *:visible").count())) blanks.push(href)
     void h
   }
