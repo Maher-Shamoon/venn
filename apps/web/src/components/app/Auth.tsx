@@ -1,17 +1,17 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react"
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
-import { Check, Eye, EyeOff, Loader2, Lock, Mail, Plus, X } from "lucide-react"
+import { Check, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Balatro from "@/components/Balatro"
 import { Logo, Odometer, money, useTicker } from "@/components/venn/kit"
 import { config } from "@/config"
 import { errorMessage, toastApiError } from "@/lib/errors"
-import { activeOrg, createOrganization, fetchMe, setActiveOrg } from "@/features/identity/api"
+import { fetchMe, setActiveOrg } from "@/features/identity/api"
 import { AuthError, completeReset, googleAvailable, requestReset, resendVerification, signIn, signInWithGoogle, signUp, useResetReady, useSignedIn } from "@/auth"
 import { request } from "@/api/http"
-import { A, useApp, type Role } from "./store"
-import { Field, NativeSelect } from "./ui"
+import { A, useApp } from "./store"
+import { Field } from "./ui"
 import { cn } from "@/lib/utils"
 
 const Glass = ({ className, children }: { className?: string; children: ReactNode }) => (
@@ -288,52 +288,4 @@ function RemoteInvite() {
 }
 export const Invite = () => (config.authSource === "supabase" ? <RemoteInvite /> : <LocalInvite />)
 
-/* ----------------------------------------------------------------- onboarding */
-const STEPS = [["organization", "Organization", false], ["sources", "Financial sources", true], ["email", "Email", true], ["import", "Import", true], ["team", "Team", true], ["preferences", "Preferences", true]] as const
-const Opt = ({ name, desc, on, set, tag }: { id?: string; name: string; desc: string; on: boolean; set: () => void; tag?: string }) => <button type="button" aria-pressed={on} onClick={set} className={cn("flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors", on ? "border-foreground bg-lime/30" : "border-border hover:bg-muted/60")}><span className={cn("mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border", on ? "border-foreground bg-foreground text-white" : "border-gray-medium")}>{on && <Check className="size-3" />}</span><span className="flex-1"><span className="block">{name} {tag && <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs text-hushed">{tag}</span>}</span><span className="block text-sm text-hushed">{desc}</span></span></button>
-
-export function Onboarding() {
-  const { step = "organization" } = useParams(), nav = useNavigate(), s = useApp()
-  const idx = Math.max(0, STEPS.findIndex(([k]) => k === step))
-  const [org, setOrg] = useState({ name: s.settings.company.name === "Your workspace" ? "" : s.settings.company.name, industry: "Software agency", size: "11 to 50", country: "United States", currency: "USD", website: "" })
-  const [rows, setRows] = useState<{ email: string; role: Role }[]>([{ email: "", role: "ar" }])
-  const [prefs, setPrefs] = useState({ tz: "America/Chicago", terms: 30, auto: true })
-  const [src, setSrc] = useState<string[]>(["csv"]), [mail, setMail] = useState<string | null>(null), [err, setErr] = useState("")
-  const next = () => { setErr(""); if (idx === STEPS.length - 1) { A.saveSettings("financial", { ...s.settings.financial, timezone: prefs.tz, terms: prefs.terms, autoApply: prefs.auto }); A.finishOnboarding(); nav("/app"); return } nav("/onboarding/" + STEPS[idx + 1][0]) }
-  const cont = async () => {
-    if (idx === 0) {
-      if (!org.name.trim()) return setErr("Organization name is required.")
-      if (config.authSource === "supabase" && !activeOrg()) {
-        try { setActiveOrg((await createOrganization({ name: org.name.trim(), industry: org.industry, company_size: org.size, website: org.website || undefined })).id) }
-        catch (x) { toastApiError(x); return setErr(errorMessage(x)) }
-      }
-      A.saveSettings("company", { ...s.settings.company, name: org.name, industry: org.industry, size: org.size, website: org.website })
-    }
-    if (idx === 4) { const bad = rows.find((r) => r.email && !email(r.email)); if (bad) return setErr(`${bad.email} is not a valid email address.`); rows.filter((r) => r.email).forEach((r) => A.invite(r.email, r.role)); A.setSetup("team", true) }
-    if (idx === 1) A.setSetup("sources", true); if (idx === 2 && mail) A.setSetup("email", true); if (idx === 3) A.setSetup("import", true); if (idx === 5) A.setSetup("prefs", true)
-    next()
-  }
-  const [, label, skip] = STEPS[idx]
-  return (
-    <div className="min-h-screen bg-white lg:grid lg:grid-cols-[320px_1fr]">
-      <aside className="border-b border-border bg-muted p-6 lg:border-b-0 lg:border-r lg:p-8">
-        <Link to="/"><Logo size={26} /></Link>
-        <ol className="mt-8 flex gap-2 overflow-x-auto lg:block lg:space-y-1">{STEPS.map(([k, t, sk], i) => <li key={k}><button type="button" onClick={() => i <= idx && nav("/onboarding/" + k)} className={cn("flex w-full items-center gap-3 whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm transition-colors", i === idx ? "bg-white shadow-sm" : "text-hushed")}><span className={cn("flex size-6 items-center justify-center rounded-full font-mono text-xs", i < idx ? "bg-lime" : i === idx ? "bg-foreground text-white" : "bg-white")}>{i < idx ? <Check className="size-3.5" /> : i + 1}</span>{t}{sk && <span className="ml-auto hidden text-[11px] text-hushed lg:inline">skippable</span>}</button></li>)}</ol>
-      </aside>
-      <main className="mx-auto w-full max-w-[640px] px-5 py-10 md:py-16">
-        <div className="font-mono text-xs text-hushed">STEP {idx + 1} OF {STEPS.length}</div>
-        <h1 className="mt-2 text-[32px] leading-10 tracking-[-0.015em]">{label}</h1>
-        <div className="mt-6 space-y-3">
-          {idx === 0 && <><Field label="Organization name *"><Input value={org.name} onChange={(e) => setOrg({ ...org, name: e.target.value })} /></Field><div className="grid gap-3 sm:grid-cols-2"><Field label="Industry *"><NativeSelect value={org.industry} onChange={(e) => setOrg({ ...org, industry: e.target.value })}>{["Software agency", "IT consultancy", "Managed service provider", "Staffing and recruitment", "Professional services"].map((o) => <option key={o}>{o}</option>)}</NativeSelect></Field><Field label="Company size *"><NativeSelect value={org.size} onChange={(e) => setOrg({ ...org, size: e.target.value })}>{["1 to 10", "11 to 50", "51 to 200", "200+"].map((o) => <option key={o}>{o}</option>)}</NativeSelect></Field><Field label="Country *"><NativeSelect value={org.country} onChange={(e) => setOrg({ ...org, country: e.target.value, currency: e.target.value === "United Kingdom" ? "GBP" : e.target.value === "Germany" ? "EUR" : "USD" })}>{["United States", "United Kingdom", "Germany", "Canada"].map((o) => <option key={o}>{o}</option>)}</NativeSelect></Field><Field label="Default currency *"><NativeSelect value={org.currency} onChange={(e) => setOrg({ ...org, currency: e.target.value })}>{["USD", "EUR", "GBP", "CAD"].map((o) => <option key={o}>{o}</option>)}</NativeSelect></Field></div><Field label="Website"><Input value={org.website} onChange={(e) => setOrg({ ...org, website: e.target.value })} /></Field></>}
-          {idx === 1 && [["csv", "Upload CSV", "Available now. Invoice and payment exports.", ""], ["quickbooks", "QuickBooks Online", "Read invoices and payments.", "planned"], ["stripe", "Stripe", "Read charges and payouts. Read-only.", "planned"], ["xero", "Xero", "Read invoices and payments.", "planned"]].map(([id, n, d, tag]) => <Opt key={id} id={id} name={n} desc={d} tag={tag} on={src.includes(id)} set={() => setSrc(src.includes(id) ? src.filter((x) => x !== id) : [...src, id])} />)}
-          {idx === 2 && <><p className="text-sm text-hushed">venn reads messages that match your filters and sends only what you approve. It never deletes or edits mail.</p>{[["gmail", "Gmail", "Read replies and remittances. Send approved reminders."], ["outlook", "Outlook", "Planned for the first release."]].map(([id, n, d]) => <Opt key={id} id={id} name={n} desc={d} tag={id === "outlook" ? "planned" : ""} on={mail === id} set={() => setMail(mail === id ? null : id)} />)}</>}
-          {idx === 3 && <div className="grid gap-2">{[["Import invoices (CSV)", "/app/invoices/import"], ["Import payments (CSV)", "/app/payments/import"], ["Upload a remittance PDF", "/app/invoices/pdf-review"]].map(([t, to]) => <Button key={t} variant="outline" className="justify-start" onClick={() => { A.setSetup("import", true); nav(to) }}>{t}</Button>)}<Button onClick={() => { A.setSetup("import", true); next() }}>Explore with the sample workspace</Button></div>}
-          {idx === 4 && <>{rows.map((r, i) => <div key={i} className="grid grid-cols-[1fr_140px_36px] items-center gap-2"><Input aria-label="Email" placeholder="name@company.com" value={r.email} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, email: e.target.value } : x)))} /><NativeSelect aria-label="Role" value={r.role} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, role: e.target.value as Role } : x)))}><option value="ar">AR specialist</option><option value="owner">Owner</option></NativeSelect><Button variant="ghost" size="icon" aria-label="Remove" onClick={() => setRows(rows.filter((_, j) => j !== i))}><X className="size-4" /></Button></div>)}<Button variant="outline" size="sm" onClick={() => setRows([...rows, { email: "", role: "ar" }])}><Plus className="size-4" />Add another</Button></>}
-          {idx === 5 && <><div className="grid gap-3 sm:grid-cols-2"><Field label="Timezone"><NativeSelect value={prefs.tz} onChange={(e) => setPrefs({ ...prefs, tz: e.target.value })}>{["America/Chicago", "America/New_York", "Europe/London"].map((o) => <option key={o}>{o}</option>)}</NativeSelect></Field><Field label="Default payment terms (days)"><Input type="number" value={prefs.terms} onChange={(e) => setPrefs({ ...prefs, terms: +e.target.value })} /></Field></div><Opt id="auto" name="Apply exact matches automatically" desc="Everything else waits for a person. You can change this in settings." on={prefs.auto} set={() => setPrefs({ ...prefs, auto: !prefs.auto })} /></>}
-          {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
-        </div>
-        <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-border pt-5"><Button variant="outline" disabled={idx === 0} onClick={() => nav("/onboarding/" + STEPS[idx - 1][0])}>Back</Button>{skip && <Button variant="ghost" onClick={next}>Skip for now</Button>}<Button className="ml-auto" onClick={cont}>{idx === STEPS.length - 1 ? "Finish" : "Continue"}</Button></div>
-      </main>
-    </div>
-  )
-}
+export { Onboarding } from "./Onboarding"

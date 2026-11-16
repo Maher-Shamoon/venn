@@ -77,7 +77,7 @@ function SessionBridge() {
     let busy = false
     return onAuthChange((e) => {
       const me = e.signedIn
-      if (!me || busy || /^\/(login|signup|verify-email)/.test(window.location.pathname) || (activeOrg() && getState().session?.email === me.email)) return
+      if (!me || busy || !/^\/app/.test(window.location.pathname) || (activeOrg() && getState().session?.email === me.email)) return
       busy = true
       // Deferred on purpose: calling the auth client from inside its own change callback can deadlock it.
       setTimeout(() => void fetchMe().then((m) => {

@@ -70,3 +70,16 @@ test("a signed-in person whose browser holds sample data is put in their own org
   await expect(page.getByText("view as")).toHaveCount(0)
   await expect(page.getByText("Join waitlist")).toHaveCount(0)
 })
+
+test("a signed-in person without an organization who opens the landing page stays on it", async ({ page }) => {
+  await page.goto("/login")
+  await page.getByLabel("Work email").fill(user!.email)
+  await page.getByLabel("Password", { exact: true }).fill(user!.password)
+  await page.getByRole("button", { name: "Sign in", exact: true }).click()
+  await page.waitForURL(/\/app/)
+  await page.evaluate(() => localStorage.removeItem("venn.org"))
+  await page.goto("/")
+  await page.waitForTimeout(3000)
+  expect(new URL(page.url()).pathname).toBe("/")
+  await expect(page.getByText("Open venn").first()).toBeVisible()
+})
