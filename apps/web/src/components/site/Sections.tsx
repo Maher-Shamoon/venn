@@ -24,15 +24,15 @@ export function PricingBand() {
   return (
     <section className={`${wrap} pb-20 md:pb-28`}>
       <Reveal>
-        <div className="grid gap-8 rounded-3xl bg-[#14110f] p-8 text-white md:p-14 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-8 rounded-3xl bg-[#14110f] p-8 text-white md:p-14 lg:grid-cols-[1.1fr_1fr] lg:items-center">
           <div>
             <h2 className="text-[40px] leading-[42px] tracking-[-0.02em] md:text-[56px] md:leading-[58px]">Start free.<br /><span className="text-white/55">Scale with evidence.</span></h2>
             <p className="mt-4 max-w-[460px] text-lg text-white/70">Begin with a CSV. Add Gmail and QuickBooks when the team is ready.</p>
             <Button variant="lime" size="lg" render={<Link to="/pricing" />} className="mt-8">See pricing</Button>
           </div>
-          <div className="grid gap-2">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2">
             {[["Starter", "$0", "CSV import, exact-match reconciliation"], ["Team", "$31/mo/user", "Investigations, collections, approvals"], ["Business", "Custom", "Multi-entity, review, support"]].map(([n, p, d]) => (
-              <Link key={n} to="/pricing" className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.04] p-4 transition-colors duration-300 hover:bg-white/[0.09]"><div className="flex-1"><div className="text-lg">{n}</div><div className="text-sm text-white/60">{d}</div></div><div className="text-lg text-lime">{p}</div></Link>
+              <Link key={n} to="/pricing" className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.04] p-4 transition-colors duration-300 hover:bg-white/[0.09]"><div className="min-w-0 flex-1"><div className="text-lg">{n}</div><div className="text-sm text-white/60">{d}</div></div><div className="shrink-0 text-lg text-lime">{p}</div></Link>
             ))}
           </div>
         </div>
@@ -201,7 +201,7 @@ export function TwoUp() {
   return (
     <section className={`${wrap} pb-20 md:pb-28`}>
       <Reveal><h2 className="mx-auto max-w-[760px] text-center text-[40px] leading-[42px] tracking-[-0.015em] md:text-[56px] md:leading-[58px]">Move fast. Keep control.</h2><p className="mx-auto mt-3 max-w-[560px] text-center text-lg text-hushed">Owners decide. AR specialists do the work. The server enforces both.</p></Reveal>
-      <div className="mt-12 grid gap-10 md:grid-cols-2">
+      <div className="mt-12 grid grid-cols-[minmax(0,1fr)] gap-10 md:grid-cols-2">
         {[
           { t: "Give each role exactly what it needs.", d: "Owners approve and configure. AR specialists investigate and request. Every permission is checked on the server, never just hidden in the interface.", l: "Roles and permissions", v: <div className="space-y-2 p-8">{[["Approve write-offs", true, false], ["Send reminders", false, true], ["Manage integrations", true, false], ["View audit log", true, false]].map(([k, o, a]) => <div key={k as string} className="flex items-center gap-3 rounded-lg border border-border bg-white px-4 py-3 text-sm"><span className="flex-1">{k as string}</span><Badge variant="outline" className={o ? "bg-foreground text-white" : ""}>owner</Badge><Badge variant="outline" className={a ? "bg-lime text-foreground" : ""}>ar</Badge></div>)}</div> },
           { t: "Nothing consequential happens alone.", d: "Write-offs, credits and refund decisions wait for an owner, with the evidence attached. Decisions are immutable and every one is logged.", l: "Approval center", v: <div className="flex h-full items-center justify-center p-8"><div className="w-full max-w-[380px] rounded-xl border border-border bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><span className="font-mono text-xs">APR-0001 · write-off</span><Badge className="rounded-full bg-[#fff1c7] text-[#8a5a00]">pending</Badge></div><div className="mt-3 text-[32px] leading-9 tracking-[-0.02em]">$340.00</div><div className="text-sm text-hushed">INV-1037 · requested by Priya R.</div><div className="mt-4 flex gap-2"><Button variant="lime">Approve</Button><Button variant="outline">Reject</Button></div></div></div> },

@@ -164,3 +164,6 @@
 
 /* Table cells that hold record numbers must not break in the middle (INV-1037 stays on one line). */
 table .font-mono { white-space: nowrap; }
+
+/* A very narrow screen may break a long word instead of pushing the page wider. */
+h1, h2, h3 { overflow-wrap: anywhere; }

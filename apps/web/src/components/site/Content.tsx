@@ -53,7 +53,7 @@ export function Content() {
       <section className={`${wrap} space-y-20 pb-20 md:space-y-28 md:pb-28`}>
         {p.feats.map(([t, d], i) => (
           <Reveal key={t}>
-            <div className={cn("grid items-center gap-8 lg:grid-cols-2 lg:gap-16", i % 2 && "lg:[&>*:first-child]:order-2")}>
+            <div className={cn("grid grid-cols-[minmax(0,1fr)] items-center gap-8 lg:grid-cols-2 lg:gap-16", i % 2 && "lg:[&>*:first-child]:order-2")}>
               <div className="dotgrid flex min-h-[320px] items-center justify-center rounded-xl border border-border bg-muted p-6 sm:p-10"><Window title={p.vtitle} rows={[...p.rows.slice(i % p.rows.length), ...p.rows.slice(0, i % p.rows.length)].slice(0, 3)} className="w-full max-w-[460px]" /></div>
               <div><h3 className="text-[28px] leading-8 tracking-[-0.01em] md:text-[32px] md:leading-9">{t}</h3><p className="mt-3 max-w-[520px] text-base text-hushed">{d}</p></div>
             </div>
