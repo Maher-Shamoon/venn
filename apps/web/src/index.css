@@ -124,6 +124,7 @@
 @keyframes roll-out { from { transform: none; } to { transform: translateY(-105%); } }
 @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes click { 0% { transform: scale(1); } 40% { transform: scale(.8); } 100% { transform: scale(1); } }
+@keyframes splash-slide { from { transform: translateX(-100%); } to { transform: translateX(200%); } }
 @keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 /* scroll reveal: opacity + 24px rise, eased out. Applied by <Reveal>. */

@@ -132,3 +132,16 @@ test("navigating between public pages and into sign-in never shows a blank page"
   }
   expect(blanks).toEqual([])
 })
+
+test("an account without an organization reaches setup (never an endless loader), and setup does not redirect it away", async ({ page }) => {
+  await page.goto("/login")
+  await page.getByLabel("Work email").fill(user!.email)
+  await page.getByLabel("Password", { exact: true }).fill(user!.password)
+  await page.getByRole("button", { name: "Sign in", exact: true }).click()
+  await page.waitForURL(/\/app/)
+  await page.evaluate(() => localStorage.removeItem("venn.org"))
+  await page.goto("/onboarding/organization")
+  // this test user already belongs to an organization, so setup hands them over to it; the point is that the loader ends
+  await expect(page.getByRole("status", { name: "Loading venn" })).toHaveCount(0, { timeout: 20_000 })
+  await expect(page.getByRole("heading").first()).toBeVisible()
+})

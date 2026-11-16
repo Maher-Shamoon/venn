@@ -8,6 +8,7 @@ import { activeOrg, fetchMe, inDemo, setActiveOrg, startDemo } from "@/features/
 import { toastApiError } from "@/lib/errors"
 import { ErrorBoundary } from "@/components/app/ErrorBoundary"
 import { SiteLayout } from "@/components/site/SiteLayout"
+import { Splash } from "@/components/venn/Splash"
 import { preloadPages } from "@/preload"
 
 const AppShell = lazy(() => import("@/components/app/Shell").then((m) => ({ default: m.AppShell })))
@@ -94,7 +95,8 @@ function SessionBridge() {
 function Guard({ children }: { children: React.ReactNode }) {
   const s = useApp(), loc = useLocation(), signedIn = useSignedIn()
   // A real session with no organization chosen yet is sent to set one up (SessionBridge); never flash sample data meanwhile.
-  if (config.authSource === "supabase" && signedIn && !activeOrg() && !inDemo()) return <div className="h-1 w-full animate-pulse bg-[#f9a8d4]" role="status" aria-label="Loading" />
+  // Only the app itself waits: setup (also behind this guard) is exactly where an account without an organization belongs.
+  if (config.authSource === "supabase" && signedIn && !activeOrg() && !inDemo() && loc.pathname.startsWith("/app")) return <Splash />
   return s.session ? <>{children}</> : <Navigate to="/login" state={{ from: loc.pathname }} replace />
 }
 
@@ -104,7 +106,7 @@ export default function App() {
     <BrowserRouter>
       <ErrorBoundary>
       <SessionBridge />
-      <Suspense fallback={<div className="h-1 w-full animate-pulse bg-[#f9a8d4]" role="status" aria-label="Loading" />}>
+      <Suspense fallback={<Splash />}>
       <Routes>
         <Route element={<SiteLayout />}>
           <Route path="/" element={<Home />} />
