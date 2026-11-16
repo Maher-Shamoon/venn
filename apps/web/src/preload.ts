@@ -8,8 +8,11 @@ const groups: (() => Promise<unknown>)[][] = [
 
 export function preloadPages() {
   const c = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
-  if (c?.saveData) return
+  const slow = c && "effectiveType" in c && !["4g", undefined].includes((c as { effectiveType?: string }).effectiveType)
+  if (c?.saveData || slow) return
   const idle = (f: () => void) => ("requestIdleCallback" in window ? window.requestIdleCallback(f, { timeout: 2500 }) : setTimeout(f, 800))
-  const run = (i: number) => { if (i >= groups.length) return; idle(() => { void Promise.allSettled(groups[i].map((l) => l())).then(() => run(i + 1)) }) }
+  // the app itself is only fetched ahead for people who have signed in or are in the demo
+  const knows = Object.keys(localStorage).some((k) => k.startsWith("sb-")) || sessionStorage.getItem("venn.demo") === "1"
+  const run = (i: number) => { if (i >= groups.length || (i === 1 && !knows)) return; idle(() => { void Promise.allSettled(groups[i].map((l) => l())).then(() => run(i + 1)) }) }
   run(0)
 }

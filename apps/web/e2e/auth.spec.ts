@@ -91,6 +91,7 @@ test("See a demo shows sample data even to a signed-in person, and sign in still
   await page.waitForURL(/\/app/)
   await page.goto("/demo")
   await page.waitForURL(/\/app/)
+  await expect(page.getByText("Sample data. Nothing here is real.")).toBeVisible()
   await expect(page.getByText("view as")).toBeVisible()
   expect(await page.evaluate(() => localStorage.getItem("venn.org"))).toMatch(/^[0-9a-f-]{36}$/) // their real organization is untouched
   await page.goto("/login")
@@ -99,6 +100,8 @@ test("See a demo shows sample data even to a signed-in person, and sign in still
   await page.getByLabel("Password", { exact: true }).fill(user!.password)
   await page.getByRole("button", { name: "Sign in", exact: true }).click()
   await page.waitForURL(/\/app/)
+  await expect(page.getByText("Sample data. Nothing here is real.")).toHaveCount(0)
+  await expect(page.getByText(/QA Organization/).first()).toBeVisible({ timeout: 20_000 }) // positive proof the real workspace rendered
   await expect(page.getByText("view as")).toHaveCount(0)
 })
 
@@ -155,4 +158,15 @@ test("Google sign-in starts a code-exchange (PKCE) flow, never one that puts the
   const q = new URL(authorize).searchParams
   expect(q.get("code_challenge")).toBeTruthy()
   expect(q.get("code_challenge_method")).toBe("s256")
+})
+
+test("if the organization cannot be loaded right after signing in, the person stays on sign-in with a clear message (no endless loader)", async ({ page }) => {
+  await page.route("**/api/v1/me", (r) => r.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ code: "unavailable", title: "Unavailable", detail: "Try again." }) }))
+  await page.goto("/login")
+  await page.getByLabel("Work email").fill(user!.email)
+  await page.getByLabel("Password", { exact: true }).fill(user!.password)
+  await page.getByRole("button", { name: "Sign in", exact: true }).click()
+  await expect(page.getByRole("alert").filter({ hasText: "could not load your organization" })).toBeVisible({ timeout: 20_000 })
+  expect(new URL(page.url()).pathname).toBe("/login")
+  await expect(page.getByRole("status", { name: "Loading venn" })).toHaveCount(0)
 })

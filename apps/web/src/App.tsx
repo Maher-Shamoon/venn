@@ -80,7 +80,7 @@ function SessionBridge() {
     let busy = false
     return onAuthChange((e) => {
       const me = e.signedIn
-      if (!me || busy || inDemo() || !/^\/app/.test(window.location.pathname) || (activeOrg() && getState().session?.email === me.email)) return
+      if (!me || busy || inDemo() || !/^\/app/.test(window.location.pathname) || (activeOrg() && getState().session?.email?.toLowerCase() === me.email.toLowerCase())) return
       busy = true
       // Deferred on purpose: calling the auth client from inside its own change callback can deadlock it.
       setTimeout(() => void fetchMe().then((m) => {
@@ -92,13 +92,19 @@ function SessionBridge() {
   }, [nav])
   return null
 }
+/** The sign-in check or organization lookup normally takes a moment; if it never finishes, send the person to sign in rather than leave them on a loader. */
+function Waiting() {
+  const nav = useNavigate()
+  useEffect(() => { const t = setTimeout(() => nav("/login", { replace: true }), 15_000); return () => clearTimeout(t) }, [nav])
+  return <Splash />
+}
 function Guard({ children }: { children: React.ReactNode }) {
   const s = useApp(), loc = useLocation(), signedIn = useSignedIn()
   // A real session with no organization chosen yet is sent to set one up (SessionBridge); never flash sample data meanwhile.
   // Google (code exchange) and emailed links finish signing in a moment after the page opens: wait for that instead of bouncing to sign-in.
-  if (config.authSource === "supabase" && !s.session && !inDemo() && signedIn !== false) return <Splash />
+  if (config.authSource === "supabase" && !s.session && !inDemo() && signedIn !== false) return <Waiting />
   // Only the app itself waits: setup (also behind this guard) is exactly where an account without an organization belongs.
-  if (config.authSource === "supabase" && signedIn && !activeOrg() && !inDemo() && loc.pathname.startsWith("/app")) return <Splash />
+  if (config.authSource === "supabase" && signedIn && !activeOrg() && !inDemo() && loc.pathname.startsWith("/app")) return <Waiting />
   return s.session ? <>{children}</> : <Navigate to="/login" state={{ from: loc.pathname }} replace />
 }
 

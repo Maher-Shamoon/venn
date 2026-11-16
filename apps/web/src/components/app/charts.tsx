@@ -1,3 +1,4 @@
+import React from "react"
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Legend, Line, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { COLORS } from "./ui"
 import { usd } from "./store"
@@ -16,7 +17,7 @@ export function Tip({ active, payload, label, money = true }: { active?: boolean
     </div>
   )
 }
-export const H = ({ h = 260, children, label = "Chart" }: { h?: number; children: React.ReactElement; label?: string }) => <div style={{ height: h }} className="w-full" role="img" aria-label={label}><ResponsiveContainer width="100%" height="100%">{children}</ResponsiveContainer></div>
+export const H = ({ h = 260, children, label = "Chart" }: { h?: number; children: React.ReactElement; label?: string }) => <div style={{ height: h }} className="w-full" role="img" aria-label={label}><ResponsiveContainer width="100%" height="100%">{/* the wrapper is the image; the chart itself must not be focusable inside it */}{React.cloneElement(children, { accessibilityLayer: false } as object)}</ResponsiveContainer></div>
 
 export const AGING_COLORS = ["#d2cecb", "#f9a8d4", "#f472b6", "#1a1919"]
 export function AgingChart({ data, h }: { data: [string, number][]; h?: number }) {

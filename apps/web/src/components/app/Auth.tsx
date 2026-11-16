@@ -80,7 +80,7 @@ export function Login() {
         const m = (await fetchMe()).memberships.find((x) => x.status === "active")
         const pending = localStorage.getItem("venn.invite")
         if (m) { setActiveOrg(m.organization_id); A.finishOnboarding(); target = pending ? `/invite/${pending}` : from ?? "/app" } else target = pending ? `/invite/${pending}` : "/onboarding/organization"
-      } catch (x) { toastApiError(x) }
+      } catch (x) { toastApiError(x); setBusy(false); setErr("We signed you in but could not load your organization. Please try again."); return }
     } else await new Promise((r) => setTimeout(r, 650))
     A.signIn(name, mail)
     nav(target)
@@ -201,7 +201,7 @@ function RemoteInvite() {
   useEffect(() => {
     // Remember the link so signing in or verifying email later brings the person back here.
     localStorage.setItem("venn.invite", token)
-    request<InviteInfo>(`/invitations/${encodeURIComponent(token)}`).then(setInfo, () => setInfo("invalid"))
+    request<InviteInfo>(`/invitations/${encodeURIComponent(token)}`).then(setInfo, () => { localStorage.removeItem("venn.invite"); setInfo("invalid") })
   }, [token])
   if (info === null || signedIn === undefined) return null
   if (info === "invalid") return <Card title="This invitation is not valid" sub="It may have expired or been withdrawn. Ask the person who invited you to send a new one."><Button className="w-full" render={<Link to="/login" />}>Go to sign in</Button></Card>

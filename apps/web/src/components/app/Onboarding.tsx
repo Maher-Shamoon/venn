@@ -30,10 +30,13 @@ export function Onboarding() {
   // Someone who already belongs to an organization (an old confirmation link, a second device) is taken to it instead of creating another.
   useEffect(() => {
     if (!real || activeOrg()) return
-    void fetchMe().then((m) => { const mem = m.memberships.find((x) => x.status === "active"); if (mem) { setActiveOrg(mem.organization_id); A.finishOnboarding(); window.location.replace("/app") } }).catch(() => undefined)
+    let alive = true
+    void fetchMe().then((m) => { if (!alive) return; const mem = m.memberships.find((x) => x.status === "active"); if (mem) { setActiveOrg(mem.organization_id); A.finishOnboarding(); window.location.replace("/app") } }).catch(() => undefined)
+    return () => { alive = false }
   }, [real])
   const next = () => { setErr(""); if (idx === STEPS.length - 1) { A.saveSettings("financial", { ...s.settings.financial, timezone: prefs.tz, terms: prefs.terms, autoApply: prefs.auto }); A.finishOnboarding(); nav("/app"); return } nav("/onboarding/" + STEPS[idx + 1][0]) }
   const cont = async () => {
+    if (busy) return
     if (idx === 0) {
       if (!org.name.trim()) return setErr("Organization name is required.")
       if (real && !activeOrg()) {
@@ -47,8 +50,12 @@ export function Onboarding() {
     if (idx === 4) { const bad = rows.find((r) => r.email && !email(r.email)); if (bad) return setErr(`${bad.email} is not a valid email address.`); const who = rows.filter((r) => r.email)
       if (real) {
         setBusy(true)
-        try { for (const r of who) await request("/members/invitations", { method: "POST", body: { email: r.email, role_key: r.role === "owner" ? "owner" : "ar_specialist" }, idempotent: true }) }
-        catch (x) { setBusy(false); toastApiError(x); return setErr(errorMessage(x)) }
+        try {
+          for (const r of who) {
+            try { await request("/members/invitations", { method: "POST", body: { email: r.email, role_key: r.role === "owner" ? "owner" : "ar_specialist" }, idempotent: true }) }
+            catch (x) { if ((x as { status?: number }).status !== 409) throw x } // already invited on an earlier try: carry on
+          }
+        } catch (x) { setBusy(false); toastApiError(x); return setErr(errorMessage(x)) }
         setBusy(false)
       } else who.forEach((r) => A.invite(r.email, r.role))
       A.setSetup("team", true) }
