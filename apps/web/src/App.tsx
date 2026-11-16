@@ -1,6 +1,10 @@
 import { lazy, Suspense, useEffect } from "react"
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from "react-router-dom"
-import { A, useApp } from "@/components/app/store"
+import { A, getState, useApp } from "@/components/app/store"
+import { config } from "@/config"
+import { onAuthChange } from "@/auth/supabaseAuth"
+import { activeOrg, fetchMe, setActiveOrg } from "@/features/identity/api"
+import { toastApiError } from "@/lib/errors"
 import { ErrorBoundary } from "@/components/app/ErrorBoundary"
 
 const AppShell = lazy(() => import("@/components/app/Shell").then((m) => ({ default: m.AppShell })))
@@ -64,6 +68,27 @@ function Demo() {
   useEffect(() => { if (q.get("fresh")) A.startFresh("Dana Whitfield", "dana@northbeam.example"); else A.signIn("Dana Whitfield", "dana@brightpath.example"); nav(q.get("to") ?? "/app", { replace: true }) }, [nav, q])
   return null
 }
+/** Whoever has a real (Supabase) session, however they signed in (password, Google, an emailed link), is put in their own organization, or sent to create one.
+ * Without this a Google sign-in would keep showing whatever sample data the browser held. */
+function SessionBridge() {
+  const nav = useNavigate()
+  useEffect(() => {
+    if (config.authSource !== "supabase") return
+    let busy = false
+    return onAuthChange((e) => {
+      const me = e.signedIn
+      if (!me || busy || /^\/(login|signup|verify-email)/.test(window.location.pathname) || (activeOrg() && getState().session?.email === me.email)) return
+      busy = true
+      // Deferred on purpose: calling the auth client from inside its own change callback can deadlock it.
+      setTimeout(() => void fetchMe().then((m) => {
+        const mem = m.memberships.find((x) => x.status === "active"), pending = localStorage.getItem("venn.invite")
+        if (mem) { setActiveOrg(mem.organization_id); A.finishOnboarding(); A.signIn(me.name, me.email); /^\/app/.test(window.location.pathname) ? window.location.reload() : window.location.replace("/app") }
+        else { setActiveOrg(null); A.signIn(me.name, me.email); if (!/^\/(onboarding|invite)/.test(window.location.pathname)) nav(pending ? `/invite/${pending}` : "/onboarding/organization", { replace: true }) }
+      }).catch(toastApiError).finally(() => { busy = false }), 0)
+    })
+  }, [nav])
+  return null
+}
 function Guard({ children }: { children: React.ReactNode }) {
   const s = useApp(), loc = useLocation()
   return s.session ? <>{children}</> : <Navigate to="/login" state={{ from: loc.pathname }} replace />
@@ -73,6 +98,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
+      <SessionBridge />
       <Suspense fallback={<div className="h-1 w-full animate-pulse bg-[#f9a8d4]" role="status" aria-label="Loading" />}>
       <Routes>
         <Route element={<SiteLayout />}>

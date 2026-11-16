@@ -55,3 +55,18 @@ test("sign-in and sign-up offer Continue with Google, and it reports plainly whe
     await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible()
   }
 })
+
+test("a signed-in person whose browser holds sample data is put in their own organization (as after Google sign-in)", async ({ page }) => {
+  await page.goto("/login")
+  await page.getByLabel("Work email").fill(user!.email)
+  await page.getByLabel("Password", { exact: true }).fill(user!.password)
+  await page.getByRole("button", { name: "Sign in", exact: true }).click()
+  await page.waitForURL(/\/app/)
+  // the state a Google sign-in finds: a real session, no organization chosen, sample data in the browser
+  await page.evaluate(() => { localStorage.removeItem("venn.org"); const k = "venn.app.v5"; const s = JSON.parse(localStorage.getItem(k) ?? "{}"); s.session = { name: "Dana Whitfield", email: "dana@brightpath.example" }; localStorage.setItem(k, JSON.stringify(s)) })
+  await page.goto("/app/integrations")
+  await expect(page.getByText("Stripe")).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByText("Brightpath")).toHaveCount(0)
+  await expect(page.getByText("view as")).toHaveCount(0)
+  await expect(page.getByText("Join waitlist")).toHaveCount(0)
+})

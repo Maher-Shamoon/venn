@@ -36,6 +36,7 @@ def decode_token(token: str, s: Settings) -> AuthUser:
         claims = jwt.decode(
             token, key, algorithms=algorithms, audience=s.jwt_audience,  # type: ignore[arg-type]
             issuer=s.jwt_issuer or None, options={"require": ["exp", "sub"]},
+            leeway=30,  # a token minted a moment "in the future" by a server with a faster clock is still valid
         )
     except jwt.ExpiredSignatureError as e:
         raise ApiError(401, "token_expired", "The session has expired.") from e

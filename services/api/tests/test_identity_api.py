@@ -54,7 +54,7 @@ def new_org(client: TestClient, auth: Token, name: str = "Acme") -> tuple[uuid.U
 def test_missing_and_bad_tokens_are_401(client: TestClient, auth: Token) -> None:
     assert client.get("/api/v1/me").json()["code"] == "unauthenticated"
     assert client.get("/api/v1/me", headers={"Authorization": "Bearer nonsense"}).status_code == 401
-    expired = client.get("/api/v1/me", headers=auth(exp=-10))
+    expired = client.get("/api/v1/me", headers=auth(exp=-120))
     assert expired.status_code == 401 and expired.json()["code"] == "token_expired"
 
 
