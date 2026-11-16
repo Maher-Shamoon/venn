@@ -9,7 +9,7 @@ import { Logo } from "@/components/venn/kit"
 import { cn } from "@/lib/utils"
 import { A, balOf, useApp, usd, type Role } from "./store"
 import { Loading, PageSkeleton } from "./ui"
-import { fetchContext, remote } from "@/features/identity/api"
+import { activeOrg, fetchContext, remote } from "@/features/identity/api"
 import { useFrame, useSearch } from "@/features/shell/api"
 import { BellList } from "@/features/workflow/RemoteInbox"
 import { useNotifications } from "@/features/workflow/api"
@@ -55,11 +55,18 @@ export function AppShell() {
   const s = useApp(), nav = useNavigate(), loc = useLocation()
   const real = remote()
   // Real organizations take the role from the server; the "view as" switcher exists only in sample workspaces.
-  const [ctxReady, setCtxReady] = useState(!real)
+  // The last role seen for this person in this organization lets the page start loading at once; the server's answer replaces it a moment later
+  // (it only decides which controls show, the server enforces permissions either way).
+  const roleKey = `venn.role.${activeOrg()}.${s.session?.email?.toLowerCase()}`
+  const [ctxReady, setCtxReady] = useState(() => {
+    if (!real) return true
+    try { const r = localStorage.getItem(roleKey); if (r) { A.setRole(r === "owner" ? "owner" : "ar"); return true } } catch { /* storage blocked: wait for the server */ }
+    return false
+  })
   useEffect(() => {
     if (!real) return
-    fetchContext().then((c) => A.setRole(c.role_key === "owner" ? "owner" : "ar")).catch((e) => toastApiError(e)).finally(() => setCtxReady(true))
-  }, [real])
+    fetchContext().then((c) => { A.setRole(c.role_key === "owner" ? "owner" : "ar"); try { localStorage.setItem(roleKey, c.role_key) } catch { /* optional */ } }).catch((e) => toastApiError(e)).finally(() => setCtxReady(true))
+  }, [real, roleKey])
   const role = s.role
   const [menu, setMenu] = useState(false), [cmd, setCmd] = useState(false), [online, setOnline] = useState(true)
   useEffect(() => {

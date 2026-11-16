@@ -1,9 +1,9 @@
 import { config } from "@/config"
 import { ApiError, toApiError } from "./errors"
 
-type Session = { token: () => string | null; org: () => string | null }
+type Session = { token: () => string | null; org: () => string | null; ready?: Promise<unknown> }
 let session: Session = { token: () => null, org: () => null }
-/** The auth layer registers how to read the access token and active organization. */
+/** The auth layer registers how to read the access token and active organization. `ready` settles once the stored session has been read, so a page reload never sends its first requests without a token. */
 export const bindSession = (s: Session) => { session = s }
 
 export type Page<T> = { data: T[]; meta: { next_cursor?: string; has_more: boolean; total?: number } }
@@ -19,6 +19,7 @@ const qs = (q: Opts["query"]) => {
 /** Sends one request following the API conventions: bearer token, tenant header, idempotency key, optimistic concurrency. */
 export async function request<T>(path: string, o: Opts = {}): Promise<T> {
   const headers: Record<string, string> = { Accept: "application/json" }
+  await session.ready
   const token = session.token(), org = session.org()
   if (token) headers.Authorization = `Bearer ${token}`
   if (org) headers["X-Organization-Id"] = org
@@ -36,6 +37,7 @@ export async function request<T>(path: string, o: Opts = {}): Promise<T> {
 /** Fetches a file from the API (authenticated) and saves it through the browser. */
 export async function downloadFile(path: string, filename: string): Promise<void> {
   const headers: Record<string, string> = {}
+  await session.ready
   const token = session.token(), org = session.org()
   if (token) headers.Authorization = `Bearer ${token}`
   if (org) headers["X-Organization-Id"] = org

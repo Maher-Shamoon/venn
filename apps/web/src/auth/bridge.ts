@@ -11,8 +11,11 @@ let token: string | null = null
  */
 export function startAuthBridge() {
   if (config.authSource !== "supabase") return
-  bindSession({ token: () => token, org: () => localStorage.getItem("venn.org") })
+  let open: () => void = () => {}
+  const ready = new Promise<void>((r) => { open = r; setTimeout(r, 4000) }) // never hold requests for long if the first auth event is lost
+  bindSession({ token: () => token, org: () => localStorage.getItem("venn.org"), ready })
   supabase().auth.onAuthStateChange((event, session) => {
+    open()
     token = session?.access_token ?? null
     const u = session?.user
     if (u?.email && u.email_confirmed_at) {

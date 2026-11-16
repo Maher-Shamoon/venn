@@ -14,6 +14,17 @@ describe("http client", () => {
     expect((init!.headers as Record<string, string>).Authorization).toBe("Bearer t0k")
     expect((init!.headers as Record<string, string>)["X-Organization-Id"]).toBe("org-1")
   })
+  it("waits for the stored session before the first request", async () => {
+    let token: string | null = null, open!: () => void
+    bindSession({ token: () => token, org: () => null, ready: new Promise<void>((r) => { open = r }) })
+    const f = vi.spyOn(globalThis, "fetch").mockResolvedValue(ok({ data: 1 }))
+    const pending = api.get("/me")
+    await Promise.resolve()
+    expect(f).not.toHaveBeenCalled()
+    token = "late"; open()
+    await pending
+    expect((f.mock.calls[0][1]!.headers as Record<string, string>).Authorization).toBe("Bearer late")
+  })
   it("adds an idempotency key to posts and If-Match to patches", async () => {
     const f = vi.spyOn(globalThis, "fetch").mockImplementation(async () => ok({ data: {} }))
     await api.post("/allocations", { amount: "10.00" })
