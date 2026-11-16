@@ -82,3 +82,22 @@ test("a signed-in person without an organization who opens the landing page stay
   await page.waitForTimeout(3000)
   expect(new URL(page.url()).pathname).toBe("/")
 })
+
+test("See a demo shows sample data even to a signed-in person, and sign in still works from it", async ({ page }) => {
+  await page.goto("/login")
+  await page.getByLabel("Work email").fill(user!.email)
+  await page.getByLabel("Password", { exact: true }).fill(user!.password)
+  await page.getByRole("button", { name: "Sign in", exact: true }).click()
+  await page.waitForURL(/\/app/)
+  await page.goto("/demo")
+  await page.waitForURL(/\/app/)
+  await expect(page.getByText("view as")).toBeVisible()
+  expect(await page.evaluate(() => localStorage.getItem("venn.org"))).toMatch(/^[0-9a-f-]{36}$/) // their real organization is untouched
+  await page.goto("/login")
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible() // not bounced back into the demo
+  await page.getByLabel("Work email").fill(user!.email)
+  await page.getByLabel("Password", { exact: true }).fill(user!.password)
+  await page.getByRole("button", { name: "Sign in", exact: true }).click()
+  await page.waitForURL(/\/app/)
+  await expect(page.getByText("view as")).toHaveCount(0)
+})

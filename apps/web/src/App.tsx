@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate, useSe
 import { A, getState, useApp } from "@/components/app/store"
 import { config } from "@/config"
 import { onAuthChange } from "@/auth/supabaseAuth"
-import { activeOrg, fetchMe, setActiveOrg } from "@/features/identity/api"
+import { activeOrg, fetchMe, inDemo, setActiveOrg, startDemo } from "@/features/identity/api"
 import { toastApiError } from "@/lib/errors"
 import { ErrorBoundary } from "@/components/app/ErrorBoundary"
 
@@ -65,7 +65,7 @@ const SiteLayout = lazy(() => import("@/components/site/SiteLayout").then((m) =>
 /** Signs into the sample workspace, then goes where the visitor was headed. */
 function Demo() {
   const [q] = useSearchParams(), nav = useNavigate()
-  useEffect(() => { if (q.get("fresh")) A.startFresh("Dana Whitfield", "dana@northbeam.example"); else A.signIn("Dana Whitfield", "dana@brightpath.example"); nav(q.get("to") ?? "/app", { replace: true }) }, [nav, q])
+  useEffect(() => { startDemo(); if (q.get("fresh")) A.startFresh("Dana Whitfield", "dana@northbeam.example"); else A.signIn("Dana Whitfield", "dana@brightpath.example"); nav(q.get("to") ?? "/app", { replace: true }) }, [nav, q])
   return null
 }
 /** Whoever has a real (Supabase) session, however they signed in (password, Google, an emailed link), is put in their own organization, or sent to create one.
@@ -77,7 +77,7 @@ function SessionBridge() {
     let busy = false
     return onAuthChange((e) => {
       const me = e.signedIn
-      if (!me || busy || !/^\/app/.test(window.location.pathname) || (activeOrg() && getState().session?.email === me.email)) return
+      if (!me || busy || inDemo() || !/^\/app/.test(window.location.pathname) || (activeOrg() && getState().session?.email === me.email)) return
       busy = true
       // Deferred on purpose: calling the auth client from inside its own change callback can deadlock it.
       setTimeout(() => void fetchMe().then((m) => {
