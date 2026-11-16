@@ -26,7 +26,7 @@ function NewInvoice({ open, onOpenChange }: { open: boolean; onOpenChange: (o: b
       footer={<><Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button><Button onClick={submit}>Create invoice</Button></>}>
       <div className="space-y-3">
         <Field label="Customer *"><NativeSelect value={cust} onChange={(e) => setCust(e.target.value)}><option value="">Select…</option>{s.customers.map((c) => <option key={c.id}>{c.name}</option>)}</NativeSelect></Field>
-        <div className="grid gap-3 sm:grid-cols-3"><Field label="Issue date"><Input type="date" value={issued} onChange={(e) => setIssued(e.target.value)} /></Field><Field label="Due date"><Input type="date" value={due} onChange={(e) => setDue(e.target.value)} /></Field><Field label="PO number"><Input value={po} onChange={(e) => setPo(e.target.value)} /></Field></div>
+        <div className="grid gap-3 md:grid-cols-3"><Field label="Issue date"><Input type="date" value={issued} onChange={(e) => setIssued(e.target.value)} /></Field><Field label="Due date"><Input type="date" value={due} onChange={(e) => setDue(e.target.value)} /></Field><Field label="PO number"><Input value={po} onChange={(e) => setPo(e.target.value)} /></Field></div>
         <div className="space-y-2">{lines.map((l, k) => (
           <div key={k} className="grid grid-cols-[1fr_64px_96px_32px] items-end gap-2">
             <Field label={k ? "" : "Description"}><Input value={l.d} onChange={(e) => setLines(lines.map((x, j) => (j === k ? { ...x, d: e.target.value } : x)))} /></Field>
@@ -99,7 +99,7 @@ export function InvoiceDetail() {
       <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
         <div className="min-w-0 space-y-4">
           <Box title="Balance, calculated">
-            <div className="grid gap-px overflow-hidden rounded-b-xl bg-border sm:grid-cols-4">
+            <div className="grid gap-px overflow-hidden rounded-b-xl bg-border grid-cols-2 sm:grid-cols-4">
               {[["Total", usd(total)], ["− Payments", usd(pays)], ["− Adjustments", usd(adjs)], ["= Balance", usd(bal)]].map(([k, v], n) => <div key={k} className={n === 3 ? "bg-lime p-4" : "bg-white p-4"}><div className="text-xs text-hushed">{k}</div><div className="mt-1 text-xl tabular-nums">{v}</div></div>)}
             </div>
           </Box>

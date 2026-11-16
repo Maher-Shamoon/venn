@@ -22,7 +22,7 @@ export function RemoteDocuments() {
   const rows = list.data?.data ?? []
   return (
     <>
-      <Title sub={`${list.data?.total ?? 0} documents. PDF, PNG, JPEG, CSV or text, up to 20 MB.`} right={<><input ref={file} type="file" className="sr-only" aria-label="Upload document" accept=".pdf,.png,.jpg,.jpeg,.csv,.txt" onChange={(e) => { pick(e.target.files?.[0]); e.target.value = "" }} /><Button disabled={up.isPending} onClick={() => file.current?.click()}><Upload className="size-4" />{up.isPending ? "Uploading…" : "Upload"}</Button></>}>Documents</Title>
+      <Title sub={`${list.data?.total ?? 0} documents. PDF, PNG, JPEG, CSV or text, up to 20 MB.`} right={<><input ref={file} type="file" className="sr-only left-0 top-0" aria-label="Upload document" accept=".pdf,.png,.jpg,.jpeg,.csv,.txt" onChange={(e) => { pick(e.target.files?.[0]); e.target.value = "" }} /><Button disabled={up.isPending} onClick={() => file.current?.click()}><Upload className="size-4" />{up.isPending ? "Uploading…" : "Upload"}</Button></>}>Documents</Title>
       <div className="mb-4 max-w-sm"><Input aria-label="Search documents" placeholder="Search names and text" value={q} onChange={(e) => { setQ(e.target.value); setPage(1) }} /></div>
       <Box><DataTable rows={rows} id={(x: Doc) => x.id} loading={list.isPending} onRow={(x) => setOpen(x.id)} pageSize={25} ctl={{ q: "", sort: null, page: page - 1, total: list.data?.total ?? 0, onChange: (n) => n.page !== undefined && setPage(n.page + 1) }}
         empty={<Empty title={q ? "No documents match" : "No documents yet"} sub={q ? undefined : "Upload a remittance advice, a statement or a message so it can be linked to a case."} />}

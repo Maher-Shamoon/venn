@@ -13,7 +13,7 @@ const offenders = () => {
   })
   return out.slice(0, 5)
 }
-const SIZES = [{ w: 320, h: 640 }, { w: 360, h: 740 }, { w: 390, h: 844 }, { w: 412, h: 915 }, { w: 768, h: 1024 }, { w: 1024, h: 768 }, { w: 1280, h: 800 }, { w: 1920, h: 1080 }]
+const SIZES = [{ w: 280, h: 653 }, { w: 320, h: 640 }, { w: 360, h: 740 }, { w: 390, h: 844 }, { w: 412, h: 915 }, { w: 768, h: 1024 }, { w: 820, h: 1180 }, { w: 1024, h: 768 }, { w: 1100, h: 800 }, { w: 1280, h: 800 }, { w: 1920, h: 1080 }]
 const PUBLIC = ["/", "/pricing", "/about", "/contact", "/login", "/signup", "/p/engine"]
 const APP = ["/app", "/app/customers", "/app/invoices", "/app/payments", "/app/reconciliation", "/app/investigations", "/app/approvals", "/app/collections", "/app/disputes", "/app/reports", "/app/reports/aging", "/app/documents", "/app/tasks", "/app/integrations", "/app/team", "/app/settings"]
 

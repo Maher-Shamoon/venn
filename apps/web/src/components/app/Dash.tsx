@@ -40,7 +40,7 @@ function OwnerDashboard() {
     <>
       <Title sub="Friday 13 November · Brightpath Digital" right={<RangeSeg />}>Good morning, Dana</Title>
       <Checklist />
-      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-5 [&>:last-child:nth-child(odd)]:col-span-2 xl:[&>:last-child:nth-child(odd)]:col-span-1">
         <Kpi dark label="Total receivable" value={usd(t.receivable, 0)} note={`${t.open} open invoices`} spark={SPARK_AR} delta={{ v: "9%", good: false, up: true }} to="/app/invoices" />
         <Kpi label="Overdue" value={usd(t.overdue, 0)} note={`${t.overdueCount} invoices`} spark={SPARK_OV} to="/app/invoices" />
         <Kpi label="Unmatched payments" value={String(t.unmatched.length + t.needsReview)} note="Need review in reconciliation" to="/app/reconciliation" />
@@ -63,7 +63,7 @@ function OwnerDashboard() {
         <Box title="Pending approvals" right={<Link to="/app/approvals" className="text-sm text-hushed hover:text-foreground">View all</Link>}>
           {pend.length ? pend.map((a) => (
             <div key={a.id} className="flex items-center gap-3 border-b border-border px-5 py-3 last:border-0">
-              <button className="min-w-0 flex-1 text-left" onClick={() => nav("/app/approvals/" + a.id)}><div className="font-mono text-[11px] text-hushed">{a.id} · {a.type}</div><div className="truncate text-sm">{a.cust} · {usd(a.amount, 0)}</div></button>
+              <button className="min-w-0 flex-1 text-left" onClick={() => nav("/app/approvals/" + a.id)}><div className="font-mono text-[11px] text-hushed">{a.id} · {a.type}</div><div className="flex gap-1 text-sm"><span className="truncate">{a.cust}</span><span className="shrink-0 tabular-nums">· {usd(a.amount, 0)}</span></div></button>
               <Button size="icon" variant="outline" aria-label={`Approve ${a.id}`} onClick={() => A.decide(a.id, "approved", "")}><Check className="size-4" /></Button>
             </div>)) : <div className="px-5 py-8 text-center text-sm text-hushed">Nothing waiting for you.</div>}
         </Box>
@@ -71,7 +71,7 @@ function OwnerDashboard() {
           <div className="p-4"><Donut data={byStatus} center={String(open.length)} h={170} /><ul className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">{byStatus.map((d) => <li key={d.name} className="flex items-center gap-1.5 capitalize"><span className="size-2 rounded-full" style={{ background: d.color }} />{d.name}<span className="ml-auto text-hushed">{d.value}</span></li>)}</ul></div>
         </Box>
         <Box title="Top exposure" right={<Link to="/app/investigations" className="text-sm text-hushed hover:text-foreground">All</Link>}>
-          {[...open].sort((a, b) => b.exposure - a.exposure).slice(0, 5).map((g) => <Link key={g.id} to={"/app/investigations/" + g.id} className="flex items-center gap-3 border-b border-border px-5 py-3 transition-colors last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{g.cust}</div><div className="font-mono text-[11px] text-hushed">{g.id} · {g.type}</div></div><div className="text-sm tabular-nums">{usd(g.exposure, 0)}</div></Link>)}
+          {[...open].sort((a, b) => b.exposure - a.exposure).slice(0, 5).map((g) => <Link key={g.id} to={"/app/investigations/" + g.id} className="flex items-center gap-3 border-b border-border px-5 py-3 transition-colors last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{g.cust}</div><div className="font-mono text-[11px] text-hushed">{g.id} · {g.type}</div></div><div className="shrink-0 whitespace-nowrap text-sm tabular-nums">{usd(g.exposure, 0)}</div></Link>)}
         </Box>
       </div>
 

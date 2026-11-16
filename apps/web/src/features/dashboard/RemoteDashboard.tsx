@@ -76,7 +76,7 @@ function Owner() {
     <>
       <Title sub={new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} right={<RangeSeg />}>{greeting()}</Title>
       {k.other_currencies > 0 && <p className="mb-3 text-sm text-hushed">Figures are in {cur}. {k.other_currencies} other {k.other_currencies === 1 ? "currency is" : "currencies are"} not included and not converted.</p>}
-      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-5 [&>:last-child:nth-child(odd)]:col-span-2 xl:[&>:last-child:nth-child(odd)]:col-span-1">
         <Kpi dark label="Total receivable" value={formatMoney(k.total_ar, cur)} note={`${k.open_invoices} open invoices`} to="/app/invoices" delta={change === 0 ? undefined : { v: formatMoney(Math.abs(change).toFixed(2), cur), good: change < 0, up: change > 0 }} spark={d.trend.map((p) => num(p.total))} />
         <Kpi label="Overdue" value={formatMoney(k.overdue, cur)} note={`${k.overdue_invoices} invoices`} to="/app/invoices?tab=overdue" spark={d.trend.map((p) => num(p.overdue))} />
         <Kpi label="Unmatched payments" value={formatMoney(k.unmatched, cur)} note={`${k.unmatched_payments} payments to match`} to="/app/payments?tab=unallocated" />
