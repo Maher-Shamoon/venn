@@ -62,7 +62,7 @@ def test_sync_reads_open_invoices_without_overwriting_venn_money(org: Org, clien
     after = {i["invoice_number"]: i for i in org.get("/invoices?limit=50").json()["data"]}
     assert after["Q-2"]["total_amount"] == "300.00" and after["Q-1"]["total_amount"] == "1000.00" and after["Q-1"]["balance_due"] == "900.00"
     with create_engine(migrated).connect() as c:  # the rotated refresh token is stored, encrypted
-        assert "r1" not in c.execute(text("select secret_enc from integrations where provider = 'quickbooks'")).scalar_one()
+        assert "refresh" not in c.execute(text("select secret_enc from integrations where provider = 'quickbooks'")).scalar_one()
     assert json.dumps(org.get("/integrations").json()).count("qsecret") == 0
 
 
