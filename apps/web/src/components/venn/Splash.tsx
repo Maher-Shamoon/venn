@@ -8,7 +8,7 @@ import { createPortal } from "react-dom"
 export function Splash({ label = "Loading venn" }: { label?: string }) {
   const node = (
     <div role="status" aria-label={label} className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-b from-[#f9a8d4]/45 via-white/55 to-white/75 backdrop-blur-xl animate-in fade-in duration-200">
-      <span className="inline-flex items-center gap-[0.06em] font-medium leading-none tracking-[-0.05em] text-foreground" style={{ fontSize: 64 }}>
+      <span className="inline-flex items-center gap-[0.06em] font-medium leading-none tracking-[-0.05em] text-foreground" style={{ fontSize: 92 }}>
         venn
         <svg viewBox="0 0 24 24" className="size-[0.8em] overflow-visible" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6">
           <circle className="venn-l" cx="8.5" cy="12" r="6.5" />
