@@ -46,6 +46,7 @@ class SmtpMailer:
     password: str
     sender: str
     sender_name: str = "venn"
+    tls: bool = True
 
     def send(self, message: Message) -> None:
         mail = EmailMessage()
@@ -55,8 +56,10 @@ class SmtpMailer:
         mail.set_content(message.body)
         try:
             with smtplib.SMTP(self.host, self.port, timeout=15) as s:
-                s.starttls(context=ssl.create_default_context())
-                s.login(self.user, self.password)
+                if self.tls:
+                    s.starttls(context=ssl.create_default_context())
+                if self.user:
+                    s.login(self.user, self.password)
                 s.send_message(mail)
         except (smtplib.SMTPException, OSError) as e:
             log.error("email failed to=%s: %s", message.to, type(e).__name__)
@@ -68,6 +71,6 @@ def get_mailer() -> Mailer:
     from app.core.config import get_settings
 
     c = get_settings()
-    if c.smtp_host and c.smtp_user and c.smtp_password and c.mail_from:
-        return SmtpMailer(c.smtp_host, c.smtp_port, c.smtp_user, c.smtp_password, c.mail_from, c.mail_from_name)
+    if c.smtp_host and c.mail_from and (c.smtp_user or not c.smtp_tls):
+        return SmtpMailer(c.smtp_host, c.smtp_port, c.smtp_user, c.smtp_password, c.mail_from, c.mail_from_name, c.smtp_tls)
     return LogMailer()

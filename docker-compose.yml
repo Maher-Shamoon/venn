@@ -1,6 +1,6 @@
 # Local stack: PostgreSQL with pgvector, Redis, Mailpit (catches outgoing email), and the API.
 # Start the dependencies only:  docker compose up -d db redis mailpit
-# Start everything:             docker compose up --build
+# Start everything:             docker compose up --build   (web on http://localhost:8080, API on :8000, mail inbox on :8025)
 services:
   db:
     image: pgvector/pgvector:pg16
@@ -23,15 +23,35 @@ services:
     image: axllent/mailpit
     ports: ["1025:1025", "8025:8025"] # SMTP, web inbox
 
+  clamav: # optional virus scanner: docker compose --profile scan up, then set VENN_CLAMD_HOST=clamav on the api
+    profiles: ["scan"]
+    image: clamav/clamav:stable
+    ports: ["3310:3310"]
+
   api:
     build: ./services/api
+    env_file: [{ path: ./services/api/.env.docker, required: false }] # optional: Supabase, mail and AI settings (see services/api/.env.example)
     environment:
       VENN_DATABASE_URL: postgresql+psycopg://venn:venn@db:5432/venn
-      VENN_REDIS_URL: redis://redis:6379/0
+      VENN_WEB_URL: http://localhost:8080
+      VENN_CORS_ORIGINS: '["http://localhost:8080"]'
+      VENN_SMTP_HOST: mailpit
+      VENN_SMTP_PORT: "1025"
+      VENN_SMTP_TLS: "false"
+      VENN_MAIL_FROM: venn@localhost
     ports: ["8000:8000"]
     depends_on:
       db: { condition: service_healthy }
     command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
+    ports: ["8080:80"]
+    depends_on: [api]
 
 volumes:
   pgdata:

@@ -20,8 +20,11 @@ class Settings(BaseSettings):
     llm_provider: str = ""
     llm_model: str = ""
     llm_api_key: str = ""
+    clamd_host: str = ""
+    clamd_port: int = 3310
     smtp_host: str = ""
     smtp_port: int = 587
+    smtp_tls: bool = True
     smtp_user: str = ""
     smtp_password: str = ""
     mail_from: str = ""

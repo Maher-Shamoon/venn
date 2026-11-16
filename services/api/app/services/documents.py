@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from app.core.errors import ApiError
 from app.core.requestinfo import RequestInfo
 from app.core.security import AuthUser
-from app.services import audit
+from app.services import audit, malware
 
 MAX_BYTES = 20 * 1024 * 1024
 MAX_TEXT = 200_000
@@ -83,6 +83,7 @@ def upload(db: Session, org: uuid.UUID, actor: AuthUser, name: str, data: bytes,
     if len(data) > MAX_BYTES:
         raise ApiError(413, "payload_too_large", "Files can be up to 20 MB.")
     kind = sniff(name, data)
+    malware.scan(data)
     digest = hashlib.sha256(data).hexdigest()
     same = db.execute(text(f"select {COLS} {FROM} and d.sha256 = :h"), {"h": digest}).first()  # noqa: S608
     if same:
