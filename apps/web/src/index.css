@@ -124,7 +124,13 @@
 @keyframes roll-out { from { transform: none; } to { transform: translateY(-105%); } }
 @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes click { 0% { transform: scale(1); } 40% { transform: scale(.8); } 100% { transform: scale(1); } }
-@keyframes splash-slide { from { transform: translateX(-100%); } to { transform: translateX(200%); } }
+@keyframes venn-l { 0%, 8% { transform: translateX(-6px); } 58%, 100% { transform: translateX(0); } }
+@keyframes venn-r { 0%, 8% { transform: translateX(6px); } 58%, 100% { transform: translateX(0); } }
+@keyframes venn-lens { 0%, 52% { opacity: 0; } 66%, 100% { opacity: 1; } }
+.venn-l { animation: venn-l 1.9s cubic-bezier(.22, 1, .36, 1) infinite; }
+.venn-r { animation: venn-r 1.9s cubic-bezier(.22, 1, .36, 1) infinite; }
+.venn-lens { animation: venn-lens 1.9s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) { .venn-l, .venn-r, .venn-lens { animation: none; } }
 @keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 /* scroll reveal: opacity + 24px rise, eased out. Applied by <Reveal>. */

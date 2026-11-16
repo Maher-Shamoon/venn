@@ -4,6 +4,7 @@ import { Check, Loader2, Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Logo } from "@/components/venn/kit"
+import { Splash } from "@/components/venn/Splash"
 import { request } from "@/api/http"
 import { config } from "@/config"
 import { errorMessage, toastApiError } from "@/lib/errors"
@@ -90,6 +91,7 @@ export function Onboarding() {
                 <Button variant="outline" size="lg" className="h-11" disabled={idx === 0} onClick={() => { setErr(""); nav("/onboarding/" + STEPS[idx - 1][0]) }}>Back</Button>
                 {skip && <Button variant="ghost" size="lg" className="h-11" onClick={next}>Skip for now</Button>}
                 <Button size="lg" className="ml-auto h-11 px-6 text-base" disabled={busy} onClick={cont}>{busy ? <><Loader2 className="size-4 animate-spin" />Please wait</> : last ? "Finish" : "Continue"}</Button>
+                {busy && <Splash />}
               </div>
             </div>
           </div>

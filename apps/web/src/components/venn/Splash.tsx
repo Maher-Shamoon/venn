@@ -1,11 +1,22 @@
-import { Logo } from "./kit"
+import { createPortal } from "react-dom"
 
-/** Shown while a page's code or a sign-in check is in flight: the wordmark on the same pink wash as sign-in, breathing gently. */
+/**
+ * Full-screen change loader (first load, sign-in, sign-up, setup): the wordmark over a blurred copy of the screen the person was on.
+ * The two circles start apart, slide together, and the overlap fills black; when the mark is whole the screen is ready.
+ * Inside a screen (navigating the app, loading a table) use skeletons instead, never this.
+ */
 export function Splash({ label = "Loading venn" }: { label?: string }) {
-  return (
-    <div role="status" aria-label={label} className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6" style={{ background: "linear-gradient(180deg,#f9a8d4 0%,#fbbddb 35%,#fde3ef 70%,#ffffff 100%)" }}>
-      <div className="motion-safe:animate-pulse"><Logo size={52} /></div>
-      <span className="h-0.5 w-24 overflow-hidden rounded-full bg-black/10"><span className="block h-full w-1/2 rounded-full bg-foreground motion-safe:animate-[splash-slide_1.2s_ease-in-out_infinite]" /></span>
+  const node = (
+    <div role="status" aria-label={label} className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-b from-[#f9a8d4]/45 via-white/55 to-white/75 backdrop-blur-xl animate-in fade-in duration-200">
+      <span className="inline-flex items-center gap-[0.06em] font-medium leading-none tracking-[-0.05em] text-foreground" style={{ fontSize: 64 }}>
+        venn
+        <svg viewBox="0 0 24 24" className="size-[0.8em] overflow-visible" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6">
+          <circle className="venn-l" cx="8.5" cy="12" r="6.5" />
+          <circle className="venn-r" cx="15.5" cy="12" r="6.5" />
+          <path className="venn-lens" d="M12 6.4a6.5 6.5 0 0 1 0 11.2 6.5 6.5 0 0 1 0-11.2z" fill="currentColor" stroke="none" />
+        </svg>
+      </span>
     </div>
   )
+  return typeof document === "undefined" ? node : createPortal(node, document.body)
 }

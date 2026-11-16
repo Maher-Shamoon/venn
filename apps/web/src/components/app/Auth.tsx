@@ -4,6 +4,7 @@ import { Check, Eye, EyeOff, Loader2, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Logo } from "@/components/venn/kit"
+import { Splash } from "@/components/venn/Splash"
 import { Showcase } from "./AuthShowcase"
 import { config } from "@/config"
 import { errorMessage, toastApiError } from "@/lib/errors"
@@ -46,16 +47,17 @@ function PasswordInput({ value, onChange, autoComplete, invalid, id }: { value: 
     </div>
   )
 }
-const Submit = ({ busy, children }: { busy: boolean; children: ReactNode }) => <Button type="submit" size="lg" disabled={busy} className="h-11 w-full text-base">{busy ? <><Loader2 className="size-4 animate-spin" />Please wait</> : children}</Button>
+const Submit = ({ busy, children }: { busy: boolean; children: ReactNode }) => <Button type="submit" size="lg" disabled={busy} className="h-11 w-full text-base">{busy ? <><Loader2 className="size-4 animate-spin" />Please wait</> : children}{busy && <Splash />}</Button>
 
 const GoogleG = () => <svg viewBox="0 0 48 48" className="size-5" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z" /><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z" /><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z" /><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.7-6c-2.1 1.4-4.9 2.3-8.2 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z" /></svg>
 
 function GoogleButton({ onError }: { onError: (m: string) => void }) {
+  const [going, setGoing] = useState(false)
   if (!googleAvailable) return null
   return (
     <>
       <div className="relative py-1 text-center text-xs text-hushed"><span className="bg-white px-3">or</span><span className="absolute inset-x-0 top-1/2 -z-10 border-t border-border" /></div>
-      <Button type="button" variant="outline" size="lg" className="h-11 w-full gap-3 text-base" onClick={() => void signInWithGoogle().catch((e) => onError(e instanceof Error ? e.message : "Google sign-in failed."))}><GoogleG />Continue with Google</Button>
+      <Button type="button" variant="outline" size="lg" className="h-11 w-full gap-3 text-base" onClick={() => { setGoing(true); void signInWithGoogle().catch((e) => { setGoing(false); onError(e instanceof Error ? e.message : "Google sign-in failed.") }) }}><GoogleG />Continue with Google</Button>{going && <Splash />}
     </>
   )
 }
