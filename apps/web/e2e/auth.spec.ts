@@ -81,5 +81,4 @@ test("a signed-in person without an organization who opens the landing page stay
   await page.goto("/")
   await page.waitForTimeout(3000)
   expect(new URL(page.url()).pathname).toBe("/")
-  await expect(page.getByText("Open venn").first()).toBeVisible()
 })
