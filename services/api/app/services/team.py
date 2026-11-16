@@ -9,7 +9,7 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
 from app.core.errors import ApiError
-from app.core.mailer import MailError, Mailer, Message
+from app.core.mailer import Mailer, MailError, Message
 from app.core.requestinfo import RequestInfo
 from app.core.security import AuthUser
 from app.services import audit
