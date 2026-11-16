@@ -5,7 +5,7 @@ import { FlowFilm, Statement, Steps, Voices } from "./Motion"
 
 export function Home() {
   return (
-    <main>
+    <main id="main" tabIndex={-1} className="outline-none">
       <Hero />
       <LiveBar />
       <Statement />

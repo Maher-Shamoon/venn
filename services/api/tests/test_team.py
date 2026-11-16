@@ -73,10 +73,11 @@ def test_duplicates_validation_resend_and_revoke(client: TestClient, auth: Token
     assert client.post("/api/v1/members/invitations", json={"email": "bad"}, headers=h).status_code == 422
     assert client.post("/api/v1/members/invitations", json={"email": "x@example.test", "role_key": "god"}, headers=h).status_code == 422
     first = client.post("/api/v1/members/invitations", json={"email": "Dup@Example.test"}, headers=h).json()
+    assert first["emailed"] is True and first["link"].endswith("/invite/" + token_from(mail, "dup@example.test"))  # the inviter also gets the link
     dup = client.post("/api/v1/members/invitations", json={"email": "dup@example.test"}, headers=h)
     assert dup.status_code == 409 and dup.json()["code"] == "duplicate"
     old = token_from(mail, "dup@example.test")
-    assert client.post(f"/api/v1/members/invitations/{first['id']}/resend", headers=h).status_code == 204
+    assert client.post(f"/api/v1/members/invitations/{first['id']}/resend", headers=h).status_code == 200
     assert client.get(f"/api/v1/invitations/{old}").status_code == 404  # old link no longer works
     new = token_from(mail, "dup@example.test")
     assert new != old and client.get(f"/api/v1/invitations/{new}").status_code == 200

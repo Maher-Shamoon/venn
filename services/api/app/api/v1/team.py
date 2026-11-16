@@ -50,9 +50,9 @@ def create_invitation(body: InviteIn, ctx: Ctx = Depends(require("team.manage"))
     return team.invite(ctx.db, ctx.org_id, ctx.user, body.email, body.role_key, mailer, ctx.info, get_settings().web_url)
 
 
-@router.post("/members/invitations/{inv_id}/resend", status_code=204)
-def resend_invitation(inv_id: uuid.UUID, ctx: Ctx = Depends(require("team.manage")), mailer: Mailer = MailerDep) -> None:
-    team.resend(ctx.db, ctx.org_id, ctx.user, inv_id, mailer, ctx.info, get_settings().web_url)
+@router.post("/members/invitations/{inv_id}/resend")
+def resend_invitation(inv_id: uuid.UUID, ctx: Ctx = Depends(require("team.manage")), mailer: Mailer = MailerDep) -> dict[str, Any]:
+    return team.resend(ctx.db, ctx.org_id, ctx.user, inv_id, mailer, ctx.info, get_settings().web_url)
 
 
 @router.delete("/members/invitations/{inv_id}", status_code=204)

@@ -145,3 +145,14 @@ test("an account without an organization reaches setup (never an endless loader)
   await expect(page.getByRole("status", { name: "Loading venn" })).toHaveCount(0, { timeout: 20_000 })
   await expect(page.getByRole("heading").first()).toBeVisible()
 })
+
+test("Google sign-in starts a code-exchange (PKCE) flow, never one that puts the session token in the address", async ({ page }) => {
+  let authorize = ""
+  await page.route("**/auth/v1/authorize**", (r) => { authorize = r.request().url(); void r.abort() })
+  await page.goto("/login")
+  await page.getByRole("button", { name: "Continue with Google" }).click()
+  await expect.poll(() => authorize, { timeout: 15_000 }).not.toBe("")
+  const q = new URL(authorize).searchParams
+  expect(q.get("code_challenge")).toBeTruthy()
+  expect(q.get("code_challenge_method")).toBe("s256")
+})

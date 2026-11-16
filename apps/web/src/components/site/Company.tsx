@@ -17,7 +17,7 @@ const Hero = ({ tag, lead, rest, children }: { tag: string; lead: string; rest: 
 export function About() {
   const principles: [string, string][] = [["Evidence first", "Every finding points to a stored record. If a record does not exist, venn says so."], ["A person decides", "venn proposes. Owners approve write-offs, credits and refunds. The system cannot approve, allocate or send on its own."], ["Calculated, not guessed", "Amounts and dates come from code that reads your records. The assistant explains. It never does the arithmetic."], ["No promises about recovery", "venn finds and explains what is open. It does not claim it will collect anything."]]
   return (
-    <main>
+    <main id="main" tabIndex={-1} className="outline-none">
       <Hero tag="About" lead="We help teams that bill for their time" rest="find the money that slipped between systems." />
       <section className={`${wrap} pb-20 md:pb-28`}>
         <Reveal><p className="max-w-[760px] text-xl text-hushed">Agencies, consultancies, managed service providers and staffing firms send invoices from one system, receive payments in another and chase customers by email. venn reads all three, finds where they disagree and gives your team a case file to resolve each gap.</p></Reveal>
@@ -38,7 +38,7 @@ export function Contact() {
   }
   const lbl = "mb-1.5 block text-sm"
   return (
-    <main>
+    <main id="main" tabIndex={-1} className="outline-none">
       <Hero tag="Contact" lead="Book a walkthrough" rest="using your own CSV exports." />
       <section className={`${wrap} pb-24`}>
         <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr]">
@@ -64,7 +64,7 @@ export function Contact() {
 }
 
 const Legal = ({ title, sections }: { title: string; sections: [string, string][] }) => (
-  <main>
+  <main id="main" tabIndex={-1} className="outline-none">
     <Hero tag="Draft · pending legal review" lead={title} rest="" />
     <section className={`${wrap} pb-24`}><div className="max-w-[760px] space-y-8">{sections.map(([h, t], i) => <Reveal key={h}><h2 className="text-2xl">{i + 1}. {h}</h2><p className="mt-2 text-base text-hushed">{t}</p></Reveal>)}</div></section>
   </main>

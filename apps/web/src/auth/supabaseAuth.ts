@@ -4,7 +4,10 @@ import { AuthError } from "./localAuth"
 
 let client: SupabaseClient | null = null
 /** One client per page. Sessions live in Supabase's own storage; the API receives the access token as a bearer. */
-export const supabase = (): SupabaseClient => (client ??= createClient(config.supabaseUrl, config.supabaseAnonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }))
+export const supabase = (): SupabaseClient => (client ??= createClient(config.supabaseUrl, config.supabaseAnonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true,
+  // PKCE: the address after Google only carries a one-time code that works in the browser that started the sign-in.
+  // The default (implicit) flow puts the session token itself in the address, so a copied link signs anyone in.
+  flowType: "pkce" } }))
 
 /** Maps Supabase errors to the same plain messages the local service uses. Unknown accounts and wrong passwords look identical. */
 export function toAuthError(e: SbError): AuthError {

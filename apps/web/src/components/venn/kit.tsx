@@ -87,7 +87,7 @@ function Digit({ d }: { d: string }) {
 /** Odometer: each changed digit rolls upward. The new digit enters from below and pushes the old one out. */
 export function Odometer({ value, className }: { value: string; className?: string }) {
   return (
-    <span className={cn("tick inline-flex items-center", className)} aria-label={value} role="text">
+    <span className={cn("tick inline-flex items-center", className)} aria-label={value} role="img">
       <span aria-hidden="true" className="inline-flex items-center">{value.split("").map((c, i, a) => <Digit key={a.length - i} d={c} />)}</span>
     </span>
   )

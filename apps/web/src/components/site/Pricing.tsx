@@ -32,7 +32,7 @@ const FAQ = [
 export function Pricing() {
   const [annual, setAnnual] = useState(true)
   return (
-    <main>
+    <main id="main" tabIndex={-1} className="outline-none">
       <section className={`${wrap} pt-14 text-center md:pt-20`}>
         <h1 className="mx-auto max-w-[900px] text-[44px] leading-[46px] tracking-[-0.02em] sm:text-[56px] sm:leading-[58px] md:text-[64px] md:leading-[64px]">Start free.<br />Scale with evidence.</h1>
         <p className="mx-auto mt-4 max-w-[600px] text-lg text-hushed sm:text-xl sm:leading-8">Whether you run a one-person desk or a multi-entity finance team, venn is built to explain every dollar.</p>

@@ -9,7 +9,7 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
 from app.core.errors import ApiError
-from app.core.mailer import Mailer, Message
+from app.core.mailer import MailError, Mailer, Message
 from app.core.requestinfo import RequestInfo
 from app.core.security import AuthUser
 from app.services import audit
@@ -74,9 +74,15 @@ def list_invitations(db: Session) -> list[dict[str, Any]]:
     return [dict(r._mapping) for r in rows]
 
 
-def _send(mailer: Mailer, org_name: str, email: str, token: str, web_base: str) -> None:
-    mailer.send(Message(email, f"You are invited to {org_name} on venn",
-                        f"Open this link to join {org_name}: {web_base}/invite/{token}\nIt expires in {INVITE_DAYS} days."))
+def _send(mailer: Mailer, org_name: str, email: str, token: str, web_base: str) -> dict[str, Any]:
+    """Emails the invitation. The link is also returned to the person inviting, so a message that lands in spam (or is refused) never blocks the invitation."""
+    link = f"{web_base}/invite/{token}"
+    try:
+        mailer.send(Message(email, f"You are invited to {org_name} on venn", f"Open this link to join {org_name}: {link}\nIt expires in {INVITE_DAYS} days."))
+        emailed = True
+    except MailError:
+        emailed = False
+    return {"link": link, "emailed": emailed}
 
 
 def invite(db: Session, org: uuid.UUID, actor: AuthUser, email: str, role_key: str, mailer: Mailer,
@@ -102,12 +108,12 @@ def invite(db: Session, org: uuid.UUID, actor: AuthUser, email: str, role_key: s
     name = db.execute(text("select name from organizations where id = :o"), {"o": org}).scalar_one()
     audit.record(db, org, "invitation.created", actor_id=actor.id, record_type="invitation", record_id=row.id,
                  after={"email": email, "role_key": role_key}, info=info)
-    _send(mailer, name, email, token, web_base)
-    return {"id": row.id, "email": email, "role_key": role_key, "status": "pending"}
+    sent = _send(mailer, name, email, token, web_base)
+    return {"id": row.id, "email": email, "role_key": role_key, "status": "pending", **sent}
 
 
 def resend(db: Session, org: uuid.UUID, actor: AuthUser, inv_id: uuid.UUID, mailer: Mailer, info: RequestInfo,
-           web_base: str) -> None:
+           web_base: str) -> dict[str, Any]:
     inv = db.execute(text("select id, email from invitations where id = :i and organization_id = :o and status = 'pending'"),
                      {"i": inv_id, "o": org}).first()
     _check(inv is not None, 404, "not_found", "Invitation not found.")
@@ -118,7 +124,7 @@ def resend(db: Session, org: uuid.UUID, actor: AuthUser, inv_id: uuid.UUID, mail
                {"h": _hash(token), "x": datetime.now(UTC) + timedelta(days=INVITE_DAYS), "i": inv_id})
     name = db.execute(text("select name from organizations where id = :o"), {"o": org}).scalar_one()
     audit.record(db, org, "invitation.resent", actor_id=actor.id, record_type="invitation", record_id=inv_id, info=info)
-    _send(mailer, name, inv.email, token, web_base)
+    return _send(mailer, name, inv.email, token, web_base)
 
 
 def revoke(db: Session, org: uuid.UUID, actor: AuthUser, inv_id: uuid.UUID, info: RequestInfo) -> None:

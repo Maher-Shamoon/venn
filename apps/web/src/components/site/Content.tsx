@@ -30,7 +30,7 @@ export function Content() {
   if (!p) return <div className={`${wrap} py-32`}><h1 className="text-[40px]">Page not found.</h1><Link to="/" className="mt-4 inline-block underline">Back home</Link></div>
   const others = PLATFORM.filter((i) => !i.to.endsWith(slug))
   return (
-    <main>
+    <main id="main" tabIndex={-1} className="outline-none">
       <section className={`${wrap} pb-6 pt-12 md:pt-16`}>
         <p className="font-mono text-[11px] uppercase tracking-[0.02em] text-hushed">{p.kicker}</p>
         <h1 className="mt-4 max-w-[980px] text-[40px] leading-[42px] tracking-[-0.02em] sm:text-[52px] sm:leading-[54px] md:text-[64px] md:leading-[64px]"><TwoTone lead={p.lead} rest={p.rest} /></h1>

@@ -53,6 +53,8 @@ const GoogleG = () => <svg viewBox="0 0 48 48" className="size-5" aria-hidden="t
 
 function GoogleButton({ onError }: { onError: (m: string) => void }) {
   const [going, setGoing] = useState(false)
+  // Coming back from Google with the browser's Back button restores this page as it was left; the loader must not come with it.
+  useEffect(() => { const h = () => setGoing(false); window.addEventListener("pageshow", h); return () => window.removeEventListener("pageshow", h) }, [])
   if (!googleAvailable) return null
   return (
     <>

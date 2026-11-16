@@ -15,6 +15,10 @@ const ago = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "n
 const Loading = () => <div role="status" aria-busy="true" className="h-40 animate-pulse rounded-xl bg-muted" />
 
 /** Team on the real API. Owners manage; everyone else gets the locked state (the server enforces it too). */
+type Sent = { link: string; emailed: boolean }
+/** The email can land in spam, so the person inviting always gets the link too. */
+const announce = (r: Sent, ok: string) => toast[r.emailed ? "success" : "warning"](r.emailed ? ok : "Invitation saved, but the email could not be sent", { description: "If it does not arrive, check spam or share the link yourself.", duration: 12000, action: { label: "Copy link", onClick: () => void navigator.clipboard.writeText(r.link).then(() => toast.success("Link copied")) } })
+
 export function RemoteTeam() {
   const nav = useNavigate(), members = useMembers(), invites = useInvitations()
   const invite = useInvite(), resend = useResend(), revoke = useRevoke()
@@ -22,7 +26,7 @@ export function RemoteTeam() {
   if (invites.isError && (invites.error as { status?: number }).status === 403) return <Locked what="Team" />
   const send = () => {
     if (!/^\S+@\S+\.\S+$/.test(email)) return setErr("Enter a valid email address.")
-    invite.mutate({ email, role_key: role }, { onSuccess: () => { setOpen(false); setEmail(""); setErr(""); toast.success("Invitation sent") }, onError: (e) => setErr(errorMessage(e)) })
+    invite.mutate({ email, role_key: role }, { onSuccess: (r) => { setOpen(false); setEmail(""); setErr(""); announce(r as Sent, "Invitation sent") }, onError: (e) => setErr(errorMessage(e)) })
   }
   const list = members.data ?? [], pending = invites.data ?? []
   return (
@@ -42,7 +46,7 @@ export function RemoteTeam() {
             { key: "x", label: "Expires", hide: "md", render: (i) => ago(i.expires_at) },
             { key: "a", label: "", right: true, render: (i) => (
               <span className="flex justify-end gap-1">
-                <Button variant="ghost" size="sm" disabled={resend.isPending} onClick={() => resend.mutate(i.id, { onSuccess: () => toast.success("Invitation sent again") })}>Resend</Button>
+                <Button variant="ghost" size="sm" disabled={resend.isPending} onClick={() => resend.mutate(i.id, { onSuccess: (r) => announce(r as Sent, "Invitation sent again") })}>Resend</Button>
                 <Button variant="ghost" size="sm" disabled={revoke.isPending} onClick={() => revoke.mutate(i.id, { onSuccess: () => toast.success("Invitation withdrawn") })}>Revoke</Button>
               </span>) }]} />
       </Box>
