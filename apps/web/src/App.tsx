@@ -95,6 +95,8 @@ function SessionBridge() {
 function Guard({ children }: { children: React.ReactNode }) {
   const s = useApp(), loc = useLocation(), signedIn = useSignedIn()
   // A real session with no organization chosen yet is sent to set one up (SessionBridge); never flash sample data meanwhile.
+  // Google (code exchange) and emailed links finish signing in a moment after the page opens: wait for that instead of bouncing to sign-in.
+  if (config.authSource === "supabase" && !s.session && !inDemo() && signedIn !== false) return <Splash />
   // Only the app itself waits: setup (also behind this guard) is exactly where an account without an organization belongs.
   if (config.authSource === "supabase" && signedIn && !activeOrg() && !inDemo() && loc.pathname.startsWith("/app")) return <Splash />
   return s.session ? <>{children}</> : <Navigate to="/login" state={{ from: loc.pathname }} replace />
