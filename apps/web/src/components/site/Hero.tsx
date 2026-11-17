@@ -21,9 +21,9 @@ export function EmailForm({ id, cta = "Request early access" }: { id?: string; c
       }}
       className="w-full max-w-[560px]"
     >
-      <div className="flex flex-col gap-2 rounded-xl border border-border bg-muted p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,.6)] sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-2 rounded-xl border border-border bg-muted p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,.6)] transition-colors focus-within:border-foreground sm:flex-row sm:items-center">
         <label htmlFor={`${id ?? "e"}-input`} className="sr-only">Work email</label>
-        <input id={`${id ?? "e"}-input`} name="email" type="email" autoComplete="email" placeholder="What's your work email?" aria-invalid={err} className="h-11 min-w-0 flex-1 bg-transparent px-3 text-base text-foreground outline-none placeholder:text-hushed sm:h-auto" />
+        <input id={`${id ?? "e"}-input`} name="email" type="email" autoComplete="email" placeholder="What's your work email?" aria-invalid={err} className="h-11 min-w-0 flex-1 bg-transparent px-3 text-base text-foreground outline-none placeholder:text-hushed focus-visible:shadow-none sm:h-auto" />
         <Button variant="lime" size="lg" type="submit" className="shrink-0">{done ? <><Check className="size-4" />Received</> : cta}</Button>
       </div>
       <p className="mt-2 h-5 px-1 text-sm text-hushed" role="status">{err ? "Enter a valid work email address." : done ? "Thanks. We will be in touch shortly." : ""}</p>
