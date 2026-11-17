@@ -197,12 +197,12 @@ export function FlowFilm() {
   const ref = useRef<HTMLElement>(null)
   const box = useRef<HTMLDivElement>(null)
   const [t, setT] = useState(0)
-  const [sc, setSc] = useState(1)
+  const [bw, setBw] = useState(1000)
   const vis = useRef(false)
   useEffect(() => {
     const io = new IntersectionObserver(([e]) => { vis.current = e.isIntersecting }, { threshold: 0.2 })
     io.observe(ref.current!)
-    const ro = new ResizeObserver(([e]) => setSc(e.contentRect.width / 1000))
+    const ro = new ResizeObserver(([e]) => setBw(e.contentRect.width))
     ro.observe(box.current!)
     if (import.meta.env.DEV) (window as unknown as { __film: typeof setT }).__film = setT
     let raf = 0, last = performance.now()
@@ -213,6 +213,8 @@ export function FlowFilm() {
   const ph = PH.findIndex((s, i) => t >= s && t < PH[i + 1]), p = Math.max(0, ph), lt = t - PH[p], dur = PH[p + 1] - PH[p]
   const fade = Math.min(ease(seg(lt, 0, 0.35)), 1 - seg(lt, dur - 0.3, dur))
   const c = cursorAt(t), Phase = PHASES[p]
+  // On a phone the whole 1000px screen would be too small to read: show it at a readable size and let the view follow the cursor.
+  const sc = bw < 700 ? Math.max(bw / 1000, 0.66) : bw / 1000, pan = Math.min(0, Math.max(bw - 1000 * sc, bw / 2 - c[0] * sc))
   return (
     <section ref={ref} className={`${wrap} pb-20 md:pb-28`} aria-label="Product walkthrough">
       <Reveal><h2 className="max-w-[820px] text-[32px] leading-[38px] tracking-[-0.01em] md:text-[48px] md:leading-[52px]"><TwoTone lead="See venn work, start to finish." rest="One short payment, from the first number to a logged decision." /></h2></Reveal>
@@ -222,7 +224,7 @@ export function FlowFilm() {
           <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-1/3 size-[420px] rounded-full bg-[#f9a8d4]/25 blur-[100px]" />
           <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 size-[320px] rounded-full bg-[#f472b6]/20 blur-[90px]" />
           <div ref={box} role="img" aria-label="Looping product demo: a cursor opens the dashboard, reconciles payments, investigates a $1,000 shortfall, drafts a reminder and an owner approves. " className="relative w-full overflow-hidden rounded-xl border border-white/10 shadow-[0_40px_80px_-30px_rgba(0,0,0,.8)]" style={{ height: 560 * sc }}>
-            <div className="absolute left-0 top-0 overflow-hidden bg-white text-[#0c0a08]" style={{ width: 1000, height: 560, transform: `scale(${sc})`, transformOrigin: "0 0" }}>
+            <div className="absolute left-0 top-0 overflow-hidden bg-white text-[#0c0a08]" style={{ width: 1000, height: 560, transform: `translateX(${pan}px) scale(${sc})`, transformOrigin: "0 0" }}>
               <div className="absolute inset-y-0 left-0 w-[180px] border-r border-black/10 bg-[#f4f2f0] p-4">
                 <Logo size={22} />
                 <div className="mt-6 space-y-1">{NAV.map((n, i) => <div key={n} className={cn("flex h-9 items-center rounded-lg px-3 text-[13px] transition-colors duration-200", i === p ? "bg-[#f9a8d4]" : inside(c, 0, 80 + i * 40, 180, 40) ? "bg-black/[.06]" : "")}>{n}</div>)}</div>
