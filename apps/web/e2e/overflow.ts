@@ -5,6 +5,7 @@ export const detect = () => {
   document.querySelectorAll("body *").forEach((el) => {
     const cs = getComputedStyle(el), r = el.getBoundingClientRect()
     if (!r.width || !r.height || cs.display === "none" || cs.visibility === "hidden" || el.closest("[aria-hidden='true'],.sr-only,[hidden]")) return
+    if (cs.position === "sticky" && cs.overflowY === "visible" && r.height > innerHeight - (parseFloat(cs.top) || 0) + 1) out.push(`PINNED taller than the screen ${el.tagName.toLowerCase()}.${String(el.className).split(" ").slice(0, 2).join(".")}`)
     if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim())) return
     const txt = el.textContent!.trim().slice(0, 30), tag = `${el.tagName.toLowerCase()}.${String(el.className).split(" ").slice(0, 3).join(".")}`
     if (el.scrollWidth > el.clientWidth + 1 && cs.display !== "inline") {
@@ -15,4 +16,4 @@ export const detect = () => {
   })
   return out
 }
-export const SIZES = [280, 320, 360, 390, 430, 600, 768, 820, 1024, 1100, 1280, 1440, 1920]
+export const SIZES = [280, 320, 360, 390, 430, 600, 768, 820, 1024, 1100, 1280, 1440, 1920, 2560, 3440, 3840]

@@ -21,7 +21,7 @@ function Card({ title, sub, children, foot, mode = "login" }: { title: string; s
       <div className="flex min-h-screen flex-col">
         <MobileBanner />
         <main className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">
-          <div className="w-full max-w-[420px]">
+          <div className="w-full max-w-[420px] 2xl:max-w-[480px]">
             <div className="animate-rise-in">
               <h1 className="text-[34px] leading-10 tracking-[-0.02em]">{title}</h1>{sub && <p className="mt-1.5 text-lg text-hushed">{sub}</p>}
             </div>

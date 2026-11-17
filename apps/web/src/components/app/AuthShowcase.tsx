@@ -50,7 +50,7 @@ export function Showcase({ mode, copy: given, progress = 0 }: { mode: "login" | 
           {mode === "signup" && <ul className="mt-4 space-y-1.5 text-[15px]">{["Every claim is tied to a stored record", "Amounts are calculated by code, not guessed", "An owner approves anything consequential"].map((t) => <li key={t} className="flex items-center gap-2.5"><span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-foreground text-white"><Check className="size-3" /></span>{t}</li>)}</ul>}
         </div>
 
-        <div className="relative min-h-0 flex-1" style={{ ["--d" as string]: "min(340px, 36vh)" }}>
+        <div className="relative min-h-0 flex-1" style={{ ["--d" as string]: "min(clamp(340px, 17vw, 640px), 42vh)" }}>
           <div className="absolute bottom-[-4%] left-1/2 h-[var(--d)] -translate-x-1/2" style={{ width: u(1.95) }}>
             {[left1, left1 + dx].map((l, i) => <div key={i} aria-hidden="true" className="absolute top-0 aspect-square rounded-full border border-white/80 bg-white/25 shadow-[0_30px_80px_-40px_rgba(244,114,182,.9)] backdrop-blur-[2px] transition-[left] duration-700 ease-[var(--ease-out-soft)]" style={{ left: u(l), width: "var(--d)" }} />)}
             <div className="absolute top-0 aspect-square transform-gpu overflow-hidden rounded-full transition-[left] duration-700 ease-[var(--ease-out-soft)]" style={{ left: u(left1), width: "var(--d)" }}>

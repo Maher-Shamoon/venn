@@ -103,13 +103,13 @@ export function AppShell() {
           <Link to="/signup" className="ml-1 rounded bg-white px-2.5 py-0.5 text-foreground transition-opacity hover:opacity-90"><span className="sm:hidden">Sign up</span><span className="hidden sm:inline">Create account</span></Link>
         </span>}
       </div>
-      <aside className="hidden max-h-[calc(100vh-40px)] overflow-y-auto border-r border-border bg-muted p-4 [scrollbar-width:none] lg:sticky lg:top-0 lg:block lg:self-start">
+      <aside className={cn("hidden overflow-y-auto border-r border-border bg-muted p-4 [scrollbar-width:none] lg:sticky lg:top-0 lg:block lg:self-start", real ? "lg:h-screen" : "lg:h-[calc(100vh-40px)]")}>
         <Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link>
         {navEl}
         <div className="mt-8 rounded-lg border border-border bg-white p-3 text-xs text-hushed"><div className="text-sm text-foreground">{real ? (frame.data?.organization.name ?? "") : s.settings.company.name}</div>{role === "owner" ? "Owner" : "AR specialist"} · {me}</div>
       </aside>
       <div className="min-w-0">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b-[0.8px] border-[rgba(33,33,33,.08)] bg-white/60 px-4 backdrop-blur-[25px] backdrop-saturate-150 md:gap-3 md:px-8">
+        <header className="sticky top-0 z-30 flex h-16 [@media(max-height:500px)]:h-12 items-center gap-2 border-b-[0.8px] border-[rgba(33,33,33,.08)] bg-white/60 px-4 backdrop-blur-[25px] backdrop-saturate-150 md:gap-3 md:px-8">
           <button type="button" aria-label="Open menu" onClick={() => setMenu(true)} className="flex size-10 items-center justify-center rounded-md hover:bg-muted lg:hidden"><Menu className="size-5" /></button>
           <Link to="/app" className="lg:hidden"><Logo size={22} /></Link>
           <button type="button" onClick={() => setCmd(true)} className="relative hidden h-10 max-w-[420px] flex-1 items-center rounded-md border border-border bg-muted pl-9 pr-3 text-left text-sm text-hushed transition-colors duration-300 hover:bg-white sm:flex"><Search className="absolute left-3 top-3 size-4" />Search invoices, customers, payments<kbd className="ml-auto rounded bg-white px-1.5 py-0.5 font-mono text-[11px]">Ctrl K</kbd></button>
@@ -133,8 +133,8 @@ export function AppShell() {
 
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
         {([["/app", LayoutGrid, "Home", true], ["/app/invoices", FileText, "Invoices", false], ["/app/payments", CreditCard, "Payments", false], ["/app/reconciliation", GitMerge, "Match", false]] as const).map(([to, Icon, label, end]) => (
-          <NavLink key={to} to={to} end={end} className={({ isActive }) => cn("flex flex-col items-center gap-0.5 py-2 text-[11px]", isActive ? "text-foreground" : "text-hushed")}><Icon className="size-5" />{label}</NavLink>))}
-        <button type="button" onClick={() => setMenu(true)} className="flex flex-col items-center gap-0.5 py-2 text-[11px] text-hushed"><Menu className="size-5" />More</button>
+          <NavLink key={to} to={to} end={end} className={({ isActive }) => cn("flex flex-col items-center gap-0.5 py-2 text-[11px] [@media(max-height:500px)]:flex-row [@media(max-height:500px)]:justify-center [@media(max-height:500px)]:gap-1.5 [@media(max-height:500px)]:py-1.5", isActive ? "text-foreground" : "text-hushed")}><Icon className="size-5" />{label}</NavLink>))}
+        <button type="button" onClick={() => setMenu(true)} className="flex flex-col items-center gap-0.5 py-2 text-[11px] text-hushed [@media(max-height:500px)]:flex-row [@media(max-height:500px)]:justify-center [@media(max-height:500px)]:gap-1.5 [@media(max-height:500px)]:py-1.5"><Menu className="size-5" />More</button>
       </nav>
       <Sheet open={menu} onOpenChange={setMenu}><SheetContent side="left" className="w-[280px] overflow-y-auto bg-muted p-4"><SheetTitle className="sr-only">Menu</SheetTitle><Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link>{navEl}</SheetContent></Sheet>
       <CommandDialog open={cmd} onOpenChange={(o) => { setCmd(o); if (!o) setQtext("") }} shouldFilter={!real} title="Search" description="Search records and pages">

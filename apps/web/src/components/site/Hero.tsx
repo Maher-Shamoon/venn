@@ -48,13 +48,17 @@ function FlowVideo() {
   // The flow is scrubbed by scroll: the panel pins under the nav and each step appears as you scroll down, and reverses as you scroll up.
   // Below 1024px nothing is pinned: the stacked cards appear one after another as the panel scrolls up the screen. With reduced motion every step is shown.
   const wrap = useRef<HTMLDivElement>(null)
-  const pinned = () => window.matchMedia("(min-width: 1024px)").matches && !prefersReducedMotion()
+  const bar = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--bar")) || 0
+  // Pinning needs the whole 600px panel to fit under the nav; on a short screen (a small laptop, a phone on its side) it flows with the page instead.
+  const pinned = () => window.matchMedia("(min-width: 1024px)").matches && !prefersReducedMotion() && window.innerHeight - NAV_OFFSET - bar() >= 612
   const [s, setS] = useState(() => (prefersReducedMotion() ? 5 : 0))
+  const [pin, setPin] = useState(false)
   useEffect(() => {
     const on = () => {
       const el = wrap.current
       if (!el) return
       if (prefersReducedMotion()) return setS(5)
+      setPin(pinned())
       if (!pinned()) { const r = el.getBoundingClientRect(); return setS(Math.min(5, Math.max(0, Math.floor(((window.innerHeight * 0.9 - r.top) / Math.max(1, r.height)) * 6)))) }
       const r = el.getBoundingClientRect(), panel = (el.firstElementChild as HTMLElement).offsetHeight
       const p = (NAV_OFFSET + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--bar")) || 0) - r.top) / Math.max(1, r.height - panel)
@@ -66,8 +70,8 @@ function FlowVideo() {
   const tilt = (r: string) => ({ "--r": r }) as CSSProperties
 
   return (
-    <div ref={wrap} className="mt-6 lg:h-[1750px]">
-    <div className="overflow-hidden rounded-2xl border border-border bg-muted lg:sticky lg:top-[calc(78px+var(--bar))]">
+    <div ref={wrap} className={cn("mt-6", pin && "lg:h-[1750px]")}>
+    <div className={cn("overflow-hidden rounded-2xl border border-border bg-muted", pin && "lg:sticky lg:top-[calc(78px+var(--bar))]")}>
       <div className="relative">
         <div className="dotgrid absolute inset-0 opacity-70 [mask-image:radial-gradient(ellipse_at_center,black_35%,transparent_80%)]" />
         <svg className="pointer-events-none absolute inset-0 z-0 hidden h-full w-full lg:block" viewBox="0 0 1200 600" preserveAspectRatio="none" aria-hidden="true">

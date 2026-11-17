@@ -126,20 +126,25 @@ const SYSTEMS = [
 export function Systems() {
   const ref = useRef<HTMLDivElement>(null)
   const [step, setStep] = useState(0)
+  const [pin, setPin] = useState(true)
   useEffect(() => {
     if (prefersReducedMotion()) { setStep(6); return }
     const on = () => {
       const el = ref.current; if (!el) return
-      const r = el.getBoundingClientRect(), span = r.height - window.innerHeight
-      const p = Math.min(1, Math.max(0, -r.top / Math.max(1, span)))
+      // Pinned only while the whole story fits on screen (not on a phone held sideways); otherwise it flows with the page.
+      const inner = el.firstElementChild?.firstElementChild as HTMLElement | undefined
+      const fits = !inner || window.innerHeight - 64 - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--bar")) || 0) >= inner.offsetHeight + 24
+      setPin((x) => (x === fits ? x : fits))
+      const r = el.getBoundingClientRect(), span = fits ? r.height - window.innerHeight : r.height
+      const p = Math.min(1, Math.max(0, fits ? -r.top / Math.max(1, span) : (window.innerHeight * 0.85 - r.top) / Math.max(1, span)))
       setStep(Math.min(6, Math.floor(p * 7)))
     }
     on(); window.addEventListener("scroll", on, { passive: true }); window.addEventListener("resize", on)
     return () => { window.removeEventListener("scroll", on); window.removeEventListener("resize", on) }
   }, [])
   return (
-    <section ref={ref} className="relative h-[320vh]" aria-label="Systems that never spoke">
-      <div className="sticky top-[calc(4rem+var(--bar))] flex h-[calc(100vh-4rem-var(--bar))] items-center">
+    <section ref={ref} className={pin ? "relative h-[320vh]" : "relative py-16"} aria-label="Systems that never spoke">
+      <div className={pin ? "sticky top-[calc(4rem+var(--bar))] flex h-[calc(100vh-4rem-var(--bar))] items-center" : "flex items-center"}>
         <div className={`${wrap} grid w-full items-center gap-10 lg:grid-cols-[1fr_1.1fr]`}>
           <div>
             <h2 className="text-[40px] leading-[42px] tracking-[-0.015em] md:text-[56px] md:leading-[58px]">Systems that never spoke.</h2>
