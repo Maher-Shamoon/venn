@@ -9,6 +9,20 @@ const Glass = ({ className, children }: { className?: string; children: ReactNod
   <div className={cn("absolute rounded-2xl border border-white/60 bg-white/45 p-3.5 text-sm text-foreground shadow-[0_24px_50px_-26px_rgba(12,10,8,.5)] backdrop-blur-xl", className)}>{children}</div>
 )
 
+/** Top of the auth pages below lg, where the full showcase does not fit: the same two circles in small, moving. In setup they close as steps are done. */
+export function MobileBanner({ progress }: { progress?: number }) {
+  const moving = progress === undefined, gap = moving ? 0 : 30 - progress * 22
+  return (
+    <div className="flex h-28 items-end justify-between gap-3 overflow-hidden px-6 pb-4 lg:hidden" style={{ background: "linear-gradient(180deg,#f9a8d4,#fde3ef 70%,#fff)" }}>
+      <Link to="/"><Logo size={28} /></Link>
+      <div aria-hidden="true" className="animate-float-slow relative h-14 w-[110px] shrink-0 [mix-blend-mode:multiply]">
+        <span className={cn("absolute top-0 size-14 rounded-full bg-[#f472b6]/70", moving ? "venn-a left-0" : "transition-[left] duration-700")} style={moving ? undefined : { left: `${gap}px` }} />
+        <span className={cn("absolute top-0 size-14 rounded-full bg-[#14110f]/80", moving ? "venn-b right-0" : "transition-[right] duration-700")} style={moving ? undefined : { right: `${gap}px` }} />
+      </div>
+    </div>
+  )
+}
+
 /** Left side of the auth pages. A venn diagram made of the product itself: bank payments on one side, invoices on the other,
  *  and the matched overlap is a live swirl. Moving the pointer pulls the circles together and apart. */
 export function Showcase({ mode, copy: given, progress = 0 }: { mode: "login" | "signup" | "setup"; copy?: { tag: string; h: string; p: string }; progress?: number }) {

@@ -167,3 +167,9 @@ table .font-mono { white-space: nowrap; }
 
 /* A very narrow screen may break a long word instead of pushing the page wider. */
 h1, h2, h3 { overflow-wrap: anywhere; }
+
+/* the small venn on phones: the two circles drift together and apart, and the overlap deepens */
+@keyframes venn-a { from { transform: translateX(-14px); } to { transform: translateX(10px); } }
+@keyframes venn-b { from { transform: translateX(14px); } to { transform: translateX(-10px); } }
+.venn-a { animation: venn-a 3.4s ease-in-out infinite alternate; }
+.venn-b { animation: venn-b 3.4s ease-in-out infinite alternate; }

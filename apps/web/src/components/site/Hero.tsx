@@ -46,15 +46,16 @@ function Line({ d, on }: { d: string; on: boolean }) {
 
 function FlowVideo() {
   // The flow is scrubbed by scroll: the panel pins under the nav and each step appears as you scroll down, and reverses as you scroll up.
-  // Below 1024px (or with reduced motion) there is no pinning and every step is shown.
+  // Below 1024px nothing is pinned: the stacked cards appear one after another as the panel scrolls up the screen. With reduced motion every step is shown.
   const wrap = useRef<HTMLDivElement>(null)
   const pinned = () => window.matchMedia("(min-width: 1024px)").matches && !prefersReducedMotion()
-  const [s, setS] = useState(() => (pinned() ? 0 : 5))
+  const [s, setS] = useState(() => (prefersReducedMotion() ? 5 : 0))
   useEffect(() => {
     const on = () => {
       const el = wrap.current
       if (!el) return
-      if (!pinned()) return setS(5)
+      if (prefersReducedMotion()) return setS(5)
+      if (!pinned()) { const r = el.getBoundingClientRect(); return setS(Math.min(5, Math.max(0, Math.floor(((window.innerHeight * 0.9 - r.top) / Math.max(1, r.height)) * 6)))) }
       const r = el.getBoundingClientRect(), panel = (el.firstElementChild as HTMLElement).offsetHeight
       const p = (NAV_OFFSET + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--bar")) || 0) - r.top) / Math.max(1, r.height - panel)
       setS(Math.min(5, Math.max(0, Math.floor(p * 6))))
