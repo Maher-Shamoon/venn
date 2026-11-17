@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { Check, Loader2, Plus, X } from "lucide-react"
+import { Link } from "react-router-dom"
+import { Logo } from "@/components/venn/kit"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Splash } from "@/components/venn/Splash"
@@ -10,7 +12,7 @@ import { errorMessage, toastApiError } from "@/lib/errors"
 import { activeOrg, createOrganization, fetchMe, setActiveOrg } from "@/features/identity/api"
 import { A, useApp, type Role } from "./store"
 import { Field, NativeSelect } from "./ui"
-import { MobileBanner, Showcase } from "./AuthShowcase"
+import { Showcase } from "./AuthShowcase"
 import { cn } from "@/lib/utils"
 
 const email = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
@@ -71,7 +73,7 @@ export function Onboarding() {
     <div className="min-h-screen bg-white lg:grid lg:grid-cols-[1.08fr_1fr]">
       <Showcase mode="setup" progress={idx / (STEPS.length - 1)} copy={{ tag: `Setup · step ${idx + 1} of ${STEPS.length}`, h: last ? "Nearly matched." : "Two lists in. One truth out.", p: "Invoices on one side, payments on the other. Setup brings them together so nothing slips between." }} />
       <div className="flex min-h-screen flex-col">
-        <MobileBanner progress={idx / (STEPS.length - 1)} />
+        <div className="flex h-24 items-end px-6 pb-4 lg:hidden" style={{ background: "linear-gradient(180deg,#f9a8d4,#fde3ef 70%,#fff)" }}><Link to="/"><Logo size={28} /></Link></div>
         <main className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">
           <div className="w-full max-w-[520px]">
             <ol className="mb-8 flex items-center gap-1.5" aria-label="Setup steps">{STEPS.map(([k, t], i) => (

@@ -1,10 +1,11 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react"
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
 import { Check, Eye, EyeOff, Loader2, Mail } from "lucide-react"
+import { Logo } from "@/components/venn/kit"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Splash } from "@/components/venn/Splash"
-import { MobileBanner, Showcase } from "./AuthShowcase"
+import { Showcase } from "./AuthShowcase"
 import { config } from "@/config"
 import { errorMessage, toastApiError } from "@/lib/errors"
 import { endDemo, fetchMe, inDemo, setActiveOrg } from "@/features/identity/api"
@@ -19,7 +20,7 @@ function Card({ title, sub, children, foot, mode = "login" }: { title: string; s
     <div className="min-h-screen bg-white lg:grid lg:grid-cols-[1.08fr_1fr]">
       <Showcase mode={mode} />
       <div className="flex min-h-screen flex-col">
-        <MobileBanner />
+        <div className="flex h-24 items-end px-6 pb-4 lg:hidden" style={{ background: "linear-gradient(180deg,#f9a8d4,#fde3ef 70%,#fff)" }}><Link to="/"><Logo size={28} /></Link></div>
         <main className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">
           <div className="w-full max-w-[420px] 2xl:max-w-[480px]">
             <div className="animate-rise-in">
