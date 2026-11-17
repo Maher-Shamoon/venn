@@ -2,7 +2,7 @@
 export const detect = () => {
   const out: string[] = []
   if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 1) out.push("page scrolls sideways")
-  document.querySelectorAll("main *, aside *, header *").forEach((el) => {
+  document.querySelectorAll("body *").forEach((el) => {
     const cs = getComputedStyle(el), r = el.getBoundingClientRect()
     if (!r.width || !r.height || cs.display === "none" || cs.visibility === "hidden" || el.closest("[aria-hidden='true'],.sr-only,[hidden]")) return
     if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim())) return

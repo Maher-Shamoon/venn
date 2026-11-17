@@ -101,7 +101,7 @@ export function Login() {
         <div className="flex items-center justify-between text-sm"><label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="size-4 accent-[#f472b6]" />Keep me signed in</label><Link to="/forgot-password" className="underline underline-offset-4">Forgot password?</Link></div>
         <Submit busy={busy}>Sign in</Submit>
         {googleAvailable ? <GoogleButton onError={setErr} /> : <div className="relative py-1 text-center text-xs text-hushed"><span className="bg-white px-3">or</span><span className="absolute inset-x-0 top-1/2 -z-10 border-t border-border" /></div>}
-        <Button type="button" variant="outline" size="lg" disabled={busy} className="h-11 w-full text-base" onClick={() => go("Dana Whitfield", "dana@brightpath.example")}>Continue with the sample workspace</Button>
+        <Button type="button" variant="outline" size="lg" disabled={busy} className="h-auto min-h-11 w-full whitespace-normal py-2 text-base" onClick={() => go("Dana Whitfield", "dana@brightpath.example")}>Continue with the sample workspace</Button>
       </form>
     </Card>
   )

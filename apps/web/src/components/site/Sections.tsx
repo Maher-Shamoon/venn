@@ -32,7 +32,7 @@ export function PricingBand() {
           </div>
           <div className="grid grid-cols-[minmax(0,1fr)] gap-2">
             {[["Starter", "$0", "CSV import, exact-match reconciliation"], ["Team", "$31/mo/user", "Investigations, collections, approvals"], ["Business", "Custom", "Multi-entity, review, support"]].map(([n, p, d]) => (
-              <Link key={n} to="/pricing" className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.04] p-4 transition-colors duration-300 hover:bg-white/[0.09]"><div className="min-w-0 flex-1"><div className="text-lg">{n}</div><div className="text-sm text-white/60">{d}</div></div><div className="shrink-0 text-lg text-lime">{p}</div></Link>
+              <Link key={n} to="/pricing" className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-white/10 bg-white/[0.04] p-4 transition-colors duration-300 hover:bg-white/[0.09]"><div className="min-w-[7rem] flex-1 [overflow-wrap:anywhere]"><div className="text-lg">{n}</div><div className="text-sm text-white/60">{d}</div></div><div className="shrink-0 text-lg text-lime">{p}</div></Link>
             ))}
           </div>
         </div>
