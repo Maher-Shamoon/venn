@@ -173,3 +173,6 @@ h1, h2, h3 { overflow-wrap: anywhere; }
 @keyframes venn-b { from { transform: translateX(14px); } to { transform: translateX(-10px); } }
 .venn-a { animation: venn-a 3.4s ease-in-out infinite alternate; }
 .venn-b { animation: venn-b 3.4s ease-in-out infinite alternate; }
+
+/* Android Chrome inflates text in wide blocks unless told not to */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }

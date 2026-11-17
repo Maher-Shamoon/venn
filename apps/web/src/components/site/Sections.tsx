@@ -144,7 +144,7 @@ export function Systems() {
   }, [])
   return (
     <section ref={ref} className={pin ? "relative h-[320vh]" : "relative py-16"} aria-label="Systems that never spoke">
-      <div className={pin ? "sticky top-[calc(4rem+var(--bar))] flex h-[calc(100vh-4rem-var(--bar))] items-center" : "flex items-center"}>
+      <div className={pin ? "sticky top-[calc(4rem+var(--bar))] flex h-[calc(100svh-4rem-var(--bar))] items-center" : "flex items-center"}>
         <div className={`${wrap} grid w-full items-center gap-10 lg:grid-cols-[1fr_1.1fr]`}>
           <div>
             <h2 className="text-[40px] leading-[42px] tracking-[-0.015em] md:text-[56px] md:leading-[58px]">Systems that never spoke.</h2>

@@ -142,9 +142,6 @@ export function Hero() {
   const exposure = useTicker(44250.37, 0.21, 3.9, 2000)
   return (
     <section className="relative mx-auto max-w-[1280px] px-5 pb-6 pt-10 md:px-10 md:pt-14">
-      <div className="absolute right-10 top-11 z-0 hidden size-[400px] overflow-hidden rounded-full xl:block">
-        <Balatro color1="#f9a8d4" color2="#000000" color3="#000000" swirl={0.25} pixelSize={1.5} mouseInteraction contrast={3.5} lighting={0.4} speed={1} rotationSpeed={0} scale={1} detail={5} crt={0} mouseStrength={1} intro lightMode={false} sphere />
-      </div>
       <div className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.02em] text-hushed">
         <span>Exposure under review:</span>
         <Odometer value={money(exposure)} className="rounded-sm bg-muted px-1.5 py-0.5 text-foreground" />
@@ -152,6 +149,9 @@ export function Hero() {
       <h1 className="mt-5 max-w-[1050px] text-[44px] xl:max-w-[740px] leading-[46px] tracking-[-0.02em] sm:text-[56px] sm:leading-[58px] md:text-[64px] md:leading-[64px]">Find the revenue slipping through the cracks.</h1>
       <p className="mt-4 max-w-[760px] text-lg text-hushed sm:text-xl sm:leading-8">Invoices, payments and email, <span className="border-b border-dotted border-hushed">investigated</span>, explained and approved by your team. <span className="whitespace-nowrap">In the blink of an eye.</span></p>
       <div className="mt-8"><EmailForm id="hero" /></div>
+      <div className="relative z-0 mx-auto mt-8 size-[min(74vw,320px)] overflow-hidden rounded-full xl:absolute xl:right-10 xl:top-11 xl:mt-0 xl:size-[400px]">
+        <Balatro color1="#f9a8d4" color2="#000000" color3="#000000" swirl={0.25} pixelSize={1.5} mouseInteraction contrast={3.5} lighting={0.4} speed={1} rotationSpeed={0} scale={1} detail={5} crt={0} mouseStrength={1} intro lightMode={false} sphere />
+      </div>
       <FlowVideo />
     </section>
   )
