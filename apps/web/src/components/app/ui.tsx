@@ -129,11 +129,11 @@ export function DataTable<T>({ rows, cols, id, onRow, search, pageSize = 10, emp
           <div className="ml-auto flex flex-wrap items-center gap-2">{toolbar}</div>
         </div>
       )}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" tabIndex={0} role="group" aria-label="Table, scrolls sideways">
         <table className="w-full min-w-[560px] text-left text-sm md:min-w-0">
           <thead className="border-b border-border bg-muted/60 text-xs text-hushed"><tr>{cols.map((c) => (
             <th key={c.key} className={cn("whitespace-nowrap px-4 py-2.5 font-normal", c.right && "text-right", hide(c))} aria-sort={sort?.[0] === c.key ? (sort[1] === 1 ? "ascending" : "descending") : undefined}>
-              {c.sort ? <button type="button" onClick={() => setSort(sort?.[0] === c.key ? [c.key, (sort[1] * -1) as 1 | -1] : [c.key, 1])} className="inline-flex items-center gap-1 hover:text-foreground">{c.label}{sort?.[0] === c.key && (sort[1] === 1 ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />)}</button> : c.label}
+              {!c.label ? <span className="sr-only">{c.key}</span> : c.sort ? <button type="button" onClick={() => setSort(sort?.[0] === c.key ? [c.key, (sort[1] * -1) as 1 | -1] : [c.key, 1])} className="inline-flex items-center gap-1 hover:text-foreground">{c.label}{sort?.[0] === c.key && (sort[1] === 1 ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />)}</button> : c.label}
             </th>))}</tr></thead>
           <tbody>{slice.map((r) => (
             <tr key={id(r)} onClick={onRow ? () => onRow(r) : undefined} className={cn("border-b border-border last:border-0 transition-colors duration-200", onRow && "cursor-pointer hover:bg-muted/60")}>

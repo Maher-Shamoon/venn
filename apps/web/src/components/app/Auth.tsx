@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react"
+import { trackPage } from "@/lib/pageTitle"
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
 import { Check, Eye, EyeOff, Loader2, Mail } from "lucide-react"
 import { Logo } from "@/components/venn/kit"
@@ -16,11 +17,12 @@ import { Field } from "./ui"
 import { cn } from "@/lib/utils"
 
 function Card({ title, sub, children, foot, mode = "login" }: { title: string; sub?: string; children: ReactNode; foot?: ReactNode; mode?: "login" | "signup" }) {
+  useEffect(() => trackPage(), [title])
   return (
     <div className="min-h-screen bg-white lg:grid lg:grid-cols-[1.08fr_1fr]">
       <Showcase mode={mode} />
       <div className="flex min-h-screen flex-col">
-        <div className="flex h-24 items-end px-6 pb-4 lg:hidden" style={{ background: "linear-gradient(180deg,#f9a8d4,#fde3ef 70%,#fff)" }}><Link to="/"><Logo size={28} /></Link></div>
+        <header className="flex h-24 items-end px-6 pb-4 lg:hidden" style={{ background: "linear-gradient(180deg,#f9a8d4,#fde3ef 70%,#fff)" }}><Link to="/"><Logo size={28} /></Link></header>
         <main className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">
           <div className="w-full max-w-[420px] 2xl:max-w-[480px]">
             <div className="animate-rise-in">
@@ -30,7 +32,7 @@ function Card({ title, sub, children, foot, mode = "login" }: { title: string; s
             {foot && <div className="mt-6 animate-rise-in text-center text-sm text-hushed [animation-delay:160ms]">{foot}</div>}
           </div>
         </main>
-        <p className="px-6 pb-6 text-center text-xs text-hushed">Your data is isolated per organization.</p>
+        <footer className="px-6 pb-6 text-center text-xs text-hushed">Your data is isolated per organization.</footer>
       </div>
     </div>
   )

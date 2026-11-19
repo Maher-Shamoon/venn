@@ -179,3 +179,6 @@ html { font-size: clamp(16px, 15.54px + 0.128vw, 18px); }
 @utility text-d1 { font-size: clamp(42px, 30.4px + 3.05vw, 84px); line-height: 1.04; }
 @utility text-d2 { font-size: clamp(36px, 26px + 2.2vw, 60px); line-height: 1.08; }
 @utility text-d3 { font-size: clamp(28px, 22px + 1.1vw, 40px); line-height: 1.15; }
+
+/* a heading that receives focus after navigation is announced, not outlined */
+h1[tabindex="-1"]:focus, h1[tabindex="-1"]:focus-visible { outline: none; box-shadow: none; }

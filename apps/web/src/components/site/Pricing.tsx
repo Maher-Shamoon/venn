@@ -64,7 +64,7 @@ export function Pricing() {
 
       <section className={`${wrap} pt-20 md:pt-28`}>
         <Reveal><h2 className="tracking-[-0.01em] text-d3">Compare features</h2></Reveal>
-        <div className="mt-8 overflow-x-auto rounded-xl border-[0.8px] border-border">
+        <div tabIndex={0} role="group" aria-label="Plan comparison, scrolls sideways" className="mt-8 overflow-x-auto rounded-xl border-[0.8px] border-border">
           <table className="w-full min-w-[640px] border-collapse text-left">
             <thead className="bg-muted"><tr><th className="p-4 font-normal text-hushed"><span className="sr-only">Feature</span></th>{TIERS.map((t) => <th key={t.name} className="w-[18%] p-4 text-center text-lg font-normal">{t.name}</th>)}</tr></thead>
             <tbody>

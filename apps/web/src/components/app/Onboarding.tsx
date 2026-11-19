@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { trackPage } from "@/lib/pageTitle"
 import { useNavigate, useParams } from "react-router-dom"
 import { Check, Loader2, Plus, X } from "lucide-react"
 import { Link } from "react-router-dom"
@@ -24,6 +25,7 @@ export function Onboarding() {
   const { step = "organization" } = useParams(), nav = useNavigate(), s = useApp()
   const idx = Math.max(0, STEPS.findIndex(([k]) => k === step))
   const real = config.authSource === "supabase"
+  useEffect(() => trackPage(), [step])
   const [org, setOrg] = useState({ name: real || s.settings.company.name === "Your workspace" ? "" : s.settings.company.name, industry: "Software agency", size: "11 to 50", country: "United States", currency: "USD", website: "" })
   const [rows, setRows] = useState<{ email: string; role: Role }[]>([{ email: "", role: "ar" }])
   const [prefs, setPrefs] = useState({ tz: "America/Chicago", terms: 30, auto: true })
@@ -73,7 +75,7 @@ export function Onboarding() {
     <div className="min-h-screen bg-white lg:grid lg:grid-cols-[1.08fr_1fr]">
       <Showcase mode="setup" progress={idx / (STEPS.length - 1)} copy={{ tag: `Setup · step ${idx + 1} of ${STEPS.length}`, h: last ? "Nearly matched." : "Two lists in. One truth out.", p: "Invoices on one side, payments on the other. Setup brings them together so nothing slips between." }} />
       <div className="flex min-h-screen flex-col">
-        <div className="flex h-24 items-end px-6 pb-4 lg:hidden" style={{ background: "linear-gradient(180deg,#f9a8d4,#fde3ef 70%,#fff)" }}><Link to="/"><Logo size={28} /></Link></div>
+        <header className="flex h-24 items-end px-6 pb-4 lg:hidden" style={{ background: "linear-gradient(180deg,#f9a8d4,#fde3ef 70%,#fff)" }}><Link to="/"><Logo size={28} /></Link></header>
         <main className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">
           <div className="w-full max-w-[520px]">
             <ol className="mb-8 flex items-center gap-1.5" aria-label="Setup steps">{STEPS.map(([k, t], i) => (
@@ -104,7 +106,7 @@ export function Onboarding() {
             </div>
           </div>
         </main>
-        <p className="px-6 pb-6 text-center text-xs text-hushed">Your data is isolated per organization.</p>
+        <footer className="px-6 pb-6 text-center text-xs text-hushed">Your data is isolated per organization.</footer>
       </div>
     </div>
   )

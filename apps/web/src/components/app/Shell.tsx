@@ -1,4 +1,5 @@
 import { Suspense, useEffect, useRef, useState, type ReactNode } from "react"
+import { trackPage } from "@/lib/pageTitle"
 import { Link, NavLink, Outlet, useLocation, useNavigate, useOutletContext } from "react-router-dom"
 import { BarChart3, Bell, CheckSquare, CreditCard, FileSearch, FileText, FolderOpen, GitMerge, LayoutGrid, LogOut, Mail, Menu, Plug, ScrollText, Scale, Search, Settings, ShieldCheck, User, Users, UsersRound, WifiOff, type LucideIcon } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -75,7 +76,7 @@ export function AppShell() {
     window.addEventListener("keydown", key); window.addEventListener("online", on); window.addEventListener("offline", off)
     return () => { window.removeEventListener("keydown", key); window.removeEventListener("online", on); window.removeEventListener("offline", off) }
   }, [])
-  useEffect(() => { setMenu(false); window.scrollTo(0, 0); const t = setTimeout(() => { document.title = `${document.querySelector("main h1")?.textContent?.slice(0, 48) || "venn"} · venn` }, 60); return () => clearTimeout(t) }, [loc.pathname])
+  useEffect(() => { setMenu(false); window.scrollTo(0, 0); return trackPage() }, [loc.pathname])
   const frame = useFrame(real), [qtext, setQtext] = useState(""), found = useSearch(qtext, real && cmd)
   const me = real ? (frame.data?.user.name ?? "") : role === "owner" ? "Dana W." : "Priya R."
   const localCounts: Record<string, number> = { "/app/reconciliation": s.suggs.filter((g) => g.status === "pending").length, "/app/investigations": s.invgs.filter((g) => !["resolved", "dismissed"].includes(g.status) && (role === "owner" || g.assignee === me)).length, "/app/collections": s.cols.filter((c) => c.next <= "2026-11-13").length, "/app/disputes": s.dsps.filter((d) => d.status !== "resolved").length, "/app/approvals": s.aprs.filter((a) => a.status === "pending" && (role === "owner" || a.by === me)).length }
@@ -93,7 +94,7 @@ export function AppShell() {
   return (
     <div className="min-h-screen bg-white lg:grid lg:grid-cols-[248px_1fr]">
       <SkipLink />
-      {!real && <div className="flex h-10 items-center gap-2 whitespace-nowrap bg-[#1a1919] px-3 text-xs text-white sm:px-4 lg:col-span-2">
+      {!real && <aside aria-label="Sample workspace" className="flex h-10 items-center gap-2 whitespace-nowrap bg-[#1a1919] px-3 text-xs text-white sm:px-4 lg:col-span-2">
         <Link to="/" className="shrink-0 font-medium hover:underline">← venn.com</Link>
         <span className="ml-3 hidden text-white/65 md:inline">Sample data. Nothing here is real.</span>
         <span className="ml-auto flex items-center gap-2"><span className="hidden sm:inline">view as</span>
@@ -102,7 +103,7 @@ export function AppShell() {
           </span>
           <Link to="/signup" className="ml-1 rounded bg-white px-2.5 py-0.5 text-foreground transition-opacity hover:opacity-90"><span className="sm:hidden">Sign up</span><span className="hidden sm:inline">Create account</span></Link>
         </span>
-      </div>}
+      </aside>}
       <aside className={cn("hidden overflow-y-auto border-r border-border bg-muted p-4 [scrollbar-width:none] lg:sticky lg:top-0 lg:block lg:self-start", real ? "lg:h-screen" : "lg:h-[calc(100vh-40px)]")}>
         <Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link>
         {navEl}
@@ -120,7 +121,7 @@ export function AppShell() {
                 {s.notifs.slice(0, 5).map((n) => <button key={n.id} onClick={() => { A.markRead(n.id); close(); nav(n.to) }} className="flex w-full gap-2 rounded-lg px-3 py-2.5 text-left hover:bg-muted"><span className="mt-1.5 size-2 shrink-0 rounded-full" style={{ background: n.read ? "transparent" : "#f472b6" }} /><span><span className="block text-sm">{n.text}</span><span className="text-xs text-hushed">{n.at}</span></span></button>)}
                 <Link to="/app/notifications" onClick={close} className="block border-t border-border px-3 py-2.5 text-center text-sm hover:bg-muted">See all</Link></div>}
             </Pop>
-            <Pop label="Account menu" trigger={<Avatar className="size-8"><AvatarFallback>{initials}</AvatarFallback></Avatar>}>
+            <Pop label={`${initials} account menu`} trigger={<Avatar className="size-8"><AvatarFallback>{initials}</AvatarFallback></Avatar>}>
               {(close) => <div className="p-1"><div className="px-3 py-2"><div className="text-sm">{real ? (frame.data?.user.name ?? "") : (s.session?.name ?? me)}</div><div className="text-xs text-hushed">{real ? (frame.data?.user.email ?? "") : (s.session?.email ?? "sample workspace")}</div></div>
                 <Link to="/app/profile" onClick={close} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted"><User className="size-4" />Profile</Link>
                 <button onClick={() => { close(); void signOut().finally(() => { A.signOut(); nav("/login") }) }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-muted"><LogOut className="size-4" />Sign out</button></div>}

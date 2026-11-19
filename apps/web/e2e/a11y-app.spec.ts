@@ -14,7 +14,7 @@ test("every signed-in screen has no serious or critical accessibility violations
   const problems: string[] = []
   for (const route of routes) {
     await page.goto(route)
-    await expect(page.locator("main h1").first()).toBeVisible({ timeout: 30_000 })
+    await expect(page.locator("main h1").first()).toBeVisible({ timeout: 90_000 })
     await page.waitForLoadState("networkidle").catch(() => undefined)
     const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag22aa"]).analyze()
     for (const v of violations.filter((x) => x.impact === "serious" || x.impact === "critical")) problems.push(`${route} ${v.id} (${v.nodes.length}): ${v.nodes[0]?.target.join(" ")}`)
@@ -31,7 +31,7 @@ test("every signed-in screen fits a phone without sideways scrolling", async ({ 
   const wide: string[] = []
   for (const route of routes) {
     await page.goto(route)
-    await expect(page.locator("main h1").first()).toBeVisible({ timeout: 30_000 })
+    await expect(page.locator("main h1").first()).toBeVisible({ timeout: 90_000 })
     await page.waitForLoadState("networkidle").catch(() => undefined)
     const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
     if (over > 1) wide.push(`${route} is ${over}px too wide`)

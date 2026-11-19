@@ -152,13 +152,15 @@ export function Systems() {
             <div className="mt-8 font-mono text-[0.75rem] uppercase text-hushed" aria-live="polite">{step < 6 ? `${Math.min(step, 5)} of 5 systems` : "One case file"}</div>
           </div>
           <div className="relative min-h-[420px]">
-            <div className="space-y-2.5">
+            <div className="relative space-y-2.5">
               {SYSTEMS.map(([n, t], i) => (
-                <div key={n} style={{ transitionDelay: `${i * 40}ms` }} className={`flex items-center gap-4 rounded-xl border border-border bg-white p-4 transition-all duration-700 ease-[var(--ease-out-soft)] ${step > i ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"} ${step >= 6 ? "scale-[.97] !opacity-[.1]" : ""}`}>
+                <div key={n} style={{ transitionDelay: `${i * 40}ms` }} className={`flex items-center gap-4 rounded-xl border border-border bg-white p-4 transition-all duration-700 ease-[var(--ease-out-soft)] ${step > i ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"} ${step >= 6 ? "scale-[.97]" : ""}`}>
                   <span className="flex size-10 items-center justify-center rounded-md bg-muted font-mono text-xs">{i + 1}</span>
                   <div><div className="text-sm text-hushed">{n}</div><div className="text-base">{t}</div></div>
                 </div>
               ))}
+              {/* once the case file lands, the five places recede behind a wash instead of fading the text itself */}
+              <div aria-hidden="true" className={`pointer-events-none absolute -inset-1 rounded-2xl bg-white/90 transition-opacity duration-700 ${step >= 6 ? "opacity-100" : "opacity-0"}`} />
             </div>
             <div className={`absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-2xl bg-lime p-7 shadow-lg transition-all duration-700 ease-[var(--ease-out-soft)] ${step >= 6 ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"}`}>
               <Logo size={30} />

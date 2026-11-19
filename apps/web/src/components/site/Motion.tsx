@@ -75,7 +75,7 @@ export function Steps() {
         {STEPS.map(([n, t, d, Ic], i) => (
           <Reveal key={t} delay={i * 110}>
             <div className="group relative h-full overflow-hidden rounded-xl border-[0.8px] border-border bg-muted p-7 transition-all duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-1.5 hover:bg-lime">
-              <span className="absolute -right-2 -top-4 select-none text-[120px] leading-none tracking-[-0.06em] text-black/[.05] transition-transform duration-700 group-hover:-translate-x-2 group-hover:translate-y-2">{n}</span>
+              <span aria-hidden="true" data-n={n} className="absolute -right-2 -top-4 select-none text-[120px] leading-none tracking-[-0.06em] text-black/[.05] transition-transform duration-700 before:content-[attr(data-n)] group-hover:-translate-x-2 group-hover:translate-y-2" />
               <span className="relative z-10 flex size-14 items-center justify-center rounded-full bg-white transition-transform duration-500 group-hover:scale-110"><Ic className="size-6" strokeWidth={1.5} /></span>
               <h3 className="relative mt-10 text-2xl leading-8">{t}</h3>
               <p className="relative mt-2 max-w-[340px] text-base text-hushed transition-colors duration-300 group-hover:text-foreground/80">{d}</p>

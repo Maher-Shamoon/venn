@@ -31,7 +31,7 @@ function Board({ rows }: { rows: Card[] }) {
       {COLS.map(({ k, label: name }) => {
         const col = rows.filter((g) => (k === "resolved" ? g.status === "resolved" || g.status === "dismissed" : g.status === k))
         return (
-          <section key={k} role="listitem" aria-label={name} onDragOver={(e) => { e.preventDefault(); setOver(k) }} onDragLeave={() => setOver(null)} onDrop={(e) => { e.preventDefault(); setOver(null); go(e.dataTransfer.getData("text/plain"), k) }}
+          <div key={k} role="listitem" aria-label={name} onDragOver={(e) => { e.preventDefault(); setOver(k) }} onDragLeave={() => setOver(null)} onDrop={(e) => { e.preventDefault(); setOver(null); go(e.dataTransfer.getData("text/plain"), k) }}
             className={cn("w-[290px] shrink-0 snap-start rounded-xl border-[0.8px] bg-muted/60 p-2 transition-colors", over === k ? "border-[#f472b6] bg-[#fdf2f8]" : "border-border")}>
             <header className="flex items-baseline gap-2 px-2 pb-2 pt-1"><h2 className="text-sm">{name}</h2><span className="text-xs text-hushed">{col.length}</span><span className="ml-auto text-xs tabular-nums text-hushed">{formatMoney(sum(col).toFixed(2))}</span></header>
             <div className="space-y-2">
@@ -48,7 +48,7 @@ function Board({ rows }: { rows: Card[] }) {
                 </div>))}
               {!col.length && <div className="rounded-lg border border-dashed border-border px-3 py-6 text-center text-xs text-hushed">Nothing here.</div>}
             </div>
-          </section>)
+          </div>)
       })}
     </div>
   )

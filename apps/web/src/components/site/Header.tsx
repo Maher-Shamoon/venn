@@ -50,11 +50,11 @@ export function SiteHeader() {
   return (
     <>
       {bar && (
-        <div className="sticky top-0 z-[60] flex h-10 items-center justify-center bg-[#1a1919] px-10 text-[0.8125rem] text-white">
+        <aside aria-label="Announcement" className="sticky top-0 z-[60] flex h-10 items-center justify-center bg-[#1a1919] px-10 text-[0.8125rem] text-white">
           <span className="truncate">venn is in early access. Book a walkthrough with your own CSV exports.</span>
           <Link to="/pricing" className="ml-3 hidden underline underline-offset-4 sm:inline">See pricing</Link>
           <button aria-label="Dismiss announcement" onClick={() => setBar(false)} className="absolute right-3 flex size-7 items-center justify-center rounded-md hover:bg-white/10"><X className="size-4" /></button>
-        </div>
+        </aside>
       )}
       <header className="sticky top-[var(--bar)] z-50 h-[62px]">
         {/* glass layer: transparent at the top, white 50% + 25px blur after scrolling, with a 0.8px hairline (measured on ramp.com) */}
