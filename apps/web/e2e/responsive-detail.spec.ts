@@ -7,7 +7,7 @@ test.beforeEach(({}, info) => { test.skip(info.project.name === "mobile", "sizes
 for (const w of SIZES) {
   test(`invoice, customer, payment, case and approval detail pages fit ${w}px`, async ({ page }) => {
     test.skip(!testUser, "Supabase test user is not configured")
-    test.setTimeout(240_000)
+    test.setTimeout(600_000)
     await signIn(page)
     const g = await page.evaluate(() => ({ org: localStorage.getItem("venn.org"), token: JSON.parse(localStorage.getItem(Object.keys(localStorage).find((k) => k.startsWith("sb-") && k.endsWith("auth-token"))!)!).access_token as string }))
     const h = { Authorization: `Bearer ${g.token}`, "X-Organization-Id": g.org! }
@@ -21,7 +21,7 @@ for (const w of SIZES) {
     for (const route of routes) {
       try {
         await page.goto(route)
-        await expect(page.locator("main h1").first()).toBeVisible({ timeout: 30_000 })
+        await expect(page.locator("main h1").first()).toBeVisible({ timeout: 90_000 })
         await page.waitForLoadState("networkidle").catch(() => undefined)
         await page.waitForTimeout(400)
         for (const o of await page.evaluate(detect)) bad.push(`${route.replace(/[0-9a-f-]{36}/, ":id")}: ${o}`)

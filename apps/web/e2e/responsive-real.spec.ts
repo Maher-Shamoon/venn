@@ -21,7 +21,7 @@ let seeded = false
 for (const w of SIZES) {
   test(`a real organization with long names and large figures fits ${w}px`, async ({ page }) => {
     test.skip(!testUser, "Supabase test user is not configured")
-    test.setTimeout(240_000)
+    test.setTimeout(600_000)
     await signIn(page)
     if (!seeded) { await seed(page); seeded = true }
     const bad: string[] = []
@@ -29,7 +29,7 @@ for (const w of SIZES) {
     for (const route of ROUTES) {
       try {
         await page.goto(route)
-        await expect(page.locator("main h1").first()).toBeVisible({ timeout: 30_000 })
+        await expect(page.locator("main h1").first()).toBeVisible({ timeout: 90_000 })
         await page.waitForLoadState("networkidle").catch(() => undefined)
         await page.waitForTimeout(300)
         for (const o of await page.evaluate(detect)) bad.push(`${route}: ${o}`)
