@@ -81,23 +81,23 @@ function FlowVideo() {
         </svg>
         <div className="relative z-10 grid gap-3 p-4 sm:grid-cols-2 lg:block lg:h-[600px] lg:p-0">
           <Card n={0} s={s} at="lg:left-[4%] lg:top-[7%] lg:w-[270px]">
-            <div className="animate-float rounded-md border border-border bg-white p-4 font-mono text-[10.5px] leading-4 text-hushed shadow-sm" style={tilt("-2deg")}>
+            <div className="animate-float rounded-md border border-border bg-white p-4 font-mono text-[0.6563rem] leading-4 text-hushed shadow-sm" style={tilt("-2deg")}>
               <div className="flex justify-between"><span>INVOICE</span><span className="text-foreground">INV-1042</span></div>
               <div className="mt-1 text-foreground">Northwind Labs</div>
               <div className="mt-3 space-y-1.5">{[70, 90, 55].map((w, i) => <div key={i} className="flex justify-between"><span className="h-2 rounded-sm bg-gray-medium/60" style={{ width: `${w}px` }} /><span className="h-2 w-10 rounded-sm bg-gray-medium/60" /></div>)}</div>
-              <div className="mt-3 flex items-end justify-between border-t border-border pt-2 text-foreground"><span>TOTAL</span><span className="text-[15px]">$5,000.00</span></div>
+              <div className="mt-3 flex items-end justify-between border-t border-border pt-2 text-foreground"><span>TOTAL</span><span className="text-[0.9375rem]">$5,000.00</span></div>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                <span className={cn("inline-flex rounded-sm px-1.5 py-0.5 text-[10px] transition-colors duration-500", s >= 2 ? "bg-[#fff1c7] text-[#8a5a00]" : "bg-[#fbe9dd] text-[#a24a10]")}>{s >= 2 ? "$1,000.00 STILL OPEN" : "43 DAYS OVERDUE"}</span>
-                {s >= 2 && <span className="inline-flex animate-[rise-in_.5s_both] rounded-sm bg-lime px-1.5 py-0.5 text-[10px] text-foreground">− $4,000.00 MATCHED</span>}
+                <span className={cn("inline-flex rounded-sm px-1.5 py-0.5 text-[0.6875rem] transition-colors duration-500", s >= 2 ? "bg-[#fff1c7] text-[#8a5a00]" : "bg-[#fbe9dd] text-[#a24a10]")}>{s >= 2 ? "$1,000.00 STILL OPEN" : "43 DAYS OVERDUE"}</span>
+                {s >= 2 && <span className="inline-flex animate-[rise-in_.5s_both] rounded-sm bg-lime px-1.5 py-0.5 text-[0.6875rem] text-foreground">− $4,000.00 MATCHED</span>}
               </div>
             </div>
           </Card>
 
           <Card n={1} s={s} at="lg:left-[30%] lg:top-[46%] lg:w-[330px]">
             <div className="grain animate-float-slow relative overflow-hidden rounded-2xl bg-[#14110f] p-5 text-white shadow-xl" style={tilt("3deg")}>
-              <div className="flex items-center justify-between"><span className="inline-flex items-center gap-1 text-lg font-medium tracking-[-0.05em]">venn<Mark className="size-4" /></span><span className="font-mono text-[10px] text-white/60">BANK FEED</span></div>
-              <div className="mt-5 font-mono text-[11px] text-white/60">PAY-0005 · WIRE · 9 OCT</div>
-              <div className="mt-1 text-[34px] leading-[38px] tracking-[-0.02em]">$4,000.00</div>
+              <div className="flex items-center justify-between"><span className="inline-flex items-center gap-1 text-lg font-medium tracking-[-0.05em]">venn<Mark className="size-4" /></span><span className="font-mono text-[0.6875rem] text-white/60">BANK FEED</span></div>
+              <div className="mt-5 font-mono text-[0.75rem] text-white/60">PAY-0005 · WIRE · 9 OCT</div>
+              <div className="mt-1 tracking-[-0.02em] text-d3">$4,000.00</div>
               <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1"><span className="size-1.5 animate-pulse-dot rounded-full bg-lime" />bank verified</span>
                 {s >= 2 && <span className="inline-flex animate-[rise-in_.5s_both] items-center gap-1 rounded-full bg-lime px-2.5 py-1 text-foreground"><Check className="size-3" />allocated to INV-1042</span>}
@@ -107,7 +107,7 @@ function FlowVideo() {
 
           <Card n={3} s={s} at="lg:right-[4%] lg:top-[6%] lg:w-[260px]">
             <div className="animate-float-slow rounded-lg border border-white/70 bg-white/80 p-4 text-sm shadow-sm backdrop-blur-md" style={tilt("2deg")}>
-              <div className="flex items-center justify-between text-xs text-hushed"><span>Hannah Cole · 28 Oct</span><span className="rounded-sm bg-[#fff1c7] px-1.5 py-0.5 font-mono text-[10px] text-[#8a5a00]">UNVERIFIED</span></div>
+              <div className="flex items-center justify-between text-xs text-hushed"><span>Hannah Cole · 28 Oct</span><span className="rounded-sm bg-[#fff1c7] px-1.5 py-0.5 font-mono text-[0.6875rem] text-[#8a5a00]">UNVERIFIED</span></div>
               <p className="mt-2 text-foreground">“We sent the remaining $1,000 by wire last Friday.”</p>
               <p className="mt-2 text-xs text-hushed">Email is evidence, not a payment.</p>
             </div>
@@ -116,8 +116,8 @@ function FlowVideo() {
           <Card n={4} s={s} at="lg:bottom-[9%] lg:right-[7%] lg:w-[300px]">
             <div className="relative rounded-md border border-foreground bg-white p-4 shadow-sm">
               <Corner className="-left-[4px] -top-[4px]" /><Corner className="-right-[4px] -top-[4px]" /><Corner className="-bottom-[4px] -left-[4px]" /><Corner className="-bottom-[4px] -right-[4px]" />
-              <div className="font-mono text-[10px] text-hushed">FINDING · CALCULATED BY venn</div>
-              <div className="mt-1 text-[32px] leading-9 tracking-[-0.02em]">$1,000.00</div>
+              <div className="font-mono text-[0.6875rem] text-hushed">FINDING · CALCULATED BY venn</div>
+              <div className="mt-1 leading-9 tracking-[-0.02em] text-d3">$1,000.00</div>
               <div className="text-sm text-hushed">still outstanding on INV-1042. No bank record of a second wire.</div>
               <div className={cn("mt-3 inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs transition-colors duration-500", s >= 5 ? "bg-foreground text-white" : "bg-lime text-foreground")}>{s >= 5 ? <><Check className="size-3.5" />Request sent</> : "Request proof of payment"}</div>
               <svg viewBox="0 0 20 20" aria-hidden="true" className={cn("pointer-events-none absolute left-[34px] top-[150px] z-20 size-6 drop-shadow transition-[transform,opacity] duration-[1100ms] ease-[var(--ease-out-soft)]", s >= 4 ? "translate-x-0 translate-y-0 opacity-100" : "translate-x-24 -translate-y-24 opacity-0", s === 5 && "animate-click")}><path d="M3 2l13 7-6 1.6L7.6 17z" fill="#0c0a08" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" /></svg>
@@ -143,15 +143,15 @@ export function Hero() {
   // On a phone the sphere is small and the screen dense: draw it finer so it does not look soft.
   const sharp = typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches
   return (
-    <section className="relative mx-auto max-w-[1280px] px-5 pb-6 pt-10 md:px-10 md:pt-14">
-      <div className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.02em] text-hushed">
+    <section className="relative mx-auto max-w-[clamp(1280px,82vw,1600px)] px-5 pb-6 pt-10 md:px-10 md:pt-14">
+      <div className="inline-flex items-center gap-2 font-mono text-[0.75rem] uppercase tracking-[0.02em] text-hushed">
         <span>Exposure under review:</span>
         <Odometer value={money(exposure)} className="rounded-sm bg-muted px-1.5 py-0.5 text-foreground" />
       </div>
-      <h1 className="mt-5 max-w-[1050px] text-[44px] xl:max-w-[740px] leading-[46px] tracking-[-0.02em] sm:text-[56px] sm:leading-[58px] md:text-[64px] md:leading-[64px]">Find the revenue slipping through the cracks.</h1>
+      <h1 className="mt-5 max-w-[1050px] xl:max-w-[min(60%,960px)] tracking-[-0.02em] text-d1">Find the revenue slipping through the cracks.</h1>
       <p className="mt-4 max-w-[760px] text-lg text-hushed sm:text-xl sm:leading-8">Invoices, payments and email, <span className="border-b border-dotted border-hushed">investigated</span>, explained and approved by your team. <span className="whitespace-nowrap">In the blink of an eye.</span></p>
       <div className="mt-8"><EmailForm id="hero" /></div>
-      <div className="relative z-0 mx-auto mt-8 size-[min(74vw,320px)] overflow-hidden rounded-full xl:absolute xl:right-10 xl:top-11 xl:mt-0 xl:size-[400px]">
+      <div className="relative z-0 mx-auto mt-8 size-[min(74vw,320px)] overflow-hidden rounded-full xl:absolute xl:right-10 xl:top-11 xl:mt-0 xl:size-[clamp(400px,24vw,540px)]">
         <Balatro color1="#f9a8d4" color2="#000000" color3="#000000" swirl={0.25} pixelSize={sharp ? 0.8 : 1.5} maxDevicePixelRatio={sharp ? 2.5 : 2} mouseInteraction contrast={3.5} lighting={0.4} speed={1} rotationSpeed={0} scale={1} detail={5} crt={0} mouseStrength={1} intro lightMode={false} sphere />
       </div>
       <FlowVideo />
@@ -171,7 +171,7 @@ export function LiveBar() {
   return (
     // sticky bottom: pinned to the bottom of the screen while the hero is on screen; once you scroll to its natural spot (end of the hero) it stays there
     <div className="sticky bottom-0 z-40 mt-12 bg-white/60 backdrop-blur-[25px] backdrop-saturate-150">
-      <div className="mx-auto flex h-12 max-w-[1280px] items-center gap-5 overflow-hidden px-5 font-mono text-[11px] tracking-[0.02em] text-hushed md:px-10">
+      <div className="mx-auto flex h-12 max-w-[clamp(1280px,82vw,1600px)] items-center gap-5 overflow-hidden px-5 font-mono text-[0.75rem] tracking-[0.02em] text-hushed md:px-10">
         <span className="flex shrink-0 items-center gap-2.5 uppercase text-foreground">
           <svg viewBox="0 0 14 14" className="size-3.5" aria-hidden="true" fill="currentColor">{[[3, 2], [7, 2], [11, 2], [3, 7], [7, 7], [11, 7], [5, 12], [9, 12]].map(([x, y]) => <circle key={`${x}${y}`} cx={x} cy={y} r="1.25" />)}</svg>Agents at work today:
         </span>

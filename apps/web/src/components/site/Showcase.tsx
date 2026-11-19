@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Mark, Reveal, TwoTone } from "@/components/venn/kit"
 import { cn } from "@/lib/utils"
 
-const wrap = "mx-auto max-w-[1280px] px-5 md:px-10"
+const wrap = "mx-auto max-w-[clamp(1280px,82vw,1600px)] px-[clamp(1.25rem,3.2vw,3rem)]"
 
 /* ---------- engine tabs ---------- */
 const SCENARIOS = [
@@ -18,21 +18,21 @@ export function Engine() {
   const s = SCENARIOS[i]
   return (
     <section className={`${wrap} pb-20 md:pb-28`}>
-      <Reveal><h2 className="max-w-[820px] text-[32px] leading-[38px] tracking-[-0.01em] md:text-[40px] md:leading-[42px]"><TwoTone lead="See how an investigation reads." rest="Facts, calculations and claims never get mixed up." /></h2></Reveal>
+      <Reveal><h2 className="max-w-[820px] tracking-[-0.01em] text-d3"><TwoTone lead="See how an investigation reads." rest="Facts, calculations and claims never get mixed up." /></h2></Reveal>
       <Reveal delay={80} className="mt-8">
         <div role="tablist" aria-label="Scenarios" className="inline-flex max-w-full gap-1 overflow-x-auto rounded-full bg-muted p-1">
           {SCENARIOS.map((x, k) => <button key={x.tab} role="tab" type="button" aria-selected={i === k} onClick={() => setI(k)} className={cn("whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors duration-300", i === k ? "bg-foreground text-white" : "text-hushed hover:text-foreground")}>{x.tab}</button>)}
         </div>
         <div key={i} role="tabpanel" className="mt-6 grid animate-rise-in gap-3 lg:grid-cols-[1fr_1.3fr]">
           <div className="rounded-xl border-[0.8px] border-border bg-muted p-7">
-            <div className="font-mono text-[11px] uppercase text-hushed">Exposure</div>
-            <div className="mt-1 text-[48px] leading-[52px] tracking-[-0.03em] md:text-[56px] md:leading-[60px]">{s.amount}</div>
+            <div className="font-mono text-[0.75rem] uppercase text-hushed">Exposure</div>
+            <div className="mt-1 tracking-[-0.03em] text-d2">{s.amount}</div>
             <p className="mt-3 text-lg">{s.title}</p>
-            <div className="mt-6 rounded-lg border border-border bg-white p-4"><div className="font-mono text-[10px] text-hushed">RECOMMENDED</div><div className="mt-1 text-base">{s.rec}</div><div className="mt-2 inline-flex items-center gap-1.5 text-sm text-hushed"><Lock className="size-3.5" />{s.gate}</div></div>
+            <div className="mt-6 rounded-lg border border-border bg-white p-4"><div className="font-mono text-[0.6875rem] text-hushed">RECOMMENDED</div><div className="mt-1 text-base">{s.rec}</div><div className="mt-2 inline-flex items-center gap-1.5 text-sm text-hushed"><Lock className="size-3.5" />{s.gate}</div></div>
           </div>
           <div className="space-y-2 rounded-xl border-[0.8px] border-border p-4 md:p-5">
-            {[["CONFIRMED FACT", s.fact, "border-l-[#2f9e44] border-border", "text-[#17692b]", ""], ["CALCULATED BY venn, NOT BY AI", s.calc, "border-transparent", "text-hushed", "bg-muted font-mono text-[13px]"], ["POSSIBLE EXPLANATION", s.poss, "border-dashed border-[#d2cecb]", "text-hushed", ""], ["UNVERIFIED CLAIM · NOT CONFIRMED BY A PAYMENT RECORD", s.claim, "border-dashed border-[#e0b13a] bg-[#fff8e1]", "text-[#8a5a00]", ""]].map(([k, v, b, c, x], n) => (
-              <div key={k} style={{ animationDelay: `${n * 70}ms` }} className={cn("animate-rise-in rounded-lg border p-4 transition-transform duration-300 hover:translate-x-1", n === 0 && "border-l-[3px]", b, x)}><div className={cn("font-mono text-[10px]", c)}>{k}</div><p className="mt-1">{v}</p></div>
+            {[["CONFIRMED FACT", s.fact, "border-l-[#2f9e44] border-border", "text-[#17692b]", ""], ["CALCULATED BY venn, NOT BY AI", s.calc, "border-transparent", "text-hushed", "bg-muted font-mono text-[0.8125rem]"], ["POSSIBLE EXPLANATION", s.poss, "border-dashed border-[#d2cecb]", "text-hushed", ""], ["UNVERIFIED CLAIM · NOT CONFIRMED BY A PAYMENT RECORD", s.claim, "border-dashed border-[#e0b13a] bg-[#fff8e1]", "text-[#8a5a00]", ""]].map(([k, v, b, c, x], n) => (
+              <div key={k} style={{ animationDelay: `${n * 70}ms` }} className={cn("animate-rise-in rounded-lg border p-4 transition-transform duration-300 hover:translate-x-1", n === 0 && "border-l-[3px]", b, x)}><div className={cn("font-mono text-[0.6875rem]", c)}>{k}</div><p className="mt-1">{v}</p></div>
             ))}
           </div>
         </div>
@@ -53,7 +53,7 @@ export function Roles() {
     <section className={`${wrap} pb-20 md:pb-28`}>
       <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.2fr]">
         <Reveal>
-          <h2 className="text-[32px] leading-[38px] tracking-[-0.01em] md:text-[48px] md:leading-[52px]"><TwoTone lead="One product, two seats." rest="Each role sees exactly what it needs." /></h2>
+          <h2 className="tracking-[-0.01em] text-d2"><TwoTone lead="One product, two seats." rest="Each role sees exactly what it needs." /></h2>
           <div role="tablist" aria-label="Role" className="mt-8 inline-flex gap-1 rounded-full bg-muted p-1">
             {([["owner", "Business owner"], ["ar", "AR specialist"]] as const).map(([k, n]) => <button key={k} role="tab" type="button" aria-selected={r === k} onClick={() => setR(k)} className={cn("rounded-full px-4 py-2 text-sm transition-colors duration-300", r === k ? "bg-foreground text-white" : "text-hushed hover:text-foreground")}>{n}</button>)}
           </div>
@@ -63,11 +63,11 @@ export function Roles() {
         <Reveal delay={100}>
           <div className="overflow-hidden rounded-2xl border-[0.8px] border-border bg-muted p-3 sm:p-5">
             <div key={r} className="animate-rise-in rounded-xl border border-border bg-white p-4 shadow-sm">
-              <div className="flex items-center justify-between"><span className="text-lg">{r === "owner" ? "Needs your approval" : "My queue"}</span><span className="rounded-full bg-lime px-2.5 py-0.5 font-mono text-[11px]">{r === "owner" ? "3 pending" : "4 open"}</span></div>
+              <div className="flex items-center justify-between"><span className="text-lg">{r === "owner" ? "Needs your approval" : "My queue"}</span><span className="rounded-full bg-lime px-2.5 py-0.5 font-mono text-[0.75rem]">{r === "owner" ? "3 pending" : "4 open"}</span></div>
               <div className="mt-3 divide-y divide-border">
                 {(r === "owner" ? OWNER : AR).map(([a, b, c], i) => (
                   <div key={a} style={{ animationDelay: `${i * 70}ms` }} className="group flex animate-rise-in items-center gap-3 py-3 transition-transform duration-300 hover:translate-x-1">
-                    <div className="min-w-0 flex-1"><div className="font-mono text-[11px] text-hushed">{a}</div><div className="truncate text-base">{b}</div></div>
+                    <div className="min-w-0 flex-1"><div className="font-mono text-[0.75rem] text-hushed">{a}</div><div className="truncate text-base">{b}</div></div>
                     <div className="hidden text-sm text-hushed sm:block">{c}</div>
                     <span className="rounded-md bg-muted px-3 py-1.5 text-sm transition-colors duration-300 group-hover:bg-lime">{r === "owner" ? "Review" : "Open"}</span>
                   </div>))}
@@ -89,7 +89,7 @@ function Ring({ items, inset, dur, rev }: { items: string[]; inset: string; dur:
         {items.map((n, i) => (
           <div key={n} className="absolute inset-0" style={{ transform: `rotate(${(360 / items.length) * i}deg)` }}>
             <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2" style={{ transform: `translate(-50%,-50%) rotate(${-(360 / items.length) * i}deg)` }}>
-              <span className="block whitespace-nowrap rounded-full border border-border bg-white px-3 py-1.5 text-[11px] shadow-sm transition-colors duration-300 hover:bg-lime sm:text-sm" style={{ animation: `${rev ? "orbit" : "orbit-rev"} ${dur} linear infinite` }}>{n}</span>
+              <span className="block whitespace-nowrap rounded-full border border-border bg-white px-3 py-1.5 text-[0.75rem] shadow-sm transition-colors duration-300 hover:bg-lime sm:text-sm" style={{ animation: `${rev ? "orbit" : "orbit-rev"} ${dur} linear infinite` }}>{n}</span>
             </div>
           </div>))}
       </div>
@@ -101,7 +101,7 @@ export function Orbit() {
     <section className={`${wrap} pb-20 md:pb-28`}>
       <div className="grid items-center gap-10 overflow-hidden rounded-3xl bg-muted p-6 sm:p-10 lg:grid-cols-[1fr_1fr] lg:p-14">
         <Reveal>
-          <h2 className="text-[32px] leading-[38px] tracking-[-0.01em] md:text-[48px] md:leading-[52px]"><TwoTone lead="Reads where your records already live." rest="Read-only by default." /></h2>
+          <h2 className="tracking-[-0.01em] text-d2"><TwoTone lead="Reads where your records already live." rest="Read-only by default." /></h2>
           <p className="mt-4 max-w-[460px] text-lg text-hushed">Start with a CSV export. Connect your inbox and accounting system when the team is ready. This is the planned first-release set.</p>
           <Button variant="lime" size="lg" render={<Link to="/p/integrations" />} className="mt-8">See all sources</Button>
         </Reveal>
@@ -127,7 +127,7 @@ const TRUST_ITEMS: [LucideIcon, string, string][] = [
 export function Trust() {
   return (
     <section className={`${wrap} pb-20 md:pb-28`}>
-      <Reveal><h2 className="max-w-[760px] text-[32px] leading-[38px] tracking-[-0.01em] md:text-[48px] md:leading-[52px]"><TwoTone lead="Built so a person always decides." rest="Controls you can explain to an auditor." /></h2></Reveal>
+      <Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="Built so a person always decides." rest="Controls you can explain to an auditor." /></h2></Reveal>
       <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {TRUST_ITEMS.map(([Ic, t, d], i) => (
           <Reveal key={t} delay={i * 70}>

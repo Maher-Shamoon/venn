@@ -66,11 +66,11 @@ export function RemoteReconciliation() {
               <div className="border-t border-border px-4 py-2 text-xs text-hushed">Keys: <kbd className="rounded bg-muted px-1">C</kbd> confirm · <kbd className="rounded bg-muted px-1">R</kbd> reject · <kbd className="rounded bg-muted px-1">J</kbd>/<kbd className="rounded bg-muted px-1">K</kbd> next/previous</div></Box>
             <Box title={`${g.payment.number}: match suggestion`} right={<Mono>{g.rule}</Mono>} pad>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-lg bg-muted p-4"><div className="font-mono text-[11px] text-hushed">PAYMENT</div><div className="mt-1 [container-type:inline-size]"><div className="whitespace-nowrap text-[min(1.5rem,13cqw)] tabular-nums">{formatMoney(g.payment.unallocated, g.payment.currency)}</div></div><div className="text-sm text-hushed">{g.payment.payer ?? "No payer name"} · {g.payment.reference ?? "no reference"}</div></div>
-                <div className="rounded-lg border border-border p-4"><div className="font-mono text-[11px] text-hushed">SETTLES</div>{g.allocations.map((a) => (
+                <div className="rounded-lg bg-muted p-4"><div className="font-mono text-[0.75rem] text-hushed">PAYMENT</div><div className="mt-1 [container-type:inline-size]"><div className="whitespace-nowrap text-[min(1.5rem,13cqw)] tabular-nums">{formatMoney(g.payment.unallocated, g.payment.currency)}</div></div><div className="text-sm text-hushed">{g.payment.payer ?? "No payer name"} · {g.payment.reference ?? "no reference"}</div></div>
+                <div className="rounded-lg border border-border p-4"><div className="font-mono text-[0.75rem] text-hushed">SETTLES</div>{g.allocations.map((a) => (
                   <div key={a.invoice_id} className="mt-1 flex justify-between text-sm"><Link to={`/app/invoices/${a.invoice_id}`} className="underline underline-offset-2">{a.invoice_number}</Link><span className="tabular-nums">{formatMoney(a.amount, g.payment.currency)}{a.balance && a.balance !== a.amount ? <span className="text-hushed"> of {formatMoney(a.balance, g.payment.currency)}</span> : null}</span></div>))}</div>
               </div>
-              <div className="mt-4 rounded-lg bg-[#f4f2f0] p-4 text-sm"><div className="font-mono text-[11px] text-hushed">WHY</div>{g.reason}</div>
+              <div className="mt-4 rounded-lg bg-[#f4f2f0] p-4 text-sm"><div className="font-mono text-[0.75rem] text-hushed">WHY</div>{g.reason}</div>
               <div className="mt-5 flex flex-wrap gap-2"><Button onClick={() => confirm(g)} disabled={accept.isPending}><Check className="size-4" />Confirm match</Button><Button variant="outline" onClick={() => setAsk({ kind: "reject", id: g.id })}>Reject</Button></div>
             </Box>
           </div>) : <Box><Empty title="Nothing to review" sub="Run reconciliation to look for matches. Anything the rules cannot decide on their own will appear here." /></Box>)}

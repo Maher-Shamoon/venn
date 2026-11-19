@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Reveal, TwoTone } from "@/components/venn/kit"
 
-const wrap = "mx-auto max-w-[1280px] px-5 md:px-10"
+const wrap = "mx-auto max-w-[clamp(1280px,82vw,1600px)] px-[clamp(1.25rem,3.2vw,3rem)]"
 const Hero = ({ tag, lead, rest, children }: { tag: string; lead: string; rest: string; children?: ReactNode }) => (
   <section className={`${wrap} pb-10 pt-16 md:pt-24`}><Reveal>
-    <p className="font-mono text-[11px] uppercase tracking-[0.02em] text-hushed">{tag}</p>
-    <h1 className="mt-4 max-w-[900px] text-[40px] leading-[42px] tracking-[-0.02em] md:text-[64px] md:leading-[64px]"><TwoTone lead={lead} rest={rest} /></h1>
+    <p className="font-mono text-[0.75rem] uppercase tracking-[0.02em] text-hushed">{tag}</p>
+    <h1 className="mt-4 max-w-[900px] tracking-[-0.02em] text-d1"><TwoTone lead={lead} rest={rest} /></h1>
     {children}
   </Reveal></section>
 )

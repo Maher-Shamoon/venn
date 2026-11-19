@@ -137,8 +137,8 @@ export function PdfReview() {
       <Title back={["/app/invoices", "Invoices"]} sub="Check what venn read from the document. Low-confidence fields are marked.">Review remittance PDF</Title>
       <div className="grid gap-4 lg:grid-cols-2">
         <Box title="remittance-northwind-nov.pdf" right={<FileUp className="size-4 text-hushed" />}>
-          <div className="bg-muted/60 p-4 sm:p-6"><div className="relative mx-auto h-[360px] max-w-[420px] rounded-md bg-white p-6 text-[12px] shadow-sm">
-            <div className="text-[15px]">Remittance advice</div><div className="mt-1 text-hushed">Northwind Labs · Accounts Payable</div>
+          <div className="bg-muted/60 p-4 sm:p-6"><div className="relative mx-auto h-[360px] max-w-[420px] rounded-md bg-white p-6 text-[0.75rem] shadow-sm">
+            <div className="text-[0.9375rem]">Remittance advice</div><div className="mt-1 text-hushed">Northwind Labs · Accounts Payable</div>
             <div className="absolute inset-x-6 top-[84px] h-5 text-hushed">Paying entity: <span>Northwind Labs</span></div>
             <div className="absolute inset-x-6 top-[120px] border-t border-border pt-2 text-hushed">Details</div>
             <div className="absolute inset-x-6 top-[150px]">Invoice: <span>INV-1050</span></div>

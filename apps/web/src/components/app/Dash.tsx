@@ -63,7 +63,7 @@ function OwnerDashboard() {
         <Box title="Pending approvals" right={<Link to="/app/approvals" className="text-sm text-hushed hover:text-foreground">View all</Link>}>
           {pend.length ? pend.map((a) => (
             <div key={a.id} className="flex items-center gap-3 border-b border-border px-5 py-3 last:border-0">
-              <button className="min-w-0 flex-1 text-left" onClick={() => nav("/app/approvals/" + a.id)}><div className="font-mono text-[11px] text-hushed">{a.id} · {a.type}</div><div className="flex gap-1 text-sm"><span className="truncate">{a.cust}</span><span className="shrink-0 tabular-nums">· {usd(a.amount, 0)}</span></div></button>
+              <button className="min-w-0 flex-1 text-left" onClick={() => nav("/app/approvals/" + a.id)}><div className="font-mono text-[0.75rem] text-hushed">{a.id} · {a.type}</div><div className="flex gap-1 text-sm"><span className="truncate">{a.cust}</span><span className="shrink-0 tabular-nums">· {usd(a.amount, 0)}</span></div></button>
               <Button size="icon" variant="outline" aria-label={`Approve ${a.id}`} onClick={() => A.decide(a.id, "approved", "")}><Check className="size-4" /></Button>
             </div>)) : <div className="px-5 py-8 text-center text-sm text-hushed">Nothing waiting for you.</div>}
         </Box>
@@ -71,7 +71,7 @@ function OwnerDashboard() {
           <div className="p-4"><Donut data={byStatus} center={String(open.length)} h={170} /><ul className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">{byStatus.map((d) => <li key={d.name} className="flex items-center gap-1.5 capitalize"><span className="size-2 rounded-full" style={{ background: d.color }} />{d.name}<span className="ml-auto text-hushed">{d.value}</span></li>)}</ul></div>
         </Box>
         <Box title="Top exposure" right={<Link to="/app/investigations" className="text-sm text-hushed hover:text-foreground">All</Link>}>
-          {[...open].sort((a, b) => b.exposure - a.exposure).slice(0, 5).map((g) => <Link key={g.id} to={"/app/investigations/" + g.id} className="flex items-center gap-3 border-b border-border px-5 py-3 transition-colors last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{g.cust}</div><div className="font-mono text-[11px] text-hushed">{g.id} · {g.type}</div></div><div className="shrink-0 whitespace-nowrap text-sm tabular-nums">{usd(g.exposure, 0)}</div></Link>)}
+          {[...open].sort((a, b) => b.exposure - a.exposure).slice(0, 5).map((g) => <Link key={g.id} to={"/app/investigations/" + g.id} className="flex items-center gap-3 border-b border-border px-5 py-3 transition-colors last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{g.cust}</div><div className="font-mono text-[0.75rem] text-hushed">{g.id} · {g.type}</div></div><div className="shrink-0 whitespace-nowrap text-sm tabular-nums">{usd(g.exposure, 0)}</div></Link>)}
         </Box>
       </div>
 
@@ -79,7 +79,7 @@ function OwnerDashboard() {
         <Box title="Overdue by customer"><div className="p-4">{byCust.length ? <CustomerBars data={byCust} /> : <div className="py-16 text-center text-sm text-hushed">No invoices fell overdue in the {RANGE_NAME[range]}.</div>}</div><p className="px-5 pb-4 text-xs text-hushed">Invoices that fell due in the {RANGE_NAME[range]} and are still unpaid.</p></Box>
         <div className="grid gap-3">
           <Box title="Open disputes" right={<Link to="/app/disputes" className="text-sm text-hushed hover:text-foreground">View</Link>}>
-            {s.dsps.filter((d) => d.status !== "resolved").map((d) => <Link key={d.id} to={"/app/disputes/" + d.id} className="flex items-center gap-3 border-b border-border px-5 py-3 last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{d.cust}</div><div className="font-mono text-[11px] text-hushed">{d.id} · due {fmtD(d.due)}</div></div><span className="text-sm tabular-nums">{usd(d.amt, 0)}</span></Link>)}
+            {s.dsps.filter((d) => d.status !== "resolved").map((d) => <Link key={d.id} to={"/app/disputes/" + d.id} className="flex items-center gap-3 border-b border-border px-5 py-3 last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{d.cust}</div><div className="font-mono text-[0.75rem] text-hushed">{d.id} · due {fmtD(d.due)}</div></div><span className="text-sm tabular-nums">{usd(d.amt, 0)}</span></Link>)}
           </Box>
           <Box title="Integration health">
             {s.integs.filter((i) => i.status === "connected").map((i) => <div key={i.id} className="flex items-center gap-3 border-b border-border px-5 py-3 text-sm last:border-0"><span className="size-2 rounded-full bg-[#2f9e44]" /><span className="flex-1">{i.name}</span><span className="text-xs text-hushed">synced {i.last}</span></div>)}
@@ -128,16 +128,16 @@ function ArDashboard() {
           {due.map((c) => <button key={c.id} onClick={() => nav("/app/collections/" + c.id)} className="flex w-full items-center gap-3 border-b border-border px-5 py-3 text-left last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{c.cust}</div><div className="text-xs capitalize text-hushed">{c.stage} · due {fmtD(c.next)}</div></div><ArrowRight className="size-4 text-hushed" /></button>)}
         </Box>
         <Box title="Invoices needing attention" right={<Link to="/app/invoices" className="text-sm text-hushed hover:text-foreground">All</Link>}>
-          {attention.map((i) => <Link key={i.id} to={"/app/invoices/" + i.id} className="flex items-center gap-3 border-b border-border px-5 py-3 last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{i.cust}</div><div className="font-mono text-[11px] text-hushed">{i.id} · {lateOf(i)} days late</div></div><span className="text-sm tabular-nums">{usd(balOf(s, i), 0)}</span></Link>)}
+          {attention.map((i) => <Link key={i.id} to={"/app/invoices/" + i.id} className="flex items-center gap-3 border-b border-border px-5 py-3 last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{i.cust}</div><div className="font-mono text-[0.75rem] text-hushed">{i.id} · {lateOf(i)} days late</div></div><span className="text-sm tabular-nums">{usd(balOf(s, i), 0)}</span></Link>)}
         </Box>
         <Box title="My requests" right={<Link to="/app/approvals" className="text-sm text-hushed hover:text-foreground">All</Link>}>
-          {myApr.map((a) => <Link key={a.id} to={"/app/approvals/" + a.id} className="flex items-center gap-3 border-b border-border px-5 py-3 last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{a.type} · {usd(a.amount, 0)}</div><div className="font-mono text-[11px] text-hushed">{a.id}</div></div><Pill tone={a.status === "approved" ? "green" : a.status === "pending" ? "amber" : "grey"}>{a.status}</Pill></Link>)}
+          {myApr.map((a) => <Link key={a.id} to={"/app/approvals/" + a.id} className="flex items-center gap-3 border-b border-border px-5 py-3 last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{a.type} · {usd(a.amount, 0)}</div><div className="font-mono text-[0.75rem] text-hushed">{a.id}</div></div><Pill tone={a.status === "approved" ? "green" : a.status === "pending" ? "amber" : "grey"}>{a.status}</Pill></Link>)}
         </Box>
       </div>
       <div className="mt-3 grid gap-3 lg:grid-cols-2">
         <Box title="My collections activity"><div className="p-4"><ActivityChart range={range} /></div></Box>
         <Box title="Open investigations">
-          {myInvg.map((g) => <Link key={g.id} to={"/app/investigations/" + g.id} className="flex items-center gap-3 border-b border-border px-5 py-3 last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{g.title}</div><div className="font-mono text-[11px] text-hushed">{g.id} · {g.cust}</div></div><Pill tone={invgTone(g.status)}>{g.status}</Pill></Link>)}
+          {myInvg.map((g) => <Link key={g.id} to={"/app/investigations/" + g.id} className="flex items-center gap-3 border-b border-border px-5 py-3 last:border-0 hover:bg-muted/60"><div className="min-w-0 flex-1"><div className="truncate text-sm">{g.title}</div><div className="font-mono text-[0.75rem] text-hushed">{g.id} · {g.cust}</div></div><Pill tone={invgTone(g.status)}>{g.status}</Pill></Link>)}
           <div className="px-5 py-3"><Spark data={[3, 4, 3, 5, 4, 6, myInvg.length]} /><div className="text-xs text-hushed">Queue size, last 7 days</div></div>
         </Box>
       </div>

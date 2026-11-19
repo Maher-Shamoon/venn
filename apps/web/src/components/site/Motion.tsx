@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Logo, Reveal, TwoTone, prefersReducedMotion } from "@/components/venn/kit"
 import { cn } from "@/lib/utils"
 
-const wrap = "mx-auto max-w-[1280px] px-5 md:px-10"
+const wrap = "mx-auto max-w-[clamp(1280px,82vw,1600px)] px-[clamp(1.25rem,3.2vw,3rem)]"
 const clamp = (x: number) => Math.min(1, Math.max(0, x))
 const seg = (t: number, a: number, b: number) => clamp((t - a) / (b - a))
 const ease = (x: number) => 1 - Math.pow(1 - x, 3)
@@ -49,8 +49,8 @@ export function Statement() {
   return (
     <section className={`${wrap} pb-12 pt-12 md:pb-16`}>
       <Reveal>
-        <p className="font-mono text-[11px] uppercase tracking-[0.02em] text-hushed">Built for teams that bill for their time</p>
-        <h2 className="mt-4 max-w-[900px] text-[30px] leading-9 tracking-[-0.01em] md:text-[48px] md:leading-[52px]">
+        <p className="font-mono text-[0.75rem] uppercase tracking-[0.02em] text-hushed">Built for teams that bill for their time</p>
+        <h2 className="mt-4 max-w-[900px] leading-9 tracking-[-0.01em] text-d2">
           <TwoTone lead="Finance teams lose revenue in the gaps between systems." rest="venn closes them: one case file per discrepancy, every claim tied to a record." />
         </h2>
         <Button variant="lime" size="lg" render={<Link to="/demo" />} className="mt-8">Explore the product</Button>
@@ -69,7 +69,7 @@ const STEPS: [string, string, string, LucideIcon][] = [
 export function Steps() {
   return (
     <section className={`${wrap} pb-20 md:pb-28`}>
-      <Reveal><h2 className="max-w-[760px] text-[32px] leading-[38px] tracking-[-0.01em] md:text-[40px] md:leading-[42px]"><TwoTone lead="Three steps from a messy export to a decision." rest="No new accounting system. No rip and replace." /></h2></Reveal>
+      <Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d3"><TwoTone lead="Three steps from a messy export to a decision." rest="No new accounting system. No rip and replace." /></h2></Reveal>
       <div className="relative mt-10 grid gap-3 md:grid-cols-3">
         <svg aria-hidden="true" className="pointer-events-none absolute left-[16%] right-[16%] top-[58px] hidden h-1 w-[68%] md:block" preserveAspectRatio="none" viewBox="0 0 100 1"><line x1="0" y1=".5" x2="100" y2=".5" stroke="#f472b6" strokeWidth="2" strokeDasharray="4 5" vectorEffect="non-scaling-stroke" className="animate-dash" /></svg>
         {STEPS.map(([n, t, d, Ic], i) => (
@@ -118,24 +118,24 @@ function P0({ lt }: { lt: number }) {
   const kpi: [string, string][] = [["OPEN EXPOSURE", usd(44250.37 * k)], ["CASES TO REVIEW", String(Math.round(12 * k))], ["AWAITING APPROVAL", String(Math.round(3 * k))]]
   const rows: [string, string, string, string][] = [["INVG-0001", "Northwind Labs · short payment", "$1,000.00", "ready for review"], ["INVG-0002", "Meridian · duplicate payment", "$9,600.00", "evidence gathering"], ["INVG-0003", "Halcyon · claimed wire", "$22,500.00", "waiting on customer"], ["INVG-0004", "Brightwell · unapplied credit", "$410.00", "draft ready"]]
   return (<>
-    {kpi.map(([l, v], i) => <div key={l} style={{ ...abs(200 + i * 260, 76, 240, 104), ...rise(lt, 0.1 + i * 0.12) }} className={cn("absolute rounded-xl border border-black/10 p-4", i === 0 ? "bg-[#f9a8d4]" : "bg-[#f4f2f0]")}><div className="font-mono text-[10px]">{l}</div><div className="mt-2 text-[30px] leading-9 tracking-[-0.02em] tabular-nums">{v}</div></div>)}
+    {kpi.map(([l, v], i) => <div key={l} style={{ ...abs(200 + i * 260, 76, 240, 104), ...rise(lt, 0.1 + i * 0.12) }} className={cn("absolute rounded-xl border border-black/10 p-4", i === 0 ? "bg-[#f9a8d4]" : "bg-[#f4f2f0]")}><div className="font-mono text-[0.6875rem]">{l}</div><div className="mt-2 leading-9 tracking-[-0.02em] tabular-nums text-d3">{v}</div></div>)}
     <div style={{ ...abs(200, 204, 760, 296), ...rise(lt, 0.7) }} className="absolute rounded-xl border border-black/10 bg-white" />
-    <div style={abs(216, 216, 400)} className="absolute text-[15px]">Open cases</div>
-    {rows.map(([id, n, a, s], i) => <div key={id} style={{ ...abs(216, 252 + i * 58, 728, 48), ...rise(lt, 1.1 + i * 0.28) }} className="absolute flex items-center gap-4 rounded-lg bg-[#f4f2f0] px-4 text-[13px]"><span className="w-[76px] font-mono text-[11px]">{id}</span><span className="flex-1">{n}</span><span className="font-mono text-xs">{a}</span><span className="w-[130px] rounded-full bg-white px-3 py-1 text-center text-[11px]">{s}</span></div>)}
+    <div style={abs(216, 216, 400)} className="absolute text-[0.9375rem]">Open cases</div>
+    {rows.map(([id, n, a, s], i) => <div key={id} style={{ ...abs(216, 252 + i * 58, 728, 48), ...rise(lt, 1.1 + i * 0.28) }} className="absolute flex items-center gap-4 rounded-lg bg-[#f4f2f0] px-4 text-[0.8125rem]"><span className="w-[76px] font-mono text-[0.75rem]">{id}</span><span className="flex-1">{n}</span><span className="font-mono text-xs">{a}</span><span className="w-[130px] rounded-full bg-white px-3 py-1 text-center text-[0.75rem]">{s}</span></div>)}
   </>)
 }
 function P1({ lt, c }: { lt: number; c: [number, number] }) {
   const rows: [string, string, string, string][] = [["PAY-0013", "$1,800.00", "INV-1041", "matched"], ["PAY-0010", "$9,600.00", "INV-1043", "matched"], ["PAY-0012", "$2,450.00", "INV-1046 · alias match", "matched"], ["PAY-0009", "$4,000.00", "INV-1042 · short by $1,000.00", "flagged"], ["PAY-0015", "$3,100.00", "INV-1040 + INV-1049", "review"]]
   return (<>
     <div style={{ ...abs(200, 76, 760, 420), ...rise(lt, 0) }} className="absolute rounded-xl border border-black/10 bg-white" />
-    <div style={abs(216, 90, 400)} className="absolute font-mono text-[10px] text-black/50">PAYMENT · AMOUNT · MATCHED TO · STATUS</div>
+    <div style={abs(216, 90, 400)} className="absolute font-mono text-[0.6875rem] text-black/50">PAYMENT · AMOUNT · MATCHED TO · STATUS</div>
     {rows.map(([p, a, inv, s], i) => {
       const hov = inside(c, 200, 140 + i * 60, 760, 54), done = lt > 0.6 + i * 0.45
       return (
-        <div key={p} style={{ ...abs(212, 140 + i * 60, 736, 52), ...rise(lt, 0.2 + i * 0.12) }} className={cn("absolute flex items-center gap-4 rounded-lg border px-4 text-[13px] transition-colors duration-200", hov ? "border-black/20 bg-[#f4f2f0]" : "border-transparent bg-white")}>
-          <span className="w-[76px] font-mono text-[11px]">{p}</span><span className="w-[88px] font-mono text-xs">{a}</span><span className="text-black/40">→</span><span className="flex-1">{inv}</span>
-          {s === "flagged" && hov ? <span className="rounded-md bg-[#f9a8d4] px-3 py-1.5 text-[12px]">Investigate →</span>
-            : <span className={cn("rounded-full px-3 py-1 text-[11px] transition-all duration-300", s === "matched" ? chip.ok : s === "flagged" ? chip.warn : chip.info, done ? "scale-100 opacity-100" : "scale-75 opacity-0")}>{s}</span>}
+        <div key={p} style={{ ...abs(212, 140 + i * 60, 736, 52), ...rise(lt, 0.2 + i * 0.12) }} className={cn("absolute flex items-center gap-4 rounded-lg border px-4 text-[0.8125rem] transition-colors duration-200", hov ? "border-black/20 bg-[#f4f2f0]" : "border-transparent bg-white")}>
+          <span className="w-[76px] font-mono text-[0.75rem]">{p}</span><span className="w-[88px] font-mono text-xs">{a}</span><span className="text-black/40">→</span><span className="flex-1">{inv}</span>
+          {s === "flagged" && hov ? <span className="rounded-md bg-[#f9a8d4] px-3 py-1.5 text-[0.75rem]">Investigate →</span>
+            : <span className={cn("rounded-full px-3 py-1 text-[0.75rem] transition-all duration-300", s === "matched" ? chip.ok : s === "flagged" ? chip.warn : chip.info, done ? "scale-100 opacity-100" : "scale-75 opacity-0")}>{s}</span>}
         </div>)
     })}
   </>)
@@ -144,14 +144,14 @@ function P2({ lt, c }: { lt: number; c: [number, number] }) {
   const ev: [string, string, string, string][] = [["CONFIRMED FACT", "One bank payment of $4,000.00 on 9 Oct.", "#17692b", "border-l-[#2f9e44]"], ["CALCULATED BY venn, NOT BY AI", "5,000.00 − 4,000.00 = 1,000.00", "#6e6a68", "border-l-[#9c9692]"], ["UNVERIFIED CLAIM", "Email says a second wire was sent last Friday. No bank record.", "#8a5a00", "border-l-[#e0b13a]"], ["MISSING", "Wire confirmation from the customer.", "#6e6a68", "border-l-[#d2cecb]"]]
   return (<>
     <div style={{ ...abs(200, 76, 300, 280), ...rise(lt, 0) }} className="absolute rounded-xl bg-[#14110f] p-5 text-white">
-      <div className="font-mono text-[10px] text-white/50">INVG-0001 · EXPOSURE</div>
-      <div className="mt-2 text-[40px] leading-[44px] tracking-[-0.03em] tabular-nums">{usd(1000 * ease(seg(lt, 0.3, 1.6)))}</div>
-      <div className="mt-1 text-[13px] text-white/60">short on INV-1042 · Northwind Labs</div>
+      <div className="font-mono text-[0.6875rem] text-white/50">INVG-0001 · EXPOSURE</div>
+      <div className="mt-2 tracking-[-0.03em] tabular-nums text-d3">{usd(1000 * ease(seg(lt, 0.3, 1.6)))}</div>
+      <div className="mt-1 text-[0.8125rem] text-white/60">short on INV-1042 · Northwind Labs</div>
       <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#f9a8d4]" style={{ width: `${80 * ease(seg(lt, 0.8, 2))}%` }} /></div>
-      <div className="mt-2 flex justify-between font-mono text-[10px] text-white/50"><span>$4,000.00 received</span><span>$5,000.00 billed</span></div>
+      <div className="mt-2 flex justify-between font-mono text-[0.6875rem] text-white/50"><span>$4,000.00 received</span><span>$5,000.00 billed</span></div>
     </div>
-    <div style={{ ...abs(200, 380, 300, 48), ...rise(lt, 3) }} className={cn("absolute flex items-center justify-center rounded-lg text-[14px] transition-colors duration-200", inside(c, 200, 380, 300, 48) ? "bg-[#f472b6]" : "bg-[#f9a8d4]")}>Draft reminder</div>
-    {ev.map(([k, v, col, b], i) => <div key={k} style={{ ...abs(520, 76 + i * 98, 440, 86), ...rise(lt, 0.8 + i * 0.5) }} className={cn("absolute rounded-lg border border-l-[3px] bg-white p-3.5 transition-all duration-200", b, inside(c, 520, 76 + i * 98, 440, 86) ? "border-black/25 shadow-[0_10px_24px_-14px_rgba(0,0,0,.4)]" : "border-black/10")}><div className="font-mono text-[10px]" style={{ color: col }}>{k}</div><div className="mt-1 text-[14px] leading-5">{v}</div></div>)}
+    <div style={{ ...abs(200, 380, 300, 48), ...rise(lt, 3) }} className={cn("absolute flex items-center justify-center rounded-lg text-[0.875rem] transition-colors duration-200", inside(c, 200, 380, 300, 48) ? "bg-[#f472b6]" : "bg-[#f9a8d4]")}>Draft reminder</div>
+    {ev.map(([k, v, col, b], i) => <div key={k} style={{ ...abs(520, 76 + i * 98, 440, 86), ...rise(lt, 0.8 + i * 0.5) }} className={cn("absolute rounded-lg border border-l-[3px] bg-white p-3.5 transition-all duration-200", b, inside(c, 520, 76 + i * 98, 440, 86) ? "border-black/25 shadow-[0_10px_24px_-14px_rgba(0,0,0,.4)]" : "border-black/10")}><div className="font-mono text-[0.6875rem]" style={{ color: col }}>{k}</div><div className="mt-1 text-[0.875rem] leading-5">{v}</div></div>)}
   </>)
 }
 function P3({ lt, c }: { lt: number; c: [number, number] }) {
@@ -159,28 +159,28 @@ function P3({ lt, c }: { lt: number; c: [number, number] }) {
   const checks = ["Amount matches INV-1042", "Date matches bank record", "Claim marked unverified"]
   return (<>
     <div style={{ ...abs(200, 76, 560, 320), ...rise(lt, 0) }} className="absolute rounded-xl border border-black/10 bg-white p-5">
-      <div className="font-mono text-[10px] text-black/50">DRAFT REMINDER · INV-1042</div>
-      <div className="mt-3 border-b border-black/10 pb-2 text-[13px]"><span className="text-black/50">To </span>accounts@northwind-labs.example</div>
-      <p className="mt-4 min-h-[110px] text-[16px] leading-6">{MAIL.slice(0, k)}<span className="ml-px inline-block h-[18px] w-[2px] translate-y-[3px] bg-[#f472b6]" /></p>
+      <div className="font-mono text-[0.6875rem] text-black/50">DRAFT REMINDER · INV-1042</div>
+      <div className="mt-3 border-b border-black/10 pb-2 text-[0.8125rem]"><span className="text-black/50">To </span>accounts@northwind-labs.example</div>
+      <p className="mt-4 min-h-[110px] text-[1rem] leading-6">{MAIL.slice(0, k)}<span className="ml-px inline-block h-[18px] w-[2px] translate-y-[3px] bg-[#f472b6]" /></p>
     </div>
-    <div style={{ ...abs(200, 420, 240, 48), ...rise(lt, 0.4) }} className="absolute flex items-center justify-center rounded-lg border border-black/15 text-[14px]">Edit draft</div>
-    <div style={{ ...abs(520, 420, 240, 48), ...rise(lt, 0.4) }} className={cn("absolute flex items-center justify-center rounded-lg text-[14px] transition-colors duration-200", inside(c, 520, 420, 240, 48) ? "bg-[#f472b6]" : "bg-[#f9a8d4]")}>Request approval</div>
-    <div style={abs(780, 76, 180)} className="absolute space-y-2">{checks.map((t, i) => <div key={t} style={rise(lt, 3.6 + i * 0.35)} className="flex items-start gap-2 rounded-lg bg-[#e3f6e6] p-3 text-[12px] leading-4 text-[#17692b]"><Check className="mt-px size-3.5 shrink-0" />{t}</div>)}</div>
+    <div style={{ ...abs(200, 420, 240, 48), ...rise(lt, 0.4) }} className="absolute flex items-center justify-center rounded-lg border border-black/15 text-[0.875rem]">Edit draft</div>
+    <div style={{ ...abs(520, 420, 240, 48), ...rise(lt, 0.4) }} className={cn("absolute flex items-center justify-center rounded-lg text-[0.875rem] transition-colors duration-200", inside(c, 520, 420, 240, 48) ? "bg-[#f472b6]" : "bg-[#f9a8d4]")}>Request approval</div>
+    <div style={abs(780, 76, 180)} className="absolute space-y-2">{checks.map((t, i) => <div key={t} style={rise(lt, 3.6 + i * 0.35)} className="flex items-start gap-2 rounded-lg bg-[#e3f6e6] p-3 text-[0.75rem] leading-4 text-[#17692b]"><Check className="mt-px size-3.5 shrink-0" />{t}</div>)}</div>
   </>)
 }
 function P4({ lt, c }: { lt: number; c: [number, number] }) {
   const done = lt > 2.6
   return (<>
     <div style={{ ...abs(300, 90, 420, 270), ...rise(lt, 0) }} className="absolute rounded-xl border border-black/10 bg-white p-6">
-      <div className="flex items-center justify-between font-mono text-[11px]"><span>APR-0001 · write-off</span><span className={cn("rounded-full px-2.5 py-0.5 text-[11px] transition-colors duration-300", done ? "bg-[#d3f2da] text-[#17692b]" : chip.warn)}>{done ? "approved" : "pending"}</span></div>
-      <div className="mt-3 text-[44px] leading-[48px] tracking-[-0.02em]">$340.00</div>
-      <div className="text-[13px] text-black/60">INV-1037 · requested by AR · owner decides</div>
+      <div className="flex items-center justify-between font-mono text-[0.75rem]"><span>APR-0001 · write-off</span><span className={cn("rounded-full px-2.5 py-0.5 text-[0.75rem] transition-colors duration-300", done ? "bg-[#d3f2da] text-[#17692b]" : chip.warn)}>{done ? "approved" : "pending"}</span></div>
+      <div className="mt-3 tracking-[-0.02em] text-d2">$340.00</div>
+      <div className="text-[0.8125rem] text-black/60">INV-1037 · requested by AR · owner decides</div>
       <div className="mt-6 flex gap-3">
-        <span style={{ transform: `scale(${lt > 2.5 && lt < 2.75 ? 0.94 : 1})` }} className={cn("flex h-11 w-[130px] items-center justify-center gap-1.5 rounded-lg text-[14px] transition-all duration-200", done ? "bg-[#4ade80]" : inside(c, 320, 300, 130, 44) ? "bg-[#f472b6]" : "bg-[#f9a8d4]")}>{done && <Check className="size-4" />}{done ? "Approved" : "Approve"}</span>
-        <span className="flex h-11 w-[110px] items-center justify-center rounded-lg border border-black/15 text-[14px]">Reject</span>
+        <span style={{ transform: `scale(${lt > 2.5 && lt < 2.75 ? 0.94 : 1})` }} className={cn("flex h-11 w-[130px] items-center justify-center gap-1.5 rounded-lg text-[0.875rem] transition-all duration-200", done ? "bg-[#4ade80]" : inside(c, 320, 300, 130, 44) ? "bg-[#f472b6]" : "bg-[#f9a8d4]")}>{done && <Check className="size-4" />}{done ? "Approved" : "Approve"}</span>
+        <span className="flex h-11 w-[110px] items-center justify-center rounded-lg border border-black/15 text-[0.875rem]">Reject</span>
       </div>
     </div>
-    <div style={{ ...abs(300, 384, 420, 56), opacity: ease(seg(lt, 3, 3.6)), transform: `translateY(${(1 - ease(seg(lt, 3, 3.6))) * 20}px)` }} className="absolute flex items-center gap-3 rounded-xl bg-[#14110f] px-4 text-[13px] text-white"><ShieldCheck className="size-4 text-[#f9a8d4]" />Decision recorded in the audit trail. Immutable.</div>
+    <div style={{ ...abs(300, 384, 420, 56), opacity: ease(seg(lt, 3, 3.6)), transform: `translateY(${(1 - ease(seg(lt, 3, 3.6))) * 20}px)` }} className="absolute flex items-center gap-3 rounded-xl bg-[#14110f] px-4 text-[0.8125rem] text-white"><ShieldCheck className="size-4 text-[#f9a8d4]" />Decision recorded in the audit trail. Immutable.</div>
   </>)
 }
 const PHASES = [P0, P1, P2, P3, P4]
@@ -217,7 +217,7 @@ export function FlowFilm() {
   const sc = bw < 700 ? Math.max(bw / 1000, 0.66) : bw / 1000, pan = Math.min(0, Math.max(bw - 1000 * sc, bw / 2 - c[0] * sc))
   return (
     <section ref={ref} className={`${wrap} pb-20 md:pb-28`} aria-label="Product walkthrough">
-      <Reveal><h2 className="max-w-[820px] text-[32px] leading-[38px] tracking-[-0.01em] md:text-[48px] md:leading-[52px]"><TwoTone lead="See venn work, start to finish." rest="One short payment, from the first number to a logged decision." /></h2></Reveal>
+      <Reveal><h2 className="max-w-[820px] tracking-[-0.01em] text-d2"><TwoTone lead="See venn work, start to finish." rest="One short payment, from the first number to a logged decision." /></h2></Reveal>
       <Reveal delay={80} className="mt-8">
         <div className="relative overflow-hidden rounded-3xl bg-[#14110f] p-2 sm:p-4 md:p-6">
           <div aria-hidden="true" className="dotgrid pointer-events-none absolute inset-0 opacity-[.07] invert" />
@@ -227,16 +227,16 @@ export function FlowFilm() {
             <div className="absolute left-0 top-0 overflow-hidden bg-white text-[#0c0a08]" style={{ width: 1000, height: 560, transform: `translateX(${pan}px) scale(${sc})`, transformOrigin: "0 0" }}>
               <div className="absolute inset-y-0 left-0 w-[180px] border-r border-black/10 bg-[#f4f2f0] p-4">
                 <Logo size={22} />
-                <div className="mt-6 space-y-1">{NAV.map((n, i) => <div key={n} className={cn("flex h-9 items-center rounded-lg px-3 text-[13px] transition-colors duration-200", i === p ? "bg-[#f9a8d4]" : inside(c, 0, 80 + i * 40, 180, 40) ? "bg-black/[.06]" : "")}>{n}</div>)}</div>
+                <div className="mt-6 space-y-1">{NAV.map((n, i) => <div key={n} className={cn("flex h-9 items-center rounded-lg px-3 text-[0.8125rem] transition-colors duration-200", i === p ? "bg-[#f9a8d4]" : inside(c, 0, 80 + i * 40, 180, 40) ? "bg-black/[.06]" : "")}>{n}</div>)}</div>
               </div>
-              <div className="absolute left-[180px] right-0 top-0 flex h-[52px] items-center justify-between border-b border-black/10 px-5"><span className="text-[13px] text-black/50">venn / <span className="text-black">{NAV[p].toLowerCase()}</span></span><span className="flex items-center gap-2 text-[12px]"><span className="rounded-full bg-black px-2.5 py-1 text-white">Owner</span><span className="flex size-7 items-center justify-center rounded-full bg-[#f9a8d4] text-[11px]">PR</span></span></div>
+              <div className="absolute left-[180px] right-0 top-0 flex h-[52px] items-center justify-between border-b border-black/10 px-5"><span className="text-[0.8125rem] text-black/50">venn / <span className="text-black">{NAV[p].toLowerCase()}</span></span><span className="flex items-center gap-2 text-[0.75rem]"><span className="rounded-full bg-black px-2.5 py-1 text-white">Owner</span><span className="flex size-7 items-center justify-center rounded-full bg-[#f9a8d4] text-[0.75rem]">PR</span></span></div>
               <div className="absolute inset-0" style={{ opacity: fade }}><Phase lt={lt} c={c} /></div>
               <Cursor t={t} c={c} />
             </div>
           </div>
           <div key={p} className="relative animate-rise-in px-1 pb-1 pt-5 text-white sm:px-2">
-            <div className="flex items-center gap-2 font-mono text-[11px] uppercase text-white/50"><span className="text-[#f9a8d4]">{String(p + 1).padStart(2, "0")}</span>/ 05</div>
-            <div className="mt-1 text-[22px] leading-7 tracking-[-0.01em] sm:text-[32px] sm:leading-9">{CAP[p][0]}</div>
+            <div className="flex items-center gap-2 font-mono text-[0.75rem] uppercase text-white/50"><span className="text-[#f9a8d4]">{String(p + 1).padStart(2, "0")}</span>/ 05</div>
+            <div className="mt-1 text-[1.375rem] leading-7 tracking-[-0.01em] sm:leading-9 text-d3">{CAP[p][0]}</div>
             <p className="mt-1 text-sm text-white/60 sm:text-base">{CAP[p][1]}</p>
           </div>
         </div>
@@ -275,7 +275,7 @@ function VoiceRow({ items, rev, dur }: { items: typeof V; rev?: boolean; dur: st
 export function Voices() {
   return (
     <section className="voices overflow-hidden pb-20 md:pb-28" aria-label="Customer voices">
-      <div className={wrap}><Reveal><h2 className="max-w-[760px] text-[32px] leading-[38px] tracking-[-0.01em] md:text-[48px] md:leading-[52px]"><TwoTone lead="Loved by finance teams." rest="Straight from the teams using venn." /></h2></Reveal></div>
+      <div className={wrap}><Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="Loved by finance teams." rest="Straight from the teams using venn." /></h2></Reveal></div>
       <div className="mt-10 space-y-3 py-2 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
         <VoiceRow items={V.slice(0, 4)} dur="90s" />
         <VoiceRow items={V.slice(4, 8)} rev dur="100s" />

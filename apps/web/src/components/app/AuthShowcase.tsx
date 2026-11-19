@@ -21,7 +21,7 @@ export function Showcase({ mode, copy: given, progress = 0 }: { mode: "login" | 
   // In setup the circles start almost apart and close as the steps are completed.
   const dx = mode === "setup" ? 0.82 - progress * 0.44 - px * 0.05 : 0.5 - px * 0.18, left1 = 0.12
   const lens = left1 + (dx + 1) / 2
-  const label = "pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-mono text-[11px] uppercase tracking-wide transition-[left] duration-700 ease-[var(--ease-out-soft)]"
+  const label = "pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-mono text-[0.75rem] uppercase tracking-wide transition-[left] duration-700 ease-[var(--ease-out-soft)]"
   return (
     <aside onPointerMove={(e) => { const r = e.currentTarget.getBoundingClientRect(); setPx(((e.clientX - r.left) / r.width) * 2 - 1) }} onPointerLeave={() => setPx(0)}
       className="relative hidden h-screen overflow-hidden lg:sticky lg:top-0 lg:block" style={{ background: "linear-gradient(180deg,#f9a8d4 0%,#fbbddb 30%,#fcd9e9 58%,#fef1f7 82%,#ffffff 100%)" }}>
@@ -30,10 +30,10 @@ export function Showcase({ mode, copy: given, progress = 0 }: { mode: "login" | 
       <div className="relative flex h-full flex-col px-10 pt-9 xl:px-14">
         <Link to="/" className="inline-flex w-fit"><Logo size={30} /></Link>
         <div className="relative z-10 mt-8 max-w-[560px] animate-rise-in">
-          <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/50 px-3 py-1 font-mono text-[11px] uppercase backdrop-blur"><span className="size-1.5 rounded-full bg-foreground" />{copy.tag}</div>
-          <h2 className="mt-4 text-[40px] leading-[42px] tracking-[-0.025em] xl:text-[52px] xl:leading-[54px]">{copy.h}</h2>
+          <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/50 px-3 py-1 font-mono text-[0.75rem] uppercase backdrop-blur"><span className="size-1.5 rounded-full bg-foreground" />{copy.tag}</div>
+          <h2 className="mt-4 tracking-[-0.025em] text-d2">{copy.h}</h2>
           <p className="mt-3 max-w-[440px] text-base text-foreground/70 xl:text-lg">{copy.p}</p>
-          {mode === "signup" && <ul className="mt-4 space-y-1.5 text-[15px]">{["Every claim is tied to a stored record", "Amounts are calculated by code, not guessed", "An owner approves anything consequential"].map((t) => <li key={t} className="flex items-center gap-2.5"><span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-foreground text-white"><Check className="size-3" /></span>{t}</li>)}</ul>}
+          {mode === "signup" && <ul className="mt-4 space-y-1.5 text-[0.9375rem]">{["Every claim is tied to a stored record", "Amounts are calculated by code, not guessed", "An owner approves anything consequential"].map((t) => <li key={t} className="flex items-center gap-2.5"><span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-foreground text-white"><Check className="size-3" /></span>{t}</li>)}</ul>}
         </div>
 
         <div className="relative min-h-0 flex-1" style={{ ["--d" as string]: "min(clamp(340px, 17vw, 640px), 42vh)" }}>
@@ -48,15 +48,15 @@ export function Showcase({ mode, copy: given, progress = 0 }: { mode: "login" | 
             <span className={cn(label, "text-foreground/70")} style={{ left: u(left1 + dx + 1 - dx * 0.5 + 0.02), top: "50%" }}>open<br />invoices</span>
             <span className={cn(label, "text-white")} style={{ left: u(lens), top: "50%", opacity: mode === "setup" ? Math.min(1, Math.max(0, (progress - 0.15) * 4)) : 1, transition: "left 700ms var(--ease-out-soft), opacity 500ms" }}>matched</span>
             <Glass className="-left-6 -top-[14%] w-[240px] animate-float [--r:-2deg] [@media(max-height:780px)]:hidden">
-              <div className="flex items-center gap-2 font-mono text-[11px] text-foreground/60"><Check className="size-3.5 text-[#17692b]" />MATCHED · RULE R3</div>
+              <div className="flex items-center gap-2 font-mono text-[0.75rem] text-foreground/60"><Check className="size-3.5 text-[#17692b]" />MATCHED · RULE R3</div>
               <div className="mt-1.5">PAY-0009 → INV-1047 + INV-1048</div>
             </Glass>
             <Glass className="-right-4 top-[8%] w-[220px] animate-float-slow [--r:2deg]">
-              <div className="font-mono text-[11px] text-foreground/60">EXPOSURE UNDER REVIEW</div>
-              <Odometer value={money(exposure)} className="mt-1 text-[22px] tracking-[-0.02em]" />
+              <div className="font-mono text-[0.75rem] text-foreground/60">EXPOSURE UNDER REVIEW</div>
+              <Odometer value={money(exposure)} className="mt-1 text-[1.375rem] tracking-[-0.02em]" />
             </Glass>
             <Glass className="-bottom-0 left-[6%] hidden w-[230px] animate-float [--r:1deg] [@media(min-height:900px)]:block">
-              <div className="flex items-center gap-2 font-mono text-[11px] text-foreground/60"><Lock className="size-3.5" />LOGGED · IMMUTABLE</div>
+              <div className="flex items-center gap-2 font-mono text-[0.75rem] text-foreground/60"><Lock className="size-3.5" />LOGGED · IMMUTABLE</div>
               <div className="mt-1.5">Write-off approved by Dana W.</div>
             </Glass>
           </div>

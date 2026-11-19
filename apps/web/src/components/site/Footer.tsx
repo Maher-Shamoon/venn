@@ -12,7 +12,7 @@ const COLS: [string, { t: string; to: string }[]][] = [
 export function SiteFooter() {
   return (
     <footer className="overflow-hidden bg-[#1D1D1D] pb-16 pt-16 text-white">
-      <div className="mx-auto max-w-[1280px] px-5 md:px-10">
+      <div className="mx-auto max-w-[clamp(1280px,82vw,1600px)] px-[clamp(1.25rem,3.2vw,3rem)]">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
           <div><Logo size={30} /><p className="mt-3 max-w-[260px] text-sm text-white/60">Find the revenue slipping through the cracks.</p></div>
           {COLS.map(([h, items]) => (

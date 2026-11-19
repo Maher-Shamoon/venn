@@ -27,7 +27,7 @@ export function RemoteDisputes() {
       <Seg items={FILTERS} value={f} onChange={setF} />
       {q.isPending ? <Loading /> : (
         <Box><DataTable rows={q.data ?? []} id={(d: Dispute) => d.id} onRow={(d) => nav("/app/disputes/" + d.id)} search={(d) => d.number + d.customer + d.invoice_number} empty={<Empty title="No disputes" sub="Open one from an invoice when a customer disagrees with it." />}
-          cols={[{ key: "n", label: "Dispute", render: (d) => <div><Mono>{d.number}</Mono><div className="text-xs text-hushed">{cat(d.category)}</div></div> }, { key: "c", label: "Customer", render: (d) => <div>{d.customer}<div className="font-mono text-[11px] text-hushed">{d.invoice_number}</div></div> },
+          cols={[{ key: "n", label: "Dispute", render: (d) => <div><Mono>{d.number}</Mono><div className="text-xs text-hushed">{cat(d.category)}</div></div> }, { key: "c", label: "Customer", render: (d) => <div>{d.customer}<div className="font-mono text-[0.75rem] text-hushed">{d.invoice_number}</div></div> },
             { key: "a", label: "Disputed", right: true, render: (d) => formatMoney(d.amount, d.currency) }, { key: "w", label: "Due", hide: "md", render: (d) => (d.due_date ? <span className={d.overdue ? "text-destructive" : ""}>{day(d.due_date)}{d.overdue ? " · overdue" : ""}</span> : "") },
             { key: "s", label: "Status", render: (d) => <Pill tone={TONE[d.status]}>{label(d.status)}</Pill> }]} /></Box>)}
       <NewDispute open={open} onClose={() => setOpen(false)} invoiceId={params.get("invoice") ?? ""} />
@@ -82,7 +82,7 @@ export function RemoteDisputeDetail() {
       {d.status === "awaiting_approval" && d.approval_id && <div role="status" className="mb-4 rounded-xl border border-[#e0b13a] bg-[#fff8e1] p-4 text-sm">A credit is waiting for approval. The dispute closes when it is decided. <Link className="underline underline-offset-2" to={"/app/approvals/" + d.approval_id}>Open the request</Link></div>}
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="min-w-0 space-y-4">
-          <Box title="What the customer says" pad><blockquote className="border-l-[3px] border-border pl-4 text-sm">{d.explanation}</blockquote><p className="mt-2 font-mono text-[11px] text-hushed">UNVERIFIED · NOT CONFIRMED BY A RECORD</p></Box>
+          <Box title="What the customer says" pad><blockquote className="border-l-[3px] border-border pl-4 text-sm">{d.explanation}</blockquote><p className="mt-2 font-mono text-[0.75rem] text-hushed">UNVERIFIED · NOT CONFIRMED BY A RECORD</p></Box>
           <Box title="Timeline" pad><ol>{d.events.map((e, i) => <li key={i} className="relative border-l border-border pb-5 pl-5 last:pb-0"><span className="absolute -left-[5px] top-1.5 size-2.5 rounded-full bg-lime-light" /><div className="text-sm">{e.text}</div><div className="text-xs text-hushed">{e.by ?? "venn"} · {when(e.at)}</div></li>)}</ol></Box>
         </div>
         <aside className="space-y-4">

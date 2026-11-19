@@ -171,3 +171,11 @@ h1, h2, h3 { overflow-wrap: anywhere; }
 
 /* Android Chrome inflates text in wide blocks unless told not to */
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+
+/* ---- Fluid scale: type and layout follow the screen width continuously (320 to 1920), not in steps ----
+   Root size grows from 16px on phones to 18px on a full-HD screen, so every rem size and spacing grows with it.
+   Display sizes interpolate between a floor that stays readable on a phone and a cap that stops them swelling on very wide screens. */
+html { font-size: clamp(16px, 15.54px + 0.128vw, 18px); }
+@utility text-d1 { font-size: clamp(42px, 30.4px + 3.05vw, 84px); line-height: 1.04; }
+@utility text-d2 { font-size: clamp(36px, 26px + 2.2vw, 60px); line-height: 1.08; }
+@utility text-d3 { font-size: clamp(28px, 22px + 1.1vw, 40px); line-height: 1.15; }

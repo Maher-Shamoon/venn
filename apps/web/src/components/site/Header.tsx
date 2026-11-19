@@ -50,7 +50,7 @@ export function SiteHeader() {
   return (
     <>
       {bar && (
-        <div className="sticky top-0 z-[60] flex h-10 items-center justify-center bg-[#1a1919] px-10 text-[13px] text-white">
+        <div className="sticky top-0 z-[60] flex h-10 items-center justify-center bg-[#1a1919] px-10 text-[0.8125rem] text-white">
           <span className="truncate">venn is in early access. Book a walkthrough with your own CSV exports.</span>
           <Link to="/pricing" className="ml-3 hidden underline underline-offset-4 sm:inline">See pricing</Link>
           <button aria-label="Dismiss announcement" onClick={() => setBar(false)} className="absolute right-3 flex size-7 items-center justify-center rounded-md hover:bg-white/10"><X className="size-4" /></button>
@@ -59,7 +59,7 @@ export function SiteHeader() {
       <header className="sticky top-[var(--bar)] z-50 h-[62px]">
         {/* glass layer: transparent at the top, white 50% + 25px blur after scrolling, with a 0.8px hairline (measured on ramp.com) */}
         <div aria-hidden="true" className={cn("absolute inset-0 border-b-[0.8px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300", scrolled ? "border-[rgba(33,33,33,.08)] bg-white/50 shadow-[inset_0_-1px_0_rgba(255,255,255,.7),0_10px_30px_-12px_rgba(12,10,8,.08)] backdrop-blur-[25px] backdrop-saturate-[1.8]" : "border-[rgba(33,33,33,.05)] bg-transparent")} />
-        <div className="relative mx-auto flex h-full max-w-[1280px] items-center gap-2 px-5 md:px-10">
+        <div className="relative mx-auto flex h-full max-w-[clamp(1280px,82vw,1600px)] items-center gap-2 px-[clamp(1.25rem,3.2vw,3rem)]">
           <Link to="/" aria-label="venn home" className="mr-6 text-foreground"><Logo size={28} /></Link>
           <NavigationMenu className="hidden lg:flex">
             <NavigationMenuList className="gap-0">
@@ -84,7 +84,7 @@ export function SiteHeader() {
                 <SheetTitle className="sr-only">Menu</SheetTitle>
                 <div className="mt-10 flex flex-col px-4 text-base">
                   {menus.map(([label, items]) => (
-                    <div key={label} className="mb-3"><div className="px-3 pb-1 font-mono text-[11px] uppercase text-hushed">{label}</div>{items.map((i) => <Link key={i.t} to={i.to} className="block rounded-md px-3 py-2 hover:bg-muted">{i.t}</Link>)}</div>
+                    <div key={label} className="mb-3"><div className="px-3 pb-1 font-mono text-[0.75rem] uppercase text-hushed">{label}</div>{items.map((i) => <Link key={i.t} to={i.to} className="block rounded-md px-3 py-2 hover:bg-muted">{i.t}</Link>)}</div>
                   ))}
                   <Link to="/p/integrations" className="rounded-md px-3 py-2 hover:bg-muted">Integrations</Link>
                   <Link to="/pricing" className="rounded-md px-3 py-2 hover:bg-muted">Pricing</Link>

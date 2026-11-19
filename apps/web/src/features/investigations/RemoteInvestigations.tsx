@@ -38,7 +38,7 @@ function Board({ rows }: { rows: Card[] }) {
               {col.map((g) => (
                 <div key={g.id} draggable={g.status !== "resolved" && g.status !== "dismissed"} onDragStart={(e) => e.dataTransfer.setData("text/plain", g.id)} className="relative cursor-grab rounded-lg border-[0.8px] border-border bg-white p-3 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-22px_rgba(12,10,8,.5)] active:cursor-grabbing">
                   <button type="button" onClick={() => nav("/app/investigations/" + g.id)} className="block w-full text-left">
-                    <div className="flex items-center gap-2 font-mono text-[11px] text-hushed">{g.number}<span className="ml-auto"><Pill tone={PRI_TONE[g.priority]}>{g.priority}</Pill></span></div>
+                    <div className="flex items-center gap-2 font-mono text-[0.75rem] text-hushed">{g.number}<span className="ml-auto"><Pill tone={PRI_TONE[g.priority]}>{g.priority}</Pill></span></div>
                     <div className="mt-1.5 text-sm leading-5">{g.title}</div>
                     {g.analysis_status === "insufficient_evidence" && <div className="mt-1"><Pill tone="amber">needs evidence</Pill></div>}
                     <div className="truncate text-xs text-hushed">{g.customer}</div>
@@ -74,7 +74,7 @@ export function RemoteInvestigations() {
 
 const KIND: Record<Finding["kind"], { label: string; box: string; tag: string }> = {
   confirmed: { label: "CONFIRMED FACT", box: "border-l-[3px] border-l-[#2f9e44] border-border bg-white", tag: "text-[#17692b]" },
-  calculated: { label: "CALCULATED BY venn, NOT BY AI", box: "border-transparent bg-muted font-mono text-[13px]", tag: "text-hushed" },
+  calculated: { label: "CALCULATED BY venn, NOT BY AI", box: "border-transparent bg-muted font-mono text-[0.8125rem]", tag: "text-hushed" },
   possible: { label: "POSSIBLE EXPLANATION", box: "border-dashed border-[#d2cecb] bg-white", tag: "text-hushed" },
   claim: { label: "UNVERIFIED CLAIM · NOT CONFIRMED BY A PAYMENT RECORD", box: "border-dashed border-[#e0b13a] bg-[#fff8e1]", tag: "text-[#8a5a00]" },
   missing: { label: "MISSING EVIDENCE", box: "border-dashed border-[#a24a10]/40 bg-[#fdf3ec]", tag: "text-[#a24a10]" },
@@ -108,11 +108,11 @@ export function RemoteInvestigationDetail() {
             <div className="space-y-4">
               <Box title="What happened" pad><p>{a?.summary ?? "No analysis yet."}</p></Box>
               {a?.ai && a.ai.status === "ok" && <Box title="Explained by AI" right={<Pill tone="grey">checked against the findings</Pill>} pad>
-                <div className="space-y-2">{a.ai.sentences.map((x, i) => <p key={i} className="text-sm">{x.text} <span className="font-mono text-[11px] text-hushed">[{x.cites.map((n) => "F" + n).join(", ")}]</span></p>)}</div>
+                <div className="space-y-2">{a.ai.sentences.map((x, i) => <p key={i} className="text-sm">{x.text} <span className="font-mono text-[0.75rem] text-hushed">[{x.cites.map((n) => "F" + n).join(", ")}]</span></p>)}</div>
                 <p className="mt-3 text-xs text-hushed">Written by {a.ai.model} from the findings below, numbered F1 onward in the order listed. Sentences that stated something not in the findings were removed{a.ai.dropped ? ` (${a.ai.dropped} removed)` : ""}. It does not choose the recommendation.</p></Box>}
               {a?.ai?.status === "failed" && <p role="status" className="rounded-lg bg-muted p-3 text-sm text-hushed">The AI explanation was not available this time. The findings and recommendation below come from the records and are not affected.</p>}
               <Box title="Findings" pad><div className="space-y-2">{groups.flatMap((k) => (a?.findings ?? []).filter((x) => x.kind === k).map((x, i) => (
-                <div key={k + i} className={cn("rounded-lg border p-4", KIND[k].box)}><div className={cn("mb-1 font-mono text-[11px]", KIND[k].tag)}>{KIND[k].label}</div><p className="text-sm">{x.text}</p></div>)))}</div></Box>
+                <div key={k + i} className={cn("rounded-lg border p-4", KIND[k].box)}><div className={cn("mb-1 font-mono text-[0.75rem]", KIND[k].tag)}>{KIND[k].label}</div><p className="text-sm">{x.text}</p></div>)))}</div></Box>
               <Box title="Recommendation" pad right={rec && <Pill tone="grey">{rec.gate === "approval" ? "needs approval" : "no approval needed"}</Pill>}>
                 {rec ? <><p className="text-lg">{rec.label}{rec.amount ? ` · ${formatMoney(rec.amount, g.currency)}` : ""}</p><p className="mt-1 text-sm">{rec.why}</p><p className="mt-1 text-sm text-hushed">venn proposes. A person decides. It cannot approve, allocate or send on its own.</p>
                   {!ro && <div className="mt-4"><Button disabled={act.isPending} onClick={() => act.mutate({ id, action: rec.action }, ok(rec.gate === "approval" ? "Sent for approval" : "Moved to monitoring"))}>{rec.gate === "approval" ? "Submit for approval" : rec.label}</Button></div>}</>

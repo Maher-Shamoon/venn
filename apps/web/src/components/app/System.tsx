@@ -13,7 +13,7 @@ export function SystemPage({ code, title, text, actions }: { code: string; title
       <div className="mx-auto max-w-[560px] text-center">
         <Link to="/" className="inline-block"><Logo size={26} /></Link>
         <div className="mt-10 font-mono text-sm text-hushed">{code}</div>
-        <h1 className="mt-2 text-[40px] leading-[44px] tracking-[-0.02em] md:text-[56px] md:leading-[58px]">{title}</h1>
+        <h1 className="mt-2 tracking-[-0.02em] text-d2">{title}</h1>
         <p className="mx-auto mt-3 max-w-[440px] text-lg text-hushed">{text}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-2">{actions ?? <><Button render={<Link to="/" />}>Back to home</Button><Button variant="outline" render={<Link to="/app" />}>Open the app</Button></>}</div>
       </div>

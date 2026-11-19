@@ -85,8 +85,8 @@ export function AppShell() {
   const link = ({ isActive }: { isActive: boolean }) => cn("flex items-center gap-3 rounded-md border border-transparent px-3 py-2 text-sm transition-colors duration-[240ms]", isActive ? "border-border bg-white text-foreground shadow-sm" : "text-hushed hover:bg-black/[.04] hover:text-foreground")
   const navEl = (
     <nav aria-label="App" className="space-y-5">{groups.map(([g, items]) => (
-      <div key={g || "top"}>{g && <div className="mb-1 px-3 font-mono text-[10.5px] uppercase tracking-[0.02em] text-hushed">{g}</div>}
-        <div className="space-y-0.5">{items.map(({ to, end, icon: Icon, label, ar }) => { const c = counts[to]; return <NavLink key={to} to={to} end={end} className={link}><Icon className="size-4" />{role === "ar" && ar ? ar : label}{c ? <span className="ml-auto rounded-full bg-lime px-1.5 text-[11px] leading-5 text-foreground">{c}</span> : null}</NavLink> })}</div>
+      <div key={g || "top"}>{g && <div className="mb-1 px-3 font-mono text-[0.6563rem] uppercase tracking-[0.02em] text-hushed">{g}</div>}
+        <div className="space-y-0.5">{items.map(({ to, end, icon: Icon, label, ar }) => { const c = counts[to]; return <NavLink key={to} to={to} end={end} className={link}><Icon className="size-4" />{role === "ar" && ar ? ar : label}{c ? <span className="ml-auto rounded-full bg-lime px-1.5 text-[0.75rem] leading-5 text-foreground">{c}</span> : null}</NavLink> })}</div>
       </div>))}</nav>
   )
   const initials = (s.session?.name ?? me).split(" ").map((x) => x[0]).slice(0, 2).join("").toUpperCase()
@@ -112,7 +112,7 @@ export function AppShell() {
         <header className="sticky top-0 z-30 flex h-16 [@media(max-height:500px)]:h-12 items-center gap-2 border-b-[0.8px] border-[rgba(33,33,33,.08)] bg-white/60 px-4 backdrop-blur-[25px] backdrop-saturate-150 md:gap-3 md:px-8">
           <button type="button" aria-label="Open menu" onClick={() => setMenu(true)} className="flex size-10 items-center justify-center rounded-md hover:bg-muted lg:hidden"><Menu className="size-5" /></button>
           <Link to="/app" className="lg:hidden"><Logo size={22} /></Link>
-          <button type="button" onClick={() => setCmd(true)} className="relative hidden h-10 max-w-[420px] flex-1 items-center rounded-md border border-border bg-muted pl-9 pr-3 text-left text-sm text-hushed transition-colors duration-300 hover:bg-white sm:flex"><Search className="absolute left-3 top-3 size-4" />Search invoices, customers, payments<kbd className="ml-auto rounded bg-white px-1.5 py-0.5 font-mono text-[11px]">Ctrl K</kbd></button>
+          <button type="button" onClick={() => setCmd(true)} className="relative hidden h-10 max-w-[420px] flex-1 items-center rounded-md border border-border bg-muted pl-9 pr-3 text-left text-sm text-hushed transition-colors duration-300 hover:bg-white sm:flex"><Search className="absolute left-3 top-3 size-4" />Search invoices, customers, payments<kbd className="ml-auto rounded bg-white px-1.5 py-0.5 font-mono text-[0.75rem]">Ctrl K</kbd></button>
           <div className="ml-auto flex items-center gap-1">
             <button type="button" aria-label="Search" onClick={() => setCmd(true)} className="flex size-10 items-center justify-center rounded-md hover:bg-muted sm:hidden"><Search className="size-4" /></button>
             <Pop label="Notifications" trigger={<><Bell className="size-4" />{unread > 0 && <span className="absolute right-2 top-2 size-2 rounded-full bg-blaze" />}</>}>
@@ -128,13 +128,13 @@ export function AppShell() {
           </div>
         </header>
         {!online && <div role="status" className="flex items-center gap-2 bg-[#fff1c7] px-5 py-2 text-sm text-[#8a5a00]"><WifiOff className="size-4" />You are offline. Changes are paused until the connection returns.</div>}
-        <main id="main" tabIndex={-1} className="mx-auto max-w-[1180px] px-4 py-5 pb-24 outline-none md:px-8 md:py-10 lg:pb-10">{ctxReady ? <Loading key={loc.pathname} path={loc.pathname}><Suspense fallback={<PageSkeleton path={loc.pathname} />}><Outlet context={{ role }} /></Suspense></Loading> : <PageSkeleton path="/app" />}</main>
+        <main id="main" tabIndex={-1} className="mx-auto max-w-[clamp(1180px,66vw,1480px)] px-4 py-5 pb-24 outline-none md:px-8 md:py-10 lg:pb-10">{ctxReady ? <Loading key={loc.pathname} path={loc.pathname}><Suspense fallback={<PageSkeleton path={loc.pathname} />}><Outlet context={{ role }} /></Suspense></Loading> : <PageSkeleton path="/app" />}</main>
       </div>
 
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
         {([["/app", LayoutGrid, "Home", true], ["/app/invoices", FileText, "Invoices", false], ["/app/payments", CreditCard, "Payments", false], ["/app/reconciliation", GitMerge, "Match", false]] as const).map(([to, Icon, label, end]) => (
-          <NavLink key={to} to={to} end={end} className={({ isActive }) => cn("flex flex-col items-center gap-0.5 py-2 text-[11px] [@media(max-height:500px)]:flex-row [@media(max-height:500px)]:justify-center [@media(max-height:500px)]:gap-1.5 [@media(max-height:500px)]:py-1.5", isActive ? "text-foreground" : "text-hushed")}><Icon className="size-5" />{label}</NavLink>))}
-        <button type="button" onClick={() => setMenu(true)} className="flex flex-col items-center gap-0.5 py-2 text-[11px] text-hushed [@media(max-height:500px)]:flex-row [@media(max-height:500px)]:justify-center [@media(max-height:500px)]:gap-1.5 [@media(max-height:500px)]:py-1.5"><Menu className="size-5" />More</button>
+          <NavLink key={to} to={to} end={end} className={({ isActive }) => cn("flex flex-col items-center gap-0.5 py-2 text-[0.75rem] [@media(max-height:500px)]:flex-row [@media(max-height:500px)]:justify-center [@media(max-height:500px)]:gap-1.5 [@media(max-height:500px)]:py-1.5", isActive ? "text-foreground" : "text-hushed")}><Icon className="size-5" />{label}</NavLink>))}
+        <button type="button" onClick={() => setMenu(true)} className="flex flex-col items-center gap-0.5 py-2 text-[0.75rem] text-hushed [@media(max-height:500px)]:flex-row [@media(max-height:500px)]:justify-center [@media(max-height:500px)]:gap-1.5 [@media(max-height:500px)]:py-1.5"><Menu className="size-5" />More</button>
       </nav>
       <Sheet open={menu} onOpenChange={setMenu}><SheetContent side="left" className="w-[280px] overflow-y-auto bg-muted p-4"><SheetTitle className="sr-only">Menu</SheetTitle><Link to="/app" className="mb-6 block px-2 pt-1"><Logo size={26} /></Link>{navEl}</SheetContent></Sheet>
       <CommandDialog open={cmd} onOpenChange={(o) => { setCmd(o); if (!o) setQtext("") }} shouldFilter={!real} title="Search" description="Search records and pages">
