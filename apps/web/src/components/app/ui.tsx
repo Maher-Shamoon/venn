@@ -129,7 +129,7 @@ export function DataTable<T>({ rows, cols, id, onRow, search, pageSize = 10, emp
           <div className="ml-auto flex flex-wrap items-center gap-2">{toolbar}</div>
         </div>
       )}
-      <div className="overflow-x-auto" tabIndex={0} role="group" aria-label="Table, scrolls sideways">
+      <div className="relative overflow-x-auto" tabIndex={0} role="group" aria-label="Table, scrolls sideways">
         <table className="w-full min-w-[560px] text-left text-sm md:min-w-0">
           <thead className="border-b border-border bg-muted/60 text-xs text-hushed"><tr>{cols.map((c) => (
             <th key={c.key} className={cn("whitespace-nowrap px-4 py-2.5 font-normal", c.right && "text-right", hide(c))} aria-sort={sort?.[0] === c.key ? (sort[1] === 1 ? "ascending" : "descending") : undefined}>
