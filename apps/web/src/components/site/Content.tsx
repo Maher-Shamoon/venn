@@ -27,7 +27,7 @@ export function Window({ title, rows, className }: { title: string; rows: Row[];
 export function Content() {
   const { slug = "" } = useParams()
   const p = PAGES[slug]
-  if (!p) return <div className={`${wrap} py-32`}><h1 className=" text-d3">Page not found.</h1><Link to="/" className="mt-4 inline-block underline">Back home</Link></div>
+  if (!p) return <div className={`${wrap} py-32`}><h1 className="text-d1">Page not found.</h1><Link to="/" className="mt-4 inline-block underline">Back home</Link></div>
   const others = PLATFORM.filter((i) => !i.to.endsWith(slug))
   return (
     <main id="main" tabIndex={-1} className="outline-none">
@@ -42,11 +42,11 @@ export function Content() {
         </div>
       </section>
 
-      <section className={`${wrap} py-20 md:py-28`}>
-        <Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d3"><TwoTone lead="The old way is a spreadsheet and a hunch." rest="The venn way shows its working." /></h2></Reveal>
-        <div className="mt-10 grid gap-3 md:grid-cols-2">
-          <Reveal><div className="h-full rounded-xl bg-muted p-7"><h3 className="text-2xl">The old way.</h3><ul className="mt-5 space-y-3">{p.old.map((t) => <li key={t} className="flex gap-3 text-hushed"><X className="mt-1 size-4 shrink-0" />{t}</li>)}</ul></div></Reveal>
-          <Reveal delay={100}><div className="h-full rounded-xl bg-[#14110f] p-7 text-white"><h3 className="text-2xl">The venn way.</h3><ul className="mt-5 space-y-3">{p.neu.map((t) => <li key={t} className="flex gap-3 text-white/85"><Check className="mt-1 size-4 shrink-0 text-lime" />{t}</li>)}</ul></div></Reveal>
+      <section className={`${wrap} py-[var(--sec)]`}>
+        <Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="The old way is a spreadsheet and a hunch." rest="The venn way shows its working." /></h2></Reveal>
+        <div className="mt-[var(--gap)] grid gap-3 md:grid-cols-2">
+          <Reveal><div className="h-full rounded-xl bg-muted p-7"><h3 className="text-d4">The old way.</h3><ul className="mt-5 space-y-3">{p.old.map((t) => <li key={t} className="flex gap-3 text-hushed"><X className="mt-1 size-4 shrink-0" />{t}</li>)}</ul></div></Reveal>
+          <Reveal delay={100}><div className="h-full rounded-xl bg-[#14110f] p-7 text-white"><h3 className="text-d4">The venn way.</h3><ul className="mt-5 space-y-3">{p.neu.map((t) => <li key={t} className="flex gap-3 text-white/85"><Check className="mt-1 size-4 shrink-0 text-lime" />{t}</li>)}</ul></div></Reveal>
         </div>
       </section>
 
@@ -55,22 +55,22 @@ export function Content() {
           <Reveal key={t}>
             <div className={cn("grid grid-cols-[minmax(0,1fr)] items-center gap-8 lg:grid-cols-2 lg:gap-16", i % 2 && "lg:[&>*:first-child]:order-2")}>
               <div className="dotgrid flex min-h-[320px] items-center justify-center rounded-xl border border-border bg-muted p-6 sm:p-10"><Window title={p.vtitle} rows={[...p.rows.slice(i % p.rows.length), ...p.rows.slice(0, i % p.rows.length)].slice(0, 3)} className="w-full max-w-[460px]" /></div>
-              <div><h3 className="leading-8 tracking-[-0.01em] md:leading-9 text-d3">{t}</h3><p className="mt-3 max-w-[520px] text-base text-hushed">{d}</p></div>
+              <div><h3 className="tracking-[-0.01em] text-d4">{t}</h3><p className="mt-3 max-w-[520px] text-base text-hushed">{d}</p></div>
             </div>
           </Reveal>
         ))}
       </section>
 
-      <section className={`${wrap} pb-20 md:pb-28`}>
-        <Reveal><h2 className="tracking-[-0.01em] text-d3"><TwoTone lead="One platform for every payment discrepancy." rest="Explore the rest." /></h2></Reveal>
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <section className={`${wrap} pb-[var(--sec)]`}>
+        <Reveal><h2 className="tracking-[-0.01em] text-d2"><TwoTone lead="One platform for every payment discrepancy." rest="Explore the rest." /></h2></Reveal>
+        <div className="mt-[var(--gap)] grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {others.map(({ icon: Icon, t, d, to }) => (
             <Reveal key={t}><Link to={to} className="group relative block h-full rounded-xl border-[0.8px] border-border bg-muted p-5 transition-colors duration-300 hover:bg-[#efece8]"><span className="card-arrow absolute right-4 top-4 flex size-8 items-center justify-center overflow-hidden rounded-md bg-white"><ArrowUpRight className="size-4" /></span><Icon className="size-5" /><div className="mt-8 text-xl">{t}</div><div className="text-hushed">{d}</div></Link></Reveal>
           ))}
         </div>
       </section>
 
-      <section className={`${wrap} pb-24`}>
+      <section className={`${wrap} pb-[var(--sec)]`}>
         <Reveal><div className="rounded-3xl bg-muted px-6 py-16 text-center md:px-16 md:py-24"><h2 className="mx-auto max-w-[820px] tracking-[-0.02em] text-d2">See it on your own exports.</h2><div className="mx-auto mt-8 flex justify-center"><EmailForm id="content-cta" cta="Book a walkthrough" /></div><Link to="/pricing" className="mt-6 inline-flex items-center gap-1.5 hover:underline">See pricing <ArrowRight className="size-4" /></Link></div></Reveal>
       </section>
     </main>

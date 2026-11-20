@@ -43,7 +43,7 @@ export function CustomerBars({ data, h = 280 }: { data: { name: string; value: n
 export function Donut({ data, h = 220, center }: { data: { name: string; value: number; color: string }[]; h?: number; center?: string }) {
   return (
     <div className="relative"><H h={h} label="Donut chart of open items by status"><PieChart><Pie data={data} dataKey="value" nameKey="name" innerRadius="62%" outerRadius="88%" paddingAngle={2} stroke="none">{data.map((d) => <Cell key={d.name} fill={d.color} />)}</Pie><Tooltip content={<Tip money={false} />} /></PieChart></H>
-      {center && <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-center"><div><div className="leading-8 tracking-[-0.02em] text-d3">{center}</div><div className="text-xs text-hushed">open</div></div></div>}
+      {center && <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-center"><div><div className="text-[30px] leading-8 tracking-[-0.02em]">{center}</div><div className="text-xs text-hushed">open</div></div></div>}
     </div>
   )
 }

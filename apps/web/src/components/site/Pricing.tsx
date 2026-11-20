@@ -47,7 +47,7 @@ export function Pricing() {
             <Reveal key={t.name} delay={i * 80}>
               <div className={cn("relative rounded-xl border-[0.8px] bg-white p-6", t.featured ? "border-lime shadow-[0_0_0_1px_#f9a8d4]" : "border-border")}>
                 <span className={cn("absolute -top-3 left-6 rounded-md px-2.5 py-0.5 text-xs", t.tagCls)}>{t.tag}</span>
-                <h2 className="leading-8 text-d3">{t.name}</h2>
+                <h2 className="text-d4">{t.name}</h2>
                 <div className="mt-1 flex items-baseline gap-1 text-2xl tracking-[-0.01em]">
                   {t.price === null ? "Custom" : <><span>$</span><Odometer value={String(annual ? Math.round(t.price * 0.8) : t.price)} /><span className="text-base text-hushed">/mo/user</span></>}
                 </div>
@@ -62,9 +62,9 @@ export function Pricing() {
         <p className="mt-6 text-center text-sm text-hushed">All prices in USD.</p>
       </section>
 
-      <section className={`${wrap} pt-20 md:pt-28`}>
-        <Reveal><h2 className="tracking-[-0.01em] text-d3">Compare features</h2></Reveal>
-        <div tabIndex={0} role="group" aria-label="Plan comparison, scrolls sideways" className="mt-8 overflow-x-auto rounded-xl border-[0.8px] border-border">
+      <section className={`${wrap} pt-[var(--sec)]`}>
+        <Reveal><h2 className="tracking-[-0.01em] text-d2">Compare features</h2></Reveal>
+        <div tabIndex={0} role="group" aria-label="Plan comparison, scrolls sideways" className="mt-[var(--gap)] overflow-x-auto rounded-xl border-[0.8px] border-border">
           <table className="w-full min-w-[640px] border-collapse text-left">
             <thead className="bg-muted"><tr><th className="p-4 font-normal text-hushed"><span className="sr-only">Feature</span></th>{TIERS.map((t) => <th key={t.name} className="w-[18%] p-4 text-center text-lg font-normal">{t.name}</th>)}</tr></thead>
             <tbody>
@@ -79,8 +79,8 @@ export function Pricing() {
         </div>
       </section>
 
-      <section className={`${wrap} grid gap-10 py-20 md:py-28 lg:grid-cols-[1fr_1.6fr]`}>
-        <Reveal><h2 className="tracking-[-0.015em] text-d3">Pricing questions.</h2></Reveal>
+      <section className={`${wrap} grid gap-10 py-[var(--sec)] lg:grid-cols-[1fr_1.6fr]`}>
+        <Reveal><h2 className="tracking-[-0.015em] text-d2">Pricing questions.</h2></Reveal>
         <Reveal delay={80}>
           <Accordion defaultValue={["q0"]} className="rounded-xl border-[0.8px] border-border px-1">
             {FAQ.map(([q, a], i) => <AccordionItem key={q} value={`q${i}`} className="border-b border-border px-4 last:border-0"><AccordionTrigger className="py-5 text-lg font-normal hover:no-underline">{q}</AccordionTrigger><AccordionContent className="pb-5 text-base text-hushed">{a}</AccordionContent></AccordionItem>)}
@@ -88,7 +88,7 @@ export function Pricing() {
         </Reveal>
       </section>
 
-      <section className={`${wrap} pb-24`}>
+      <section className={`${wrap} pb-[var(--sec)]`}>
         <Reveal><div className="rounded-3xl bg-muted px-6 py-16 text-center md:px-16 md:py-24"><h2 className="mx-auto max-w-[820px] tracking-[-0.02em] text-d2">Find what's yours.</h2><div className="mx-auto mt-8 flex justify-center"><EmailForm id="pricing-cta" cta="Book a walkthrough" /></div></div></Reveal>
       </section>
     </main>

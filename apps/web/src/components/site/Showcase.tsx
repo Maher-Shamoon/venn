@@ -17,16 +17,16 @@ export function Engine() {
   const [i, setI] = useState(0)
   const s = SCENARIOS[i]
   return (
-    <section className={`${wrap} pb-20 md:pb-28`}>
-      <Reveal><h2 className="max-w-[820px] tracking-[-0.01em] text-d3"><TwoTone lead="See how an investigation reads." rest="Facts, calculations and claims never get mixed up." /></h2></Reveal>
-      <Reveal delay={80} className="mt-8">
+    <section className={`${wrap} pb-[var(--sec)]`}>
+      <Reveal><h2 className="max-w-[820px] tracking-[-0.01em] text-d2"><TwoTone lead="See how an investigation reads." rest="Facts, calculations and claims never get mixed up." /></h2></Reveal>
+      <Reveal delay={80} className="mt-[var(--gap)]">
         <div role="tablist" aria-label="Scenarios" className="inline-flex max-w-full gap-1 overflow-x-auto rounded-full bg-muted p-1">
           {SCENARIOS.map((x, k) => <button key={x.tab} role="tab" type="button" aria-selected={i === k} onClick={() => setI(k)} className={cn("whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors duration-300", i === k ? "bg-foreground text-white" : "text-hushed hover:text-foreground")}>{x.tab}</button>)}
         </div>
         <div key={i} role="tabpanel" className="mt-6 grid animate-rise-in gap-3 lg:grid-cols-[1fr_1.3fr]">
           <div className="rounded-xl border-[0.8px] border-border bg-muted p-7">
             <div className="font-mono text-[0.75rem] uppercase text-hushed">Exposure</div>
-            <div className="mt-1 tracking-[-0.03em] text-d2">{s.amount}</div>
+            <div className="mt-1 text-[48px] leading-[52px] tracking-[-0.03em] md:text-[56px] md:leading-[60px]">{s.amount}</div>
             <p className="mt-3 text-lg">{s.title}</p>
             <div className="mt-6 rounded-lg border border-border bg-white p-4"><div className="font-mono text-[0.6875rem] text-hushed">RECOMMENDED</div><div className="mt-1 text-base">{s.rec}</div><div className="mt-2 inline-flex items-center gap-1.5 text-sm text-hushed"><Lock className="size-3.5" />{s.gate}</div></div>
           </div>
@@ -50,7 +50,7 @@ export function Roles() {
     ? ["See exposure across every customer at a glance.", "Approve write-offs, credits and refund decisions with the evidence attached.", "Manage integrations, people and the audit log."]
     : ["Work a prioritised queue of open discrepancies.", "Ask for proof, draft reminders and request approvals.", "Never blocked on spreadsheets, never able to approve your own request."]
   return (
-    <section className={`${wrap} pb-20 md:pb-28`}>
+    <section className={`${wrap} pb-[var(--sec)]`}>
       <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.2fr]">
         <Reveal>
           <h2 className="tracking-[-0.01em] text-d2"><TwoTone lead="One product, two seats." rest="Each role sees exactly what it needs." /></h2>
@@ -98,7 +98,7 @@ function Ring({ items, inset, dur, rev }: { items: string[]; inset: string; dur:
 }
 export function Orbit() {
   return (
-    <section className={`${wrap} pb-20 md:pb-28`}>
+    <section className={`${wrap} pb-[var(--sec)]`}>
       <div className="grid items-center gap-10 overflow-hidden rounded-3xl bg-muted p-6 sm:p-10 lg:grid-cols-[1fr_1fr] lg:p-14">
         <Reveal>
           <h2 className="tracking-[-0.01em] text-d2"><TwoTone lead="Reads where your records already live." rest="Read-only by default." /></h2>
@@ -126,14 +126,14 @@ const TRUST_ITEMS: [LucideIcon, string, string][] = [
 ]
 export function Trust() {
   return (
-    <section className={`${wrap} pb-20 md:pb-28`}>
+    <section className={`${wrap} pb-[var(--sec)]`}>
       <Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="Built so a person always decides." rest="Controls you can explain to an auditor." /></h2></Reveal>
-      <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-[var(--gap)] grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {TRUST_ITEMS.map(([Ic, t, d], i) => (
           <Reveal key={t} delay={i * 70}>
             <div className="group h-full rounded-xl border-[0.8px] border-border bg-muted p-6 transition-all duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-1.5 hover:bg-lime">
               <span className="flex size-11 items-center justify-center rounded-lg bg-white transition-transform duration-500 group-hover:rotate-[-8deg] group-hover:scale-110"><Ic className="size-5" strokeWidth={1.5} /></span>
-              <h3 className="mt-6 text-xl leading-6">{t}</h3>
+              <h3 className="mt-6 text-d4">{t}</h3>
               <p className="mt-2 text-base text-hushed transition-colors duration-300 group-hover:text-foreground/80">{d}</p>
             </div>
           </Reveal>))}

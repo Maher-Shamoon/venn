@@ -19,9 +19,9 @@ export function About() {
   return (
     <main id="main" tabIndex={-1} className="outline-none">
       <Hero tag="About" lead="We help teams that bill for their time" rest="find the money that slipped between systems." />
-      <section className={`${wrap} pb-20 md:pb-28`}>
+      <section className={`${wrap} pb-[var(--sec)]`}>
         <Reveal><p className="max-w-[760px] text-xl text-hushed">Agencies, consultancies, managed service providers and staffing firms send invoices from one system, receive payments in another and chase customers by email. venn reads all three, finds where they disagree and gives your team a case file to resolve each gap.</p></Reveal>
-        <div className="mt-12 grid gap-3 md:grid-cols-2">{principles.map(([t, d], i) => <Reveal key={t} delay={i * 80}><div className="h-full rounded-xl border-[0.8px] border-border bg-muted p-7 transition-all duration-500 hover:-translate-y-1 hover:bg-lime"><h2 className="text-2xl">{t}</h2><p className="mt-2 text-base text-hushed">{d}</p></div></Reveal>)}</div>
+        <div className="mt-[var(--gap)] grid gap-3 md:grid-cols-2">{principles.map(([t, d], i) => <Reveal key={t} delay={i * 80}><div className="h-full rounded-xl border-[0.8px] border-border bg-muted p-7 transition-all duration-500 hover:-translate-y-1 hover:bg-lime"><h2 className="text-d2">{t}</h2><p className="mt-2 text-base text-hushed">{d}</p></div></Reveal>)}</div>
       </section>
     </main>
   )
@@ -40,7 +40,7 @@ export function Contact() {
   return (
     <main id="main" tabIndex={-1} className="outline-none">
       <Hero tag="Contact" lead="Book a walkthrough" rest="using your own CSV exports." />
-      <section className={`${wrap} pb-24`}>
+      <section className={`${wrap} pb-[var(--sec)]`}>
         <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr]">
           <Reveal><ul className="space-y-4 text-lg">{["A 30-minute call with someone who knows receivables", "Bring invoice and payment exports. We reconcile them live", "No card, no commitment"].map((t) => <li key={t} className="flex gap-3"><Check className="mt-1.5 size-4 shrink-0" />{t}</li>)}</ul></Reveal>
           <Reveal delay={100}>
@@ -66,7 +66,7 @@ export function Contact() {
 const Legal = ({ title, sections }: { title: string; sections: [string, string][] }) => (
   <main id="main" tabIndex={-1} className="outline-none">
     <Hero tag="Draft · pending legal review" lead={title} rest="" />
-    <section className={`${wrap} pb-24`}><div className="max-w-[760px] space-y-8">{sections.map(([h, t], i) => <Reveal key={h}><h2 className="text-2xl">{i + 1}. {h}</h2><p className="mt-2 text-base text-hushed">{t}</p></Reveal>)}</div></section>
+    <section className={`${wrap} pb-[var(--sec)]`}><div className="max-w-[760px] space-y-8">{sections.map(([h, t], i) => <Reveal key={h}><h2 className="text-d4">{i + 1}. {h}</h2><p className="mt-2 text-base text-hushed">{t}</p></Reveal>)}</div></section>
   </main>
 )
 export const Privacy = () => <Legal title="Privacy policy" sections={[["What we collect", "Account details you give us, and the invoice, payment and email data you choose to connect."], ["How we use it", "To reconcile payments, build case files and draft messages for your team. We do not sell your data."], ["Email access", "Connections are read-only unless you approve a send. venn never deletes or edits mail."], ["Your controls", "Export or delete your data at any time from Settings. Owners can request organization deletion."], ["Contact", "Questions about privacy can be sent through the contact page."]]} />

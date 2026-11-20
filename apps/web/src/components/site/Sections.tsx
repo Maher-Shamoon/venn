@@ -22,7 +22,7 @@ export function Sources() {
 /* ---------- pricing teaser ---------- */
 export function PricingBand() {
   return (
-    <section className={`${wrap} pb-20 md:pb-28`}>
+    <section className={`${wrap} pb-[var(--sec)]`}>
       <Reveal>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-8 rounded-3xl bg-[#14110f] p-8 text-white md:p-14 lg:grid-cols-[1.1fr_1fr] lg:items-center">
           <div>
@@ -58,7 +58,7 @@ function Bento({ lead, rest, className = "", children, to = "/demo" }: { lead: s
     <Reveal className={className}>
       <Link to={to} className="group relative flex h-full flex-col overflow-hidden rounded-xl border-[0.8px] border-border bg-muted p-6 transition-all duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-1 hover:bg-[#efece8] hover:shadow-[0_18px_40px_-24px_rgba(0,0,0,.35)]">
         <span className="card-arrow absolute right-5 top-5 flex size-9 items-center justify-center overflow-hidden rounded-md bg-white"><ArrowUpRight className="size-4" /></span>
-        <h3 className="max-w-[78%] text-2xl leading-8 tracking-[-0.01em]"><TwoTone lead={lead} rest={rest} /></h3>
+        <h3 className="max-w-[78%] tracking-[-0.01em] text-d4"><TwoTone lead={lead} rest={rest} /></h3>
         <div className="mt-6 flex flex-1 flex-col justify-end">{children}</div>
       </Link>
     </Reveal>
@@ -75,9 +75,9 @@ function MatchRow({ pay, to, conf, tone }: { pay: string; to: string; conf: stri
 }
 export function Platform() {
   return (
-    <section id="platform" className={`${wrap} scroll-mt-24 pb-20 md:pb-28`}>
+    <section id="platform" className={`${wrap} scroll-mt-24 pb-[var(--sec)]`}>
       <Reveal>
-        <h2 className="max-w-[820px] tracking-[-0.01em] text-d3">
+        <h2 className="max-w-[820px] tracking-[-0.01em] text-d2">
           <TwoTone lead="One workspace for every payment discrepancy." rest="Evidence for every finding. Approval for every decision." />
         </h2>
         <div className="mt-6 flex flex-wrap gap-2">
@@ -143,7 +143,7 @@ export function Systems() {
     return () => { window.removeEventListener("scroll", on); window.removeEventListener("resize", on) }
   }, [])
   return (
-    <section ref={ref} className={pin ? "relative h-[320vh]" : "relative py-16"} aria-label="Systems that never spoke">
+    <section ref={ref} className={pin ? "relative h-[320vh]" : "relative py-[var(--sec)]"} aria-label="Systems that never spoke">
       <div className={pin ? "sticky top-[calc(4rem+var(--bar))] flex h-[calc(100svh-4rem-var(--bar))] items-center" : "flex items-center"}>
         <div className={`${wrap} grid w-full items-center gap-10 lg:grid-cols-[1fr_1.1fr]`}>
           <div>
@@ -164,7 +164,7 @@ export function Systems() {
             </div>
             <div className={`absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-2xl bg-lime p-7 shadow-lg transition-all duration-700 ease-[var(--ease-out-soft)] ${step >= 6 ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"}`}>
               <Logo size={30} />
-              <div className="mt-3 leading-8 tracking-[-0.01em] text-d3">One case file. Every claim tied to a record.</div>
+              <div className="mt-3 text-[28px] leading-8 tracking-[-0.01em]">One case file. Every claim tied to a record.</div>
               <div className="mt-2 text-base">Calculated facts, supporting evidence and a recommendation in one place.</div>
             </div>
           </div>
@@ -177,11 +177,11 @@ export function Systems() {
 /* ---------- dark engine panel ---------- */
 export function DarkPanel() {
   return (
-    <section className={`${wrap} pb-20 md:pb-28`}>
+    <section className={`${wrap} pb-[var(--sec)]`}>
       <Reveal>
         <div className="grid gap-10 overflow-hidden rounded-3xl bg-[#14110f] p-8 text-white md:p-14 lg:grid-cols-2">
           <div className="flex flex-col">
-            <h2 className="tracking-[-0.01em] text-d3"><span>Introducing the venn investigation engine.</span> <span className="text-white/55">An evidence-grounded case file, not a chatbot.</span></h2>
+            <h2 className="tracking-[-0.01em] text-d2"><span>Introducing the venn investigation engine.</span> <span className="text-white/55">An evidence-grounded case file, not a chatbot.</span></h2>
             <ul className="mt-8 space-y-3 text-base text-white/80">
               {["Amounts and dates are calculated by code from your records.", "Every statement from the AI cites stored evidence.", "The AI proposes. A person decides. It cannot approve, allocate or send."].map((t) => <li key={t} className="flex gap-3"><Check className="mt-1 size-4 shrink-0 text-lime" />{t}</li>)}
             </ul>
@@ -189,7 +189,7 @@ export function DarkPanel() {
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
             <div className="flex items-center justify-between font-mono text-[0.75rem] text-white/55"><span>INVG-0001</span><span className="rounded-full bg-lime px-2 py-0.5 text-foreground">READY FOR REVIEW</span></div>
-            <div className="mt-4 tracking-[-0.02em] text-d2">$1,000.00</div>
+            <div className="mt-4 text-[44px] leading-[48px] tracking-[-0.02em]">$1,000.00</div>
             <div className="text-white/60">short on INV-1042 · Northwind Labs</div>
             <div className="mt-6 grid gap-2 text-sm">
               {[["Confirmed", "Bank payment $4,000.00 on 9 Oct", "#4ade80"], ["Calculated", "5,000.00 − 4,000.00 = 1,000.00", "#e5e7eb"], ["Unverified", "Email claims a second wire", "#fbbf24"], ["Missing", "Wire confirmation", "#9ca3af"]].map(([k, v, c]) => (
@@ -206,16 +206,16 @@ export function DarkPanel() {
 /* ---------- two-up ---------- */
 export function TwoUp() {
   return (
-    <section className={`${wrap} pb-20 md:pb-28`}>
+    <section className={`${wrap} pb-[var(--sec)]`}>
       <Reveal><h2 className="mx-auto max-w-[760px] text-center tracking-[-0.015em] text-d2">Move fast. Keep control.</h2><p className="mx-auto mt-3 max-w-[560px] text-center text-lg text-hushed">Owners decide. AR specialists do the work. The server enforces both.</p></Reveal>
-      <div className="mt-12 grid grid-cols-[minmax(0,1fr)] gap-10 md:grid-cols-2">
+      <div className="mt-[var(--gap)] grid grid-cols-[minmax(0,1fr)] gap-10 md:grid-cols-2">
         {[
           { t: "Give each role exactly what it needs.", d: "Owners approve and configure. AR specialists investigate and request. Every permission is checked on the server, never just hidden in the interface.", l: "Roles and permissions", v: <div className="space-y-2 p-8">{[["Approve write-offs", true, false], ["Send reminders", false, true], ["Manage integrations", true, false], ["View audit log", true, false]].map(([k, o, a]) => <div key={k as string} className="flex items-center gap-3 rounded-lg border border-border bg-white px-4 py-3 text-sm"><span className="flex-1">{k as string}</span><Badge variant="outline" className={o ? "bg-foreground text-white" : ""}>owner</Badge><Badge variant="outline" className={a ? "bg-lime text-foreground" : ""}>ar</Badge></div>)}</div> },
           { t: "Nothing consequential happens alone.", d: "Write-offs, credits and refund decisions wait for an owner, with the evidence attached. Decisions are immutable and every one is logged.", l: "Approval center", v: <div className="flex h-full items-center justify-center p-8"><div className="w-full max-w-[380px] rounded-xl border border-border bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><span className="font-mono text-xs">APR-0001 · write-off</span><Badge className="rounded-full bg-[#fff1c7] text-[#8a5a00]">pending</Badge></div><div className="mt-3 leading-9 tracking-[-0.02em] text-d3">$340.00</div><div className="text-sm text-hushed">INV-1037 · requested by Priya R.</div><div className="mt-4 flex gap-2"><Button variant="lime">Approve</Button><Button variant="outline">Reject</Button></div></div></div> },
         ].map((c) => (
           <Reveal key={c.t}>
             <div className="min-h-[360px] overflow-hidden rounded-xl border-[0.8px] border-border bg-muted">{c.v}</div>
-            <h3 className="mt-6 leading-8 tracking-[-0.01em] text-d3">{c.t}</h3>
+            <h3 className="mt-6 tracking-[-0.01em] text-d4">{c.t}</h3>
             <p className="mt-2 max-w-[520px] text-base text-hushed">{c.d}</p>
             <Link to="/demo" className="mt-3 inline-flex items-center gap-1.5 text-base hover:underline">{c.l}<ArrowRight className="size-4" /></Link>
           </Reveal>
@@ -228,10 +228,10 @@ export function TwoUp() {
 /* ---------- final cta ---------- */
 export function FinalCta() {
   return (
-    <section id="cta" className={`${wrap} scroll-mt-24 pb-24`}>
+    <section id="cta" className={`${wrap} scroll-mt-24 pb-[var(--sec)]`}>
       <Reveal>
         <div className="rounded-3xl bg-muted px-6 py-16 text-center md:px-16 md:py-24">
-          <h2 className="mx-auto max-w-[820px] tracking-[-0.02em] text-d1">Find what's yours.</h2>
+          <h2 className="mx-auto max-w-[820px] tracking-[-0.02em] text-d2">Find what's yours.</h2>
           <p className="mx-auto mt-4 max-w-[560px] text-lg text-hushed">Book a walkthrough using your own CSV exports.</p>
           <div className="mx-auto mt-8 flex justify-center"><EmailForm id="cta-form" cta="Book a walkthrough" /></div>
         </div>
