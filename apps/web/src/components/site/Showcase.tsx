@@ -18,7 +18,7 @@ export function Engine() {
   const s = SCENARIOS[i]
   return (
     <section className={`${wrap} pb-[var(--sec)]`}>
-      <Reveal><h2 className="max-w-[820px] tracking-[-0.01em] text-d2"><TwoTone lead="See how an investigation reads." rest="Facts, calculations and claims never get mixed up." /></h2></Reveal>
+      <Reveal><h2 className="max-w-[820px] tracking-[-0.01em] text-d2"><TwoTone lead="See an investigation." rest="Facts and claims never mix." /></h2></Reveal>
       <Reveal delay={80} className="mt-[var(--gap)]">
         <div role="tablist" aria-label="Scenarios" className="inline-flex max-w-full gap-1 overflow-x-auto rounded-full bg-muted p-1">
           {SCENARIOS.map((x, k) => <button key={x.tab} role="tab" type="button" aria-selected={i === k} onClick={() => setI(k)} className={cn("whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors duration-300", i === k ? "bg-foreground text-white" : "text-hushed hover:text-foreground")}>{x.tab}</button>)}
@@ -53,7 +53,7 @@ export function Roles() {
     <section className={`${wrap} pb-[var(--sec)]`}>
       <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.2fr]">
         <Reveal>
-          <h2 className="tracking-[-0.01em] text-d2"><TwoTone lead="One product, two seats." rest="Each role sees exactly what it needs." /></h2>
+          <h2 className="tracking-[-0.01em] text-d2"><TwoTone lead="One product, two seats." rest="Each sees what it needs." /></h2>
           <div role="tablist" aria-label="Role" className="mt-8 inline-flex gap-1 rounded-full bg-muted p-1">
             {([["owner", "Business owner"], ["ar", "AR specialist"]] as const).map(([k, n]) => <button key={k} role="tab" type="button" aria-selected={r === k} onClick={() => setR(k)} className={cn("rounded-full px-4 py-2 text-sm transition-colors duration-300", r === k ? "bg-foreground text-white" : "text-hushed hover:text-foreground")}>{n}</button>)}
           </div>
@@ -101,8 +101,8 @@ export function Orbit() {
     <section className={`${wrap} pb-[var(--sec)]`}>
       <div className="grid items-center gap-10 overflow-hidden rounded-3xl bg-muted p-6 sm:p-10 lg:grid-cols-[1fr_1fr] lg:p-14">
         <Reveal>
-          <h2 className="tracking-[-0.01em] text-d2"><TwoTone lead="Reads where your records already live." rest="Read-only by default." /></h2>
-          <p className="mt-4 max-w-[460px] text-lg text-hushed">Start with a CSV export. Connect your inbox and accounting system when the team is ready. This is the planned first-release set.</p>
+          <h2 className="tracking-[-0.01em] text-d2"><TwoTone lead="Reads where your records live." rest="Read-only by default." /></h2>
+          <p className="mt-4 max-w-[460px] text-lg text-hushed">Start with a CSV. Connect inbox and accounting when ready. The planned first-release set.</p>
           <Button variant="lime" size="lg" render={<Link to="/p/integrations" />} className="mt-8">See all sources</Button>
         </Reveal>
         <Reveal delay={100}>
@@ -127,7 +127,7 @@ const TRUST_ITEMS: [LucideIcon, string, string][] = [
 export function Trust() {
   return (
     <section className={`${wrap} pb-[var(--sec)]`}>
-      <Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="Built so a person always decides." rest="Controls you can explain to an auditor." /></h2></Reveal>
+      <Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="A person always decides." rest="Controls an auditor can follow." /></h2></Reveal>
       <div className="mt-[var(--gap)] grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {TRUST_ITEMS.map(([Ic, t, d], i) => (
           <Reveal key={t} delay={i * 70}>

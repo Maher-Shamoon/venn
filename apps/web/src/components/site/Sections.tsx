@@ -27,7 +27,7 @@ export function PricingBand() {
         <div className="grid grid-cols-[minmax(0,1fr)] gap-8 rounded-3xl bg-[#14110f] p-8 text-white md:p-14 lg:grid-cols-[1.1fr_1fr] lg:items-center">
           <div>
             <h2 className="tracking-[-0.02em] text-d2">Start free.<br /><span className="text-white/55">Scale with evidence.</span></h2>
-            <p className="mt-4 max-w-[460px] text-lg text-white/70">Begin with a CSV. Add Gmail and QuickBooks when the team is ready.</p>
+            <p className="mt-4 max-w-[460px] text-lg text-white/70">Start with a CSV. Add Gmail and QuickBooks later.</p>
             <Button variant="lime" size="lg" render={<Link to="/pricing" />} className="mt-8">See pricing</Button>
           </div>
           <div className="grid grid-cols-[minmax(0,1fr)] gap-2">
@@ -78,7 +78,7 @@ export function Platform() {
     <section id="platform" className={`${wrap} scroll-mt-24 pb-[var(--sec)]`}>
       <Reveal>
         <h2 className="max-w-[820px] tracking-[-0.01em] text-d2">
-          <TwoTone lead="One workspace for every payment discrepancy." rest="Evidence for every finding. Approval for every decision." />
+          <TwoTone lead="One workspace for every gap." rest="Evidence in. Approval out." />
         </h2>
         <div className="mt-6 flex flex-wrap gap-2">
           <Button variant="lime" size="lg" render={<Link to="/demo" />}>See the demo</Button>
@@ -148,7 +148,7 @@ export function Systems() {
         <div className={`${wrap} grid w-full items-center gap-10 lg:grid-cols-[1fr_1.1fr]`}>
           <div>
             <h2 className="tracking-[-0.015em] text-d2">Systems that never spoke.</h2>
-            <p className="mt-4 max-w-[460px] text-lg text-hushed">This is what five separate places to explain one short payment look like.</p>
+            <p className="mt-4 max-w-[460px] text-lg text-hushed">Five places to explain one short payment.</p>
             <div className="mt-8 font-mono text-[0.75rem] uppercase text-hushed" aria-live="polite">{step < 6 ? `${Math.min(step, 5)} of 5 systems` : "One case file"}</div>
           </div>
           <div className="relative min-h-[420px]">
@@ -181,7 +181,7 @@ export function DarkPanel() {
       <Reveal>
         <div className="grid gap-10 overflow-hidden rounded-3xl bg-[#14110f] p-8 text-white md:p-14 lg:grid-cols-2">
           <div className="flex flex-col">
-            <h2 className="tracking-[-0.01em] text-d2"><span>Introducing the venn investigation engine.</span> <span className="text-white/55">An evidence-grounded case file, not a chatbot.</span></h2>
+            <h2 className="tracking-[-0.01em] text-d2"><span>The venn investigation engine.</span> <span className="text-white/55">A case file, not a chatbot.</span></h2>
             <ul className="mt-8 space-y-3 text-base text-white/80">
               {["Amounts and dates are calculated by code from your records.", "Every statement from the AI cites stored evidence.", "The AI proposes. A person decides. It cannot approve, allocate or send."].map((t) => <li key={t} className="flex gap-3"><Check className="mt-1 size-4 shrink-0 text-lime" />{t}</li>)}
             </ul>
@@ -207,7 +207,7 @@ export function DarkPanel() {
 export function TwoUp() {
   return (
     <section className={`${wrap} pb-[var(--sec)]`}>
-      <Reveal><h2 className="mx-auto max-w-[760px] text-center tracking-[-0.015em] text-d2">Move fast. Keep control.</h2><p className="mx-auto mt-3 max-w-[560px] text-center text-lg text-hushed">Owners decide. AR specialists do the work. The server enforces both.</p></Reveal>
+      <Reveal><h2 className="mx-auto max-w-[760px] text-center tracking-[-0.015em] text-d2">Move fast. Keep control.</h2><p className="mx-auto mt-3 max-w-[560px] text-center text-lg text-hushed">Owners decide. AR does the work. The server enforces both.</p></Reveal>
       <div className="mt-[var(--gap)] grid grid-cols-[minmax(0,1fr)] gap-10 md:grid-cols-2">
         {[
           { t: "Give each role exactly what it needs.", d: "Owners approve and configure. AR specialists investigate and request. Every permission is checked on the server, never just hidden in the interface.", l: "Roles and permissions", v: <div className="space-y-2 p-8">{[["Approve write-offs", true, false], ["Send reminders", false, true], ["Manage integrations", true, false], ["View audit log", true, false]].map(([k, o, a]) => <div key={k as string} className="flex items-center gap-3 rounded-lg border border-border bg-white px-4 py-3 text-sm"><span className="flex-1">{k as string}</span><Badge variant="outline" className={o ? "bg-foreground text-white" : ""}>owner</Badge><Badge variant="outline" className={a ? "bg-lime text-foreground" : ""}>ar</Badge></div>)}</div> },

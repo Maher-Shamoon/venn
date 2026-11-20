@@ -149,7 +149,7 @@ export function Hero() {
         <Odometer value={money(exposure)} className="rounded-sm bg-muted px-1.5 py-0.5 text-foreground" />
       </div>
       <h1 className="mt-5 max-w-[1050px] xl:max-w-[min(60%,960px)] tracking-[-0.02em] text-d1">Find the revenue slipping through the cracks.</h1>
-      <p className="mt-4 max-w-[760px] text-lg text-hushed sm:text-xl sm:leading-8">Invoices, payments and email, <span className="border-b border-dotted border-hushed">investigated</span>, explained and approved by your team. <span className="whitespace-nowrap">In the blink of an eye.</span></p>
+      <p className="mt-4 max-w-[760px] text-lg text-hushed sm:text-xl sm:leading-8">Invoices, payments and email, <span className="border-b border-dotted border-hushed">investigated</span>. Your team approves. <span className="whitespace-nowrap">In a blink.</span></p>
       <div className="mt-8"><EmailForm id="hero" /></div>
       <div className="relative z-0 mx-auto mt-8 size-[min(74vw,320px)] overflow-hidden rounded-full xl:absolute xl:right-10 xl:top-11 xl:mt-0 xl:size-[clamp(400px,24vw,540px)]">
         <Balatro color1="#f9a8d4" color2="#000000" color3="#000000" swirl={0.25} pixelSize={sharp ? 0.8 : 1.5} maxDevicePixelRatio={sharp ? 2.5 : 2} mouseInteraction contrast={3.5} lighting={0.4} speed={1} rotationSpeed={0} scale={1} detail={5} crt={0} mouseStrength={1} intro lightMode={false} sphere />

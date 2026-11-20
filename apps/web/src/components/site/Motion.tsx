@@ -51,7 +51,7 @@ export function Statement() {
       <Reveal>
         <p className="font-mono text-[0.75rem] uppercase tracking-[0.02em] text-hushed">Built for teams that bill for their time</p>
         <h2 className="mt-4 max-w-[900px] tracking-[-0.01em] text-d2">
-          <TwoTone lead="Finance teams lose revenue in the gaps between systems." rest="venn closes them: one case file per discrepancy, every claim tied to a record." />
+          <TwoTone lead="Revenue slips through the gaps." rest="venn closes them, one case file at a time." />
         </h2>
         <Button variant="lime" size="lg" render={<Link to="/demo" />} className="mt-8">Explore the product</Button>
       </Reveal>
@@ -69,7 +69,7 @@ const STEPS: [string, string, string, LucideIcon][] = [
 export function Steps() {
   return (
     <section className={`${wrap} pb-[var(--sec)]`}>
-      <Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="Three steps from a messy export to a decision." rest="No new accounting system. No rip and replace." /></h2></Reveal>
+      <Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="From messy export to decision in three steps." rest="No rip and replace." /></h2></Reveal>
       <div className="relative mt-[var(--gap)] grid gap-3 md:grid-cols-3">
         <svg aria-hidden="true" className="pointer-events-none absolute left-[16%] right-[16%] top-[58px] hidden h-1 w-[68%] md:block" preserveAspectRatio="none" viewBox="0 0 100 1"><line x1="0" y1=".5" x2="100" y2=".5" stroke="#f472b6" strokeWidth="2" strokeDasharray="4 5" vectorEffect="non-scaling-stroke" className="animate-dash" /></svg>
         {STEPS.map(([n, t, d, Ic], i) => (
@@ -217,7 +217,7 @@ export function FlowFilm() {
   const sc = bw < 700 ? Math.max(bw / 1000, 0.66) : bw / 1000, pan = Math.min(0, Math.max(bw - 1000 * sc, bw / 2 - c[0] * sc))
   return (
     <section ref={ref} className={`${wrap} pb-[var(--sec)]`} aria-label="Product walkthrough">
-      <Reveal><h2 className="max-w-[820px] tracking-[-0.01em] text-d2"><TwoTone lead="See venn work, start to finish." rest="One short payment, from the first number to a logged decision." /></h2></Reveal>
+      <Reveal><h2 className="max-w-[820px] tracking-[-0.01em] text-d2"><TwoTone lead="See venn work." rest="One short payment, start to finish." /></h2></Reveal>
       <Reveal delay={80} className="mt-[var(--gap)]">
         <div className="relative overflow-hidden rounded-3xl bg-[#14110f] p-2 sm:p-4 md:p-6">
           <div aria-hidden="true" className="dotgrid pointer-events-none absolute inset-0 opacity-[.07] invert" />
@@ -275,7 +275,7 @@ function VoiceRow({ items, rev, dur }: { items: typeof V; rev?: boolean; dur: st
 export function Voices() {
   return (
     <section className="voices overflow-hidden pb-[var(--sec)]" aria-label="Customer voices">
-      <div className={wrap}><Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="Loved by finance teams." rest="Straight from the teams using venn." /></h2></Reveal></div>
+      <div className={wrap}><Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="Loved by finance teams." rest="In their words." /></h2></Reveal></div>
       <div className="mt-[var(--gap)] space-y-3 py-2 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
         <VoiceRow items={V.slice(0, 4)} dur="90s" />
         <VoiceRow items={V.slice(4, 8)} rev dur="100s" />
