@@ -94,7 +94,7 @@ export function SiteHeader() {
                   <Link to="/p/integrations" className="rounded-md px-3 py-2 hover:bg-muted">Integrations</Link>
                   <Link to="/pricing" className="rounded-md px-3 py-2 hover:bg-muted">Pricing</Link>
                   <Link to="/login" className="rounded-md px-3 py-2 hover:bg-muted">Sign in</Link>
-                  <Button variant="lime" size="lg" render={<Link to="/demo" />} className="mt-4">See a demo</Button>
+                  <Button variant="lime" size="lg" render={<Link to="/demo" />} className="mt-4 mb-10">See a demo</Button>
                 </div>
               </SheetContent>
             </Sheet>

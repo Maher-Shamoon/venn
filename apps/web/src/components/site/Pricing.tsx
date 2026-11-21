@@ -11,7 +11,7 @@ const wrap = "mx-auto max-w-[clamp(1280px,82vw,1600px)] px-[clamp(1.25rem,3.2vw,
 const TIERS = [
   { name: "Starter", tag: "Self-serve", tagCls: "bg-muted", price: 0, blurb: "For a one-person finance desk getting started with CSV exports.", cta: "Start free", variant: "outline" as const, items: ["CSV and PDF import", "Exact-match reconciliation", "10 investigations a month", "1 owner and 1 AR seat", "30-day audit log"] },
   { name: "Team", tag: "Most popular", tagCls: "bg-lime", price: 39, blurb: "For teams that want matching, investigations and follow-ups in one place.", cta: "Get started", variant: "lime" as const, featured: true, items: ["Everything in Starter", "Gmail and QuickBooks Online", "Unlimited investigations", "Collections drafts with approvals", "Disputes and refund records", "Reports and scheduled exports", "Unlimited audit log"] },
-  { name: "Business", tag: "Custom", tagCls: "bg-foreground text-white", price: null, blurb: "For multi-entity firms that need control, review and support.", cta: "Contact sales", variant: "default" as const, items: ["Everything in Team", "Multi-entity workspaces", "SSO and SCIM (planned)", "Data residency options", "Named support contact", "Security review and DPA"] },
+  { name: "Business", tag: "For firms", tagCls: "bg-foreground text-white", price: null, blurb: "For multi-entity firms that need control, review and support.", cta: "Contact sales", variant: "default" as const, items: ["Everything in Team", "Multi-entity workspaces", "SSO and SCIM (planned)", "Data residency options", "Named support contact", "Security review and DPA"] },
 ]
 const COMPARE: [string, [string, string | boolean, string | boolean, string | boolean][]][] = [
   ["Reconciliation", [["Exact-match auto-allocation", true, true, true], ["Suggested matches with reasons", true, true, true], ["Lump-sum payments across invoices", false, true, true], ["Duplicate and overpayment flags", true, true, true]]],
@@ -42,13 +42,13 @@ export function Pricing() {
       </section>
 
       <section className={`${wrap} pt-10`}>
-        <div className="grid gap-3 lg:grid-cols-3 lg:items-start">
+        <div className="grid gap-9 lg:grid-cols-3 lg:items-start lg:gap-3">
           {TIERS.map((t, i) => (
             <Reveal key={t.name} delay={i * 80}>
               <div className={cn("relative rounded-xl border-[0.8px] bg-white p-6", t.featured ? "border-lime shadow-[0_0_0_1px_#f9a8d4]" : "border-border")}>
                 <span className={cn("absolute -top-3 left-6 rounded-md px-2.5 py-0.5 text-xs", t.tagCls)}>{t.tag}</span>
-                <h2 className="text-d4">{t.name}</h2>
-                <div className="mt-1 flex items-baseline gap-1 text-2xl tracking-[-0.01em]">
+                <h2 className="pt-1 text-d4">{t.name}</h2>
+                <div className="mt-2 flex items-baseline gap-1 text-2xl tracking-[-0.01em]">
                   {t.price === null ? "Custom" : <><span>$</span><Odometer value={String(annual ? Math.round(t.price * 0.8) : t.price)} /><span className="text-base text-hushed">/mo/user</span></>}
                 </div>
                 <p className="mt-1 h-5 text-sm text-hushed">{t.price ? (annual ? "Billed annually. Plus a platform fee." : "Plus a platform fee.") : "Annual billing"}</p>

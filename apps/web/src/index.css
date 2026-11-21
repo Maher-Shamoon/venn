@@ -157,10 +157,9 @@
 
 @keyframes marquee-rev { from { transform: translateX(-50%); } to { transform: translateX(0); } }
 
-.voices:hover .vrow, .voices:focus-within .vrow { animation-play-state: paused !important; }
+.vrow:has(figure:hover), .vrow:has(figure:focus-visible) { animation-play-state: paused !important; }
 .voices figure { transition-property: transform, border-color, box-shadow, opacity; }
-.voices:hover figure, .voices:focus-within figure { opacity: .5; }
-.voices figure:hover, .voices figure:focus-visible { opacity: 1; }
+.vrow:has(figure:hover) figure:not(:hover), .vrow:has(figure:focus-visible) figure:not(:focus-visible) { opacity: .55; }
 
 /* Table cells that hold record numbers must not break in the middle (INV-1037 stays on one line). */
 table .font-mono { white-space: nowrap; }

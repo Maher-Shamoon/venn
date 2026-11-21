@@ -260,26 +260,26 @@ const V: [string, string, string, string][] = [
   ["I can answer a customer's 'we already paid' in one click, with proof either way.", "Aisha Karim", "Collections lead", "Lumen Advisory"],
   ["Approvals feel safe. The owner sees the evidence, not a summary of it.", "Jonas Weber", "Managing partner", "Saffron Studio"],
 ]
-const TILES = ["#fce7f3", "#f4f2f0", "#fbcfe8", "#efece8", "#fdf2f8", "#e4ebf6"]
-function VoiceRow({ items, rev, dur }: { items: typeof V; rev?: boolean; dur: string }) {
-  const set = (k: string) => <div key={k} className="flex shrink-0 gap-3 pr-3" inert={k === "b"}>{items.map(([q, n, r, co], i) => (
-    <figure key={n} tabIndex={0} className="flex h-[212px] w-[320px] shrink-0 flex-col rounded-xl border-[0.8px] border-border bg-white p-5 outline-none transition-all duration-300 ease-[var(--ease-out-soft)] hover:-translate-y-1.5 hover:border-black/25 hover:shadow-[0_22px_44px_-26px_rgba(12,10,8,.45)] focus-visible:-translate-y-1.5 focus-visible:border-black/40 focus-visible:ring-2 focus-visible:ring-[#f472b6] sm:w-[400px]">
-      <figcaption className="flex items-center gap-3">
-        <span className="flex size-11 items-center justify-center rounded-lg text-sm" style={{ background: TILES[(i + (rev ? 3 : 0)) % TILES.length] }}>{co.split(/[ &]+/).filter(Boolean).slice(0, 2).map((x) => x[0]).join("")}</span>
-        <span className="min-w-0"><span className="block truncate text-base leading-5">{n}</span><span className="block truncate text-sm text-hushed">{r}, {co}</span></span>
+const Stars = () => <span className="flex gap-0.5 text-[#f59e0b]" role="img" aria-label="5 out of 5 stars">{[0, 1, 2, 3, 4].map((i) => <svg key={i} viewBox="0 0 20 20" className="size-4" fill="currentColor" aria-hidden="true"><path d="m10 1.5 2.5 5.4 5.9.7-4.3 4 1.2 5.8L10 14.5l-5.3 2.9 1.2-5.8-4.3-4 5.9-.7z" /></svg>)}</span>
+function VoiceRow({ items, rev, dur, from }: { items: typeof V; rev?: boolean; dur: string; from: number }) {
+  const set = (k: string) => <div key={k} className="flex shrink-0 gap-3 pr-3" aria-hidden={k === "b" || undefined}>{items.map(([q, n, r, co], i) => (
+    <figure key={n} tabIndex={k === "b" ? -1 : 0} className="flex w-[264px] shrink-0 flex-col justify-between gap-4 rounded-xl border-[0.8px] border-border bg-white p-4 outline-none transition-all duration-300 ease-[var(--ease-out-soft)] hover:-translate-y-1 hover:border-black/25 hover:shadow-[0_18px_36px_-22px_rgba(12,10,8,.45)] focus-visible:-translate-y-1 focus-visible:border-black/40 focus-visible:ring-2 focus-visible:ring-[#f472b6] sm:w-[300px]">
+      <div><Stars /><blockquote className="mt-2.5 text-sm leading-5 text-black/80">{q}</blockquote></div>
+      <figcaption className="flex items-center gap-2.5">
+        <img src={`/people/${from + i}.jpg`} alt="" width={36} height={36} loading="lazy" decoding="async" className="size-9 shrink-0 rounded-full object-cover" />
+        <span className="min-w-0"><span className="block truncate text-sm leading-4">{n}</span><span className="block truncate text-xs leading-4 text-hushed">{r}, {co}</span></span>
       </figcaption>
-      <blockquote className="mt-4 text-base leading-6 text-black/80">{q}</blockquote>
     </figure>))}</div>
   return <div className="vrow flex w-max" style={{ animation: `${rev ? "marquee-rev" : "marquee"} ${dur} linear infinite` }}>{set("a")}{set("b")}</div>
 }
 export function Voices() {
   return (
     <section className="voices overflow-hidden pb-[var(--sec)]" aria-label="Customer voices">
-      <div className={wrap}><Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="Loved by finance teams." rest="In their words." /></h2></Reveal></div>
+      <div className={wrap}><Reveal><h2 className="max-w-[760px] tracking-[-0.01em] text-d2"><TwoTone lead="Loved by finance teams." rest="In their words." /></h2><p className="mt-2 text-sm text-hushed">Illustrative quotes and portraits, shown until real customers are published.</p></Reveal></div>
       <div className="mt-[var(--gap)] space-y-3 py-2 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
-        <VoiceRow items={V.slice(0, 4)} dur="90s" />
-        <VoiceRow items={V.slice(4, 8)} rev dur="100s" />
-        <VoiceRow items={V.slice(8, 12)} dur="95s" />
+        <VoiceRow items={V.slice(0, 4)} dur="90s" from={1} />
+        <VoiceRow items={V.slice(4, 8)} rev dur="100s" from={5} />
+        <VoiceRow items={V.slice(8, 12)} dur="95s" from={9} />
       </div>
     </section>
   )

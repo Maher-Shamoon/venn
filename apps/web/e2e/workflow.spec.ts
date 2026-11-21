@@ -14,6 +14,7 @@ test("collections draft from records and are marked sent; a dispute pauses them;
   await expect(page.getByRole("heading", { name: /saved$/ })).toBeVisible()
 
   await page.goto("/app/collections")
+  await page.getByLabel("Search table").fill(cust)
   await page.getByRole("row", { name: new RegExp(cust) }).click({ timeout: 60_000 })
   await expect(page.getByRole("heading", { name: cust })).toBeVisible()
   await page.getByRole("button", { name: "Draft from records" }).click()

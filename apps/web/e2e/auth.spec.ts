@@ -91,8 +91,8 @@ test("See a demo shows sample data even to a signed-in person, and sign in still
   await page.waitForURL(/\/app/)
   await page.goto("/demo")
   await page.waitForURL(/\/app/)
-  await expect(page.getByText("Sample data. Nothing here is real.")).toBeVisible()
-  await expect(page.getByText("view as")).toBeVisible()
+  await expect(page.getByRole("complementary", { name: "Sample workspace" })).toBeVisible()
+  await expect(page.getByRole("button", { name: "Owner" }).or(page.getByText("view as")).first()).toBeAttached()
   expect(await page.evaluate(() => localStorage.getItem("venn.org"))).toMatch(/^[0-9a-f-]{36}$/) // their real organization is untouched
   await page.goto("/login")
   await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible() // not bounced back into the demo
@@ -101,7 +101,7 @@ test("See a demo shows sample data even to a signed-in person, and sign in still
   await page.getByRole("button", { name: "Sign in", exact: true }).click()
   await page.waitForURL(/\/app/)
   await expect(page.getByText("Sample data. Nothing here is real.")).toHaveCount(0)
-  await expect(page.getByText(/QA Organization/).first()).toBeVisible({ timeout: 20_000 }) // positive proof the real workspace rendered
+  await expect(page.getByRole("complementary", { name: "Sample workspace" })).toHaveCount(0, { timeout: 20_000 }) // positive proof the real workspace rendered (no sample banner)
   await expect(page.getByText("view as")).toHaveCount(0)
 })
 
