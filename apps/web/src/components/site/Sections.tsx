@@ -143,9 +143,9 @@ export function Systems() {
     return () => { window.removeEventListener("scroll", on); window.removeEventListener("resize", on) }
   }, [])
   return (
-    <section ref={ref} className={pin ? "relative h-[320vh]" : "relative py-[var(--sec)]"} aria-label="Systems that never spoke">
-      <div className={pin ? "sticky top-[calc(4rem+var(--bar))] flex h-[calc(100svh-4rem-var(--bar))] items-center" : "flex items-center"}>
-        <div className={`${wrap} grid w-full items-center gap-10 lg:grid-cols-[1fr_1.1fr]`}>
+    <section ref={ref} className={pin ? "relative -mt-[clamp(1.5rem,6vh,4rem)] h-[320vh]" : "relative pb-[var(--sec)]"} aria-label="Systems that never spoke">
+      <div className={pin ? "sticky top-[calc(4rem+var(--bar))] flex h-[calc(100svh-4rem-var(--bar))] items-start pt-[clamp(1.5rem,6vh,4rem)]" : "flex items-center"}>
+        <div className={`${wrap} grid w-full items-start gap-10 lg:grid-cols-[1fr_1.1fr]`}>
           <div>
             <h2 className="tracking-[-0.015em] text-d2">Systems that never spoke.</h2>
             <p className="mt-4 max-w-[460px] text-lg text-hushed">Five places to explain one short payment.</p>

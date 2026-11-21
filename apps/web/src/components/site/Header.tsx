@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useLocation } from "react-router-dom"
 import { Link } from "react-router-dom"
 import { ArrowRight, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -34,6 +35,10 @@ function Grid({ items, cols = 2, feature }: { items: NavItem[]; cols?: 1 | 2; fe
 }
 
 export function SiteHeader() {
+  const { pathname } = useLocation()
+  const [menu, setMenu] = useState<string | null>(null), [sheet, setSheet] = useState(false)
+  // Every dropdown and the phone menu close as soon as a choice takes you somewhere.
+  useEffect(() => { setMenu(null); setSheet(false) }, [pathname])
   const [bar, setBar] = useState(true)
   useEffect(() => { document.documentElement.style.setProperty("--bar", bar ? "40px" : "0px") }, [bar])
   const [scrolled, setScrolled] = useState(false)
@@ -61,10 +66,10 @@ export function SiteHeader() {
         <div aria-hidden="true" className={cn("absolute inset-0 border-b-[0.8px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300", scrolled ? "border-[rgba(33,33,33,.08)] bg-white/50 shadow-[inset_0_-1px_0_rgba(255,255,255,.7),0_10px_30px_-12px_rgba(12,10,8,.08)] backdrop-blur-[25px] backdrop-saturate-[1.8]" : "border-[rgba(33,33,33,.05)] bg-transparent")} />
         <div className="relative mx-auto flex h-full max-w-[clamp(1280px,82vw,1600px)] items-center gap-2 px-[clamp(1.25rem,3.2vw,3rem)]">
           <Link to="/" aria-label="venn home" className="mr-6 text-foreground"><Logo size={28} /></Link>
-          <NavigationMenu className="hidden lg:flex">
+          <NavigationMenu className="hidden lg:flex" value={menu} onValueChange={(v) => setMenu((v as string | null) ?? null)}>
             <NavigationMenuList className="gap-0">
               {menus.map(([label, items, feature]) => (
-                <NavigationMenuItem key={label}>
+                <NavigationMenuItem key={label} value={label}>
                   <NavigationMenuTrigger className={trigger}>{label}</NavigationMenuTrigger>
                   <NavigationMenuContent><Grid items={items} cols={feature ? 2 : 1} feature={feature} /></NavigationMenuContent>
                 </NavigationMenuItem>
@@ -78,7 +83,7 @@ export function SiteHeader() {
             <Link to="/login" className="mr-2 hidden rounded-md px-3 py-2 text-sm text-foreground transition-colors duration-[240ms] hover:bg-black/[.04] sm:inline">Sign in</Link>
             <Button variant="lime" render={<Link to="/demo" />} className="hidden sm:inline-flex">See a demo</Button>
             <Button render={<Link to="/signup" />}>Get started</Button>
-            <Sheet>
+            <Sheet open={sheet} onOpenChange={setSheet}>
               <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open menu" className="lg:hidden" />}><Menu className="size-5" /></SheetTrigger>
               <SheetContent side="right" className="w-[320px] overflow-y-auto">
                 <SheetTitle className="sr-only">Menu</SheetTitle>

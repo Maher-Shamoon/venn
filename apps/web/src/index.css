@@ -166,7 +166,7 @@
 table .font-mono { white-space: nowrap; }
 
 /* A very narrow screen may break a long word instead of pushing the page wider. */
-h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
+h1, h2, h3 { overflow-wrap: break-word; hyphens: none; } /* whole words: a word only breaks if it cannot fit a line by itself */
 
 
 /* Android Chrome inflates text in wide blocks unless told not to */
@@ -176,14 +176,16 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; -webkit-tap-highl
    Root size grows from 16px on phones to 18px on a full-HD screen, so every rem size and spacing grows with it.
    Display sizes interpolate between a floor that stays readable on a phone and a cap that stops them swelling on very wide screens. */
 html { font-size: clamp(16px, 15.54px + 0.128vw, 18px); }
-@utility text-d1 { font-size: clamp(42px, 30.4px + 3.05vw, 84px); line-height: 1.04; }
-@utility text-d2 { font-size: clamp(36px, 26px + 2.2vw, 60px); line-height: 1.08; }
-@utility text-d3 { font-size: clamp(28px, 22px + 1.1vw, 40px); line-height: 1.15; }
+@utility text-d1 { font-size: clamp(40px, 29px + 2.9vw, 76px); line-height: 1.04; }
+@utility text-d2 { font-size: clamp(24px, 20px + 1vw, 34px); line-height: 1.15; }
+@utility text-d3 { font-size: clamp(20px, 18px + 0.6vw, 26px); line-height: 1.2; }
 
 /* a heading that receives focus after navigation is announced, not outlined */
 h1[tabindex="-1"]:focus, h1[tabindex="-1"]:focus-visible { outline: none; box-shadow: none; }
-@utility text-d4 { font-size: clamp(19px, 17px + 0.45vw, 26px); line-height: 1.2; }
+@utility text-d4 { font-size: clamp(17px, 16px + 0.25vw, 20px); line-height: 1.25; }
 
 /* one vertical rhythm for the marketing pages: the space between sections follows the screen, the same everywhere */
 :root { --sec: clamp(4rem, 2.6rem + 4.4vw, 7.5rem); }
 :root { --gap: clamp(2rem, 1.4rem + 1.9vw, 3.5rem); } /* from a section heading to its content */
+@utility text-d1s { font-size: clamp(32px, 25px + 1.9vw, 52px); line-height: 1.08; } /* the title of an inner page */
+@utility text-title { font-size: clamp(24px, 20.5px + 0.9vw, 30px); line-height: 1.15; } /* a screen's own title inside the app and the sign-in pages */

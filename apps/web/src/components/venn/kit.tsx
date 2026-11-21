@@ -55,11 +55,17 @@ export function useTicker(start: number, min: number, max: number, ms = 1400) {
   return v
 }
 
+/** A hyphenated word ("read-only") stays on one line: a line never ends half way through it. */
+function wholeWords(t: ReactNode): ReactNode {
+  if (typeof t !== "string") return t
+  return t.split(" ").flatMap((w, i) => [i ? " " : "", /w-w/.test(w) ? <span key={i} className="whitespace-nowrap">{w}</span> : w])
+}
+
 /** Two-tone headline used throughout: black lead, grey continuation. */
 export function TwoTone({ lead, rest, className }: { lead: ReactNode; rest: ReactNode; className?: string }) {
   return (
     <span className={className}>
-      <span className="text-foreground">{lead}</span> <span className="text-hushed">{rest}</span>
+      <span className="text-foreground">{wholeWords(lead)}</span> <span className="text-hushed">{wholeWords(rest)}</span>
     </span>
   )
 }

@@ -34,7 +34,7 @@ export function Pricing() {
   return (
     <main id="main" tabIndex={-1} className="outline-none">
       <section className={`${wrap} pt-14 text-center md:pt-20`}>
-        <h1 className="mx-auto max-w-[900px] tracking-[-0.02em] text-d1">Start free.<br />Scale with evidence.</h1>
+        <h1 className="mx-auto max-w-[900px] tracking-[-0.02em] text-d1s">Start free.<br />Scale with evidence.</h1>
         <p className="mx-auto mt-4 max-w-[600px] text-lg text-hushed sm:text-xl sm:leading-8">Whether you run a one-person desk or a multi-entity finance team, venn is built to explain every dollar.</p>
         <div className="mt-8 inline-flex rounded-full bg-muted p-1" role="group" aria-label="Billing period">
           {[["Monthly", false], ["Annual · save 20%", true]].map(([l, v]) => <button key={l as string} aria-pressed={annual === v} onClick={() => setAnnual(v as boolean)} className={cn("rounded-full px-4 py-2 text-sm transition-colors duration-300", annual === v ? "bg-foreground text-white" : "text-hushed hover:text-foreground")}>{l as string}</button>)}

@@ -22,19 +22,19 @@ const IND: { Ic: LucideIcon; n: string; d: string; rows: [string, string][]; ton
 function Industries() {
   const [a, setA] = useState(0)
   return (
-    <div className="mt-12 flex flex-col gap-3 md:h-[400px] md:flex-row">
+    <div className="mt-12 flex flex-col gap-3 xl:h-[400px] xl:flex-row">
       {IND.map(({ Ic, n, d, rows, tone }, k) => {
         const on = a === k
         return (
           <button key={n} type="button" aria-expanded={on} onMouseEnter={() => setA(k)} onFocus={() => setA(k)} onClick={() => setA(k)} style={{ background: tone }}
-            className={cn("group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border-[0.8px] border-border p-6 text-left transition-[flex-grow,box-shadow] duration-700 ease-[var(--ease-out-soft)] md:basis-0", on ? "md:grow-[3.6] md:shadow-[0_24px_50px_-30px_rgba(12,10,8,.45)]" : "md:grow-[1]")}>
+            className={cn("group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border-[0.8px] border-border p-6 text-left xl:p-5 transition-[flex-grow,box-shadow] duration-700 ease-[var(--ease-out-soft)] xl:basis-0", on ? "xl:grow-[3.6] xl:shadow-[0_24px_50px_-30px_rgba(12,10,8,.45)]" : "xl:grow-[1]")}>
             <span className="flex size-11 items-center justify-center rounded-lg bg-white transition-transform duration-500 group-hover:-rotate-6"><Ic className="size-5" strokeWidth={1.5} /></span>
-            <h3 className="mt-5 text-lg leading-6 tracking-[-0.01em]">{n}</h3>
-            <div className={cn("mt-auto pt-6 transition-all duration-500 md:w-[360px]", on ? "opacity-100 md:delay-200" : "md:translate-y-6 md:opacity-0")}>
+            <h3 className="mt-5 text-lg leading-6 tracking-[-0.01em] xl:text-base">{n}</h3>
+            <div className={cn("mt-auto pt-6 transition-all duration-500 xl:w-[360px]", on ? "opacity-100 xl:delay-200" : "xl:translate-y-6 xl:opacity-0")}>
               <p className="text-base">{d}</p>
               <div className="mt-4 space-y-1.5">
                 {rows.map(([l, v], i) => (
-                  <div key={l} style={{ transitionDelay: on ? `${250 + i * 90}ms` : "0ms" }} className={cn("flex items-center justify-between rounded-lg bg-white/90 px-3 py-2 text-sm transition-all duration-500", on ? "translate-y-0 opacity-100" : "md:translate-y-5 md:opacity-0")}>
+                  <div key={l} style={{ transitionDelay: on ? `${250 + i * 90}ms` : "0ms" }} className={cn("flex items-center justify-between rounded-lg bg-white/90 px-3 py-2 text-sm transition-all duration-500", on ? "translate-y-0 opacity-100" : "xl:translate-y-5 xl:opacity-0")}>
                     <span className="truncate">{l}</span><span className="ml-3 font-mono text-xs">{v}</span>
                   </div>))}
               </div>

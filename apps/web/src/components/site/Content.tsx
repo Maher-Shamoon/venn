@@ -27,13 +27,13 @@ export function Window({ title, rows, className }: { title: string; rows: Row[];
 export function Content() {
   const { slug = "" } = useParams()
   const p = PAGES[slug]
-  if (!p) return <div className={`${wrap} py-32`}><h1 className="text-d1">Page not found.</h1><Link to="/" className="mt-4 inline-block underline">Back home</Link></div>
+  if (!p) return <div className={`${wrap} py-32`}><h1 className="text-d1s">Page not found.</h1><Link to="/" className="mt-4 inline-block underline">Back home</Link></div>
   const others = PLATFORM.filter((i) => !i.to.endsWith(slug))
   return (
     <main id="main" tabIndex={-1} className="outline-none">
       <section className={`${wrap} pb-6 pt-12 md:pt-16`}>
         <p className="font-mono text-[0.75rem] uppercase tracking-[0.02em] text-hushed">{p.kicker}</p>
-        <h1 className="mt-4 max-w-[980px] tracking-[-0.02em] text-d1"><TwoTone lead={p.lead} rest={p.rest} /></h1>
+        <h1 className="mt-4 max-w-[980px] tracking-[-0.02em] text-d1s"><TwoTone lead={p.lead} rest={p.rest} /></h1>
         <p className="mt-4 max-w-[680px] text-lg text-hushed sm:text-xl sm:leading-8">{p.sub}</p>
         <div className="mt-8 flex flex-wrap gap-2"><Button variant="lime" size="lg" render={<Link to="/demo" />}>Open the demo</Button><Button variant="outline" size="lg" render={<Link to="/pricing" />}>See pricing</Button></div>
         <div className="dotgrid relative mt-10 flex min-h-[380px] items-end justify-center overflow-hidden rounded-2xl border border-border bg-muted px-5 pt-14 sm:px-12 md:min-h-[460px]">

@@ -199,3 +199,28 @@ test("screen reader: status messages and toasts are announced, motion respects t
   const live = await page.evaluate(() => [...document.querySelectorAll("[aria-live],[role=status],[role=alert],section[aria-label*='otification' i]")].length)
   expect(live, "the page has a live region for announcements (toasts)").toBeGreaterThan(0)
 })
+
+test("menus close by themselves when a choice takes you somewhere, on a laptop and on a phone", async ({ page }) => {
+  test.setTimeout(120_000)
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto("/"); await expect(page.locator("h1").first()).toBeVisible(); await settle(page)
+  for (const name of [/platform/i, /teams/i, /trust/i]) {
+    await page.goto("/"); await expect(page.locator("h1").first()).toBeVisible()
+    const trigger = page.getByRole("button", { name }).first()
+    await trigger.click()
+    await expect(trigger).toHaveAttribute("aria-expanded", "true")
+    const from = page.url()
+    await page.locator("[data-slot=navigation-menu-content] a").first().click()
+    await expect.poll(() => page.url(), `${name} link navigates`).not.toBe(from)
+    await expect(trigger, `${name} menu closes after the click`).toHaveAttribute("aria-expanded", "false")
+    await expect(page.locator("[data-slot=navigation-menu-content]:visible"), "no menu panel is left open").toHaveCount(0)
+  }
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto("/"); await expect(page.locator("h1").first()).toBeVisible()
+  await page.getByRole("button", { name: "Open menu" }).click()
+  const sheet = page.getByRole("dialog")
+  await expect(sheet).toBeVisible()
+  await sheet.getByRole("link", { name: "Pricing" }).click()
+  await expect(page).toHaveURL(/\/pricing/)
+  await expect(sheet, "the phone menu closes after the click").toBeHidden()
+})
